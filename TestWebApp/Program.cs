@@ -1,10 +1,19 @@
+using System.Reflection;
+using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI;
 using Microsoft.EntityFrameworkCore;
-using TestWebApp.Data;
-using TestWebApp.Domain;
-using TestWebApp.Domain.Model;
+using Microsoft.OpenApi.Models;
+using TestWebApp.Core.Database;
+using TestWebApp.Core.Domain;
+using TestWebApp.Core.Domain.Stocks;
+using TestWebApp.Core.Domain.Stocks.Bot;
+using TestWebApp.Core.Domain.Stocks.Bot.Execution;
+using TestWebApp.Core.Domain.User;
+using TestWebApp.Core.Domain.Stocks.Client;
+using TestWebApp.Core.Domain.Stocks.Data;
+using TestWebApp.Core.Domain.Stocks.Ordering;
+using TestWebApp.Core.External.Alpaca;
+using TestWebApp.Core.External.Coinbase;
 
 const string CONNECTION_STRING = "DefaultConnection";   // see appsettings.json
 
@@ -13,7 +22,7 @@ void ConfigureDatabase(WebApplicationBuilder builder)
     var dbConnectionString = builder.Configuration.GetConnectionString(CONNECTION_STRING) 
                              ?? throw new InvalidOperationException($"Connection string '{CONNECTION_STRING}' not found.");
     
-    builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlite(dbConnectionString));
+    builder.Services.AddDbContext<AppDb>(options => options.UseSqlite(dbConnectionString));
     builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 }
 
@@ -22,10 +31,10 @@ void ConfigureIdentities(WebApplicationBuilder builder)
     builder.Services.AddDefaultIdentity<User>(options => 
             options.SignIn.RequireConfirmedAccount = true  // TODO - huh?
         )
-        .AddEntityFrameworkStores<ApplicationDbContext>();
+        .AddEntityFrameworkStores<AppDb>();
 
     builder.Services.AddIdentityServer()
-        .AddApiAuthorization<User, ApplicationDbContext>();
+        .AddApiAuthorization<User, AppDb>();
 
     builder.Services.AddAuthentication()
         .AddIdentityServerJwt();
@@ -35,16 +44,42 @@ var builder = WebApplication.CreateBuilder(args);
 ConfigureDatabase(builder);
 ConfigureIdentities(builder);
 
-builder.Services.AddControllersWithViews();
+builder.Services.AddControllersWithViews()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+    });
 builder.Services.AddRazorPages();
-builder.Services.AddSingleton<TradeService>();
-builder.Services.AddSingleton<AlpacaClient>();
+builder.Services.AddScoped<OrderService>();
+builder.Services.AddSingleton<MarketDataService>();
+builder.Services.AddSingleton<IStockClient, StockClientAlpaca>();
+builder.Services.AddSingleton<IAlpacaClient, AlpacaClientPaper>();
+builder.Services.AddSingleton<CoinbaseClient>();
+// builder.Services.AddSingleton<IHostedService, BotExecutor2>(_ => new BotExecutor2(new StockBot("Alpha")));
+builder.Services.AddSingleton<BotExecutor>(_ => new BotExecutor(4));
+builder.Services.AddSingleton<IHostedService, BotExecutor>(
+    serviceProvider => serviceProvider.GetService<BotExecutor>()!);
+// builder.Services.AddSingleton<IHostedService, BotExecutor>(_ => new BotExecutor("BotExecutor2"));
+builder.Services.AddSwaggerGen(options =>
+{
+    options.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Version = "v1",
+        Title = "Title",
+        Description = "Description",
+    });
+
+    var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
+});
 
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
+    app.UseSwagger();
+    app.UseSwaggerUI();
     app.UseMigrationsEndPoint();
 }
 else
