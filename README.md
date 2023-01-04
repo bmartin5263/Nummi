@@ -11,3 +11,7 @@ Cryptocurrency Trading Bots
 `/Core/Database` - Database related functionality
 
 `/Core/Domain` - Functionality related to the Trading domain
+
+`/Core/External` - Integration clients for 3rd Party systems
+
+`/Core/Util` - Common utility functions not related to business domain
