@@ -1,0 +1,2 @@
+# Nummi
+Cryptocurrency Trading Bots
