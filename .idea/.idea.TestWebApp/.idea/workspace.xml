@@ -4,8 +4,8 @@
     <projectFile profileName="TestWebApp">TestWebApp/TestWebApp.csproj</projectFile>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8ebad57b-775b-42f1-a6de-ca9374c46236" name="Changes" comment="Add coinbase client, bot stuff">
-      <change beforePath="$PROJECT_DIR$/TestWebApp/TestWebApp.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/TestWebApp/TestWebApp.csproj" afterDir="false" />
+    <list default="true" id="8ebad57b-775b-42f1-a6de-ca9374c46236" name="Changes" comment="Rename project">
+      <change beforePath="$PROJECT_DIR$/.idea/.idea.TestWebApp/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.TestWebApp/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -106,15 +106,22 @@
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/f9daeeaab8409865442b5e80e634dc64dae9a14892fe81e0f17b46f51b2c48f8/DbSet.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/fbb8879a1834adb8a39cdc87a417e12526a3415e47d27cb53388c5073d262/IHistoricalRequest.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/fede62381ec7bd5bd19643732059b64b5336bf98e0c1643f64775c77b1fdbed9/Guid.Unix.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/TestWebApp/ClientApp/package-lock.json" root0="SKIP_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/TestWebApp/Core/Database/AppDb.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Nummi/ClientApp/package-lock.json" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Nummi/Core/Database/AppDb.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Nummi/Core/Domain/Stocks/Data/MarketDataService.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Nummi/Core/External/Alpaca/AlpacaClient.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Nummi/Core/External/Alpaca/AlpacaClientPaper.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Nummi/Core/External/Coinbase/CoinbaseClient.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Nummi/Program.cs" root0="FORCE_HIGHLIGHTING" />
   </component>
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
   </component>
   <component name="MetaFilesCheckinStateConfiguration" checkMetaFiles="true" />
   <component name="ProjectId" id="2J7BLyLTFgFCZBL4Tz08xIaB4Pz" />
-  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true">
+    <OptionsSetting value="false" id="Update" />
+  </component>
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
@@ -169,7 +176,7 @@
       <workItem from="1671945061796" duration="34491000" />
       <workItem from="1672256612210" duration="25733000" />
       <workItem from="1672856391027" duration="192000" />
-      <workItem from="1672856610325" duration="341000" />
+      <workItem from="1672856610325" duration="1242000" />
     </task>
     <task id="LOCAL-00001" summary="initial commit">
       <created>1671831132835</created>
@@ -185,7 +192,14 @@
       <option name="project" value="LOCAL" />
       <updated>1672856658669</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="Rename project">
+      <created>1672857085257</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1672857085257</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -208,20 +222,21 @@
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
     <MESSAGE value="initial commit" />
     <MESSAGE value="Add coinbase client, bot stuff" />
-    <option name="LAST_COMMIT_MESSAGE" value="Add coinbase client, bot stuff" />
+    <MESSAGE value="Rename project" />
+    <option name="LAST_COMMIT_MESSAGE" value="Rename project" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
       <breakpoints>
         <line-breakpoint enabled="true" type="DotNet Breakpoints">
-          <url>file://$PROJECT_DIR$/TestWebApp/Core/Database/Extensions.cs</url>
+          <url>file://$PROJECT_DIR$/Nummi/Core/Database/Extensions.cs</url>
           <line>11</line>
           <properties documentPath="$PROJECT_DIR$/TestWebApp/Core/Database/Extensions.cs" initialLine="9" containingFunctionPresentation="method 'FindById'">
             <startOffsets>
-              <option value="352" />
+              <option value="342" />
             </startOffsets>
             <endOffsets>
-              <option value="368" />
+              <option value="358" />
             </endOffsets>
           </properties>
           <option name="timeStamp" value="8" />
