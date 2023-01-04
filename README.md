@@ -1,5 +1,5 @@
-# Nummi
-Cryptocurrency Trading Bots
+# Nummi - Cryptocurrency Trading Bots
+> Nummus (plural: nummi), a Latin term meaning "coin"
 
 ## Project Structure
 `/Api` - Defines REST Endpoints to interact with system
