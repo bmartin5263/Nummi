@@ -2,6 +2,8 @@
 Cryptocurrency Trading Bots
 
 ## Project Structure
+`/Api` - Defines REST Endpoints to interact with system
+
 `/ClientApp` - React Frontend Application
 
 `/Core` - Root Folder for Backend Implementation
