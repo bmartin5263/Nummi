@@ -4,19 +4,40 @@ namespace Nummi.Core.Domain.Stocks.Bot.Execution;
 
 public class BotExecutor : BackgroundService {
     
-    public uint Threads { get; }
+    private IServiceProvider ServiceProvider { get; }
+    private uint NumThreads { get; }
+    private BotThread[] Threads { get; }
 
-    public BotExecutor(uint threads) {
-        Threads = threads;
+    public BotExecutor(IServiceProvider serviceProvider, uint numThreads) {
+        ServiceProvider = serviceProvider;
+        NumThreads = numThreads;
+        Threads = new BotThread[numThreads];
     }
 
     protected override Task ExecuteAsync(CancellationToken stoppingToken) {
         List<Task> tasks = new List<Task>();
-        for (uint i = 0; i < Threads; ++i) {
+        for (uint i = 0; i < NumThreads; ++i) {
+            Threads[i] = new BotThread(i, ServiceProvider, stoppingToken);
             var id = i;
-            tasks.Add(Task.Run(() => new BotThread(id, stoppingToken).MainLoop(), stoppingToken));
+            tasks.Add(Task.Run(() => Threads[id].MainLoop(), stoppingToken));
         }
-        return Task.WhenAll(tasks);
+        return Task.CompletedTask;
     }
 
+    public BotThread GetThread(uint id) {
+        if (id >= NumThreads) {
+            throw new ArgumentException($"No thread with id {id}");
+        }
+        return Threads[id];
+    }
+
+    public BotThreadsOverview GetOverview() {
+        return new BotThreadsOverview(
+            NumThreads,
+            Threads.Select(t => new BotThreadDetail(
+                t.Id,
+                t.BotId?.ToString()
+            )).ToList()
+        );
+    }
 }

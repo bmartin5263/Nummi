@@ -1,12 +1,10 @@
 ﻿using Coinbase.Models;
 using Microsoft.AspNetCore.Mvc;
 using Nummi.Api.Model;
-using Nummi.Core.Database;
-using Nummi.Core.Domain.Stocks.Bot.Execution;
 using Nummi.Core.Domain.Stocks.Data;
 using Nummi.Core.Domain.Stocks.Ordering;
-using Nummi.Core.External.Alpaca;
 using Nummi.Core.External.Coinbase;
+using Nummi.Core.Util;
 using YahooFinanceClient.Models;
 
 namespace Nummi.Api.Controllers;
@@ -16,28 +14,19 @@ namespace Nummi.Api.Controllers;
 public class StockController : ControllerBase {
 
     private readonly ILogger<StockController> logger;
-    private readonly IAlpacaClient alpacaClient;
     private readonly OrderService orderService;
     private readonly MarketDataService marketDataService;
-    private readonly AppDb appDb;
-    private readonly BotExecutor botExecutor;
     private readonly CoinbaseClient coinbaseClient;
 
     public StockController(
-        ILogger<StockController> logger, 
-        IAlpacaClient alpacaClient,
+        ILogger<StockController> logger,
         OrderService orderService,
         MarketDataService marketDataService, 
-        AppDb appDb,
-        BotExecutor botExecutor, 
         CoinbaseClient coinbaseClient
     ) {
         this.logger = logger;
-        this.alpacaClient = alpacaClient;
         this.orderService = orderService;
         this.marketDataService = marketDataService;
-        this.appDb = appDb;
-        this.botExecutor = botExecutor;
         this.coinbaseClient = coinbaseClient;
     }
 
@@ -50,7 +39,7 @@ public class StockController : ControllerBase {
 
     [HttpGet]
     [Route("crypto/{symbol}")]
-    public async Task<Response<Money>> GetCryptoSnapshot(string symbol) {
+    public async Task<Coinbase.Models.Response<Money>> GetCryptoSnapshot(string symbol) {
         return await coinbaseClient.GetSpotPriceAsync("ETH-USD");
     }
 
@@ -76,23 +65,23 @@ public class StockController : ControllerBase {
     }
 
     [HttpGet]
-    [Route("{symbol}/order/{id}")]
-    public Order GetOrderById(string symbol, string id) {
-        var guid = Guid.Parse(id);
-        var order = orderService.GetOrder(guid);
-        return order;
-    }
-
-    [HttpGet]
     [Route("crash")]
     public void Crash() {
         throw new BadHttpRequestException("Bad stuff");
     }
 
-    [HttpGet]
-    [Route("executor")]
-    public uint Executor() {
-        return botExecutor.Threads;
+    [HttpPost]
+    [Route("csv")]
+    public void Csv() {
+        Console.WriteLine(Directory.GetCurrentDirectory());
+        // var stream = files[0].OpenReadStream();
+        var stream = Files.OpenStream(Resources.BitStampBtcUsd1H);
+        var records = Serializer.ReadCsv<BitstampBar>(stream);
+        var list = records.ToList();
+        list.Reverse();
+        for (int i = 0; i < 10; ++i) {
+            Console.WriteLine(list[i]);
+        }
     }
     
     //

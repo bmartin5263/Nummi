@@ -16,13 +16,6 @@ public class OrderService {
 
     public async Task<Order> PlaceOrderAsync(PlaceOrderRq request) {
         var order = await stockClient.PlaceOrderAsync(request);
-        appDb.Orders.Add(order);
-        await appDb.SaveChangesAsync();
-        return order;
-    }
-
-    public Order GetOrder(Guid id) {
-        var order = appDb.Orders.FindById(id);
         return order;
     }
 

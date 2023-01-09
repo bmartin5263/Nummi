@@ -14,6 +14,7 @@ using Nummi.Core.Domain.Stocks.Data;
 using Nummi.Core.Domain.Stocks.Ordering;
 using Nummi.Core.External.Alpaca;
 using Nummi.Core.External.Coinbase;
+using Nummi.Core.External.Cryptowatch;
 
 const string CONNECTION_STRING = "DefaultConnection";   // see appsettings.json
 
@@ -51,12 +52,14 @@ builder.Services.AddControllersWithViews()
     });
 builder.Services.AddRazorPages();
 builder.Services.AddScoped<OrderService>();
+builder.Services.AddScoped<BotService>();
 builder.Services.AddSingleton<MarketDataService>();
 builder.Services.AddSingleton<IStockClient, StockClientAlpaca>();
 builder.Services.AddSingleton<IAlpacaClient, AlpacaClientPaper>();
 builder.Services.AddSingleton<CoinbaseClient>();
+builder.Services.AddSingleton<CryptowatchClient>();
 // builder.Services.AddSingleton<IHostedService, BotExecutor2>(_ => new BotExecutor2(new StockBot("Alpha")));
-builder.Services.AddSingleton<BotExecutor>(_ => new BotExecutor(4));
+builder.Services.AddSingleton<BotExecutor>(provider => new BotExecutor(provider, 4));
 builder.Services.AddSingleton<IHostedService, BotExecutor>(
     serviceProvider => serviceProvider.GetService<BotExecutor>()!);
 // builder.Services.AddSingleton<IHostedService, BotExecutor>(_ => new BotExecutor("BotExecutor2"));

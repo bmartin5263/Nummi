@@ -1,6 +1,7 @@
 using Alpaca.Markets;
 using Nummi.Core.Domain.Stocks.Data;
 using Nummi.Core.Domain.Stocks.Ordering;
+using IBar = Alpaca.Markets.IBar;
 
 namespace Nummi.Core.Domain.Stocks.Client; 
 

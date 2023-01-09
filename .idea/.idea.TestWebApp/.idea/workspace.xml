@@ -4,8 +4,26 @@
     <projectFile profileName="TestWebApp">TestWebApp/TestWebApp.csproj</projectFile>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8ebad57b-775b-42f1-a6de-ca9374c46236" name="Changes" comment="Rename project">
+    <list default="true" id="8ebad57b-775b-42f1-a6de-ca9374c46236" name="Changes" comment="update readme">
+      <change afterPath="$PROJECT_DIR$/Nummi/Core/Domain/Stocks/Analysis/BarAnalyzer.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Nummi/Core/Domain/Stocks/Data/BitstampBar.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Nummi/Core/Domain/Stocks/Data/IBar.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Nummi/Core/External/Cryptowatch/CryptowatchClient.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Nummi/Core/External/Cryptowatch/Types.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Nummi/Core/Util/Files.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Nummi/Core/Util/Resources.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Nummi/Core/Util/Serializer.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Nummi/Resources/Bitstamp_BCHBTC_1h.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Nummi/Resources/Bitstamp_BTCUSD_1h.csv" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.TestWebApp/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.TestWebApp/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Nummi/Api/Controllers/StockController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Nummi/Api/Controllers/StockController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Nummi/Core/Database/AppDb.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Nummi/Core/Database/AppDb.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Nummi/Core/Domain/Stocks/Bot/StockBot.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Nummi/Core/Domain/Stocks/Bot/StockBot.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Nummi/Core/Domain/Stocks/Client/AlpacaMapper.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Nummi/Core/Domain/Stocks/Client/AlpacaMapper.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Nummi/Core/Domain/Stocks/Data/Bar.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Nummi/Core/Domain/Stocks/Data/Bar.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Nummi/Core/Domain/Stocks/Ordering/OrderService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Nummi/Core/Domain/Stocks/Ordering/OrderService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Nummi/Nummi.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/Nummi/Nummi.csproj" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Nummi/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Nummi/Program.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -28,6 +46,7 @@
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/1a7417ad52446dbe2519f867ed1564b3c6df9cff1dc178c285cf960e52d1d/IAccount.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/1cd194b974ec04538b4ecd74d857be388db8f9856883d7696e178df0e3f87e/IMultiPage.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/1dad7066d59e42d92476c5ad1180c2b63352d32689dd3d3be2bb2aa26b3bea5/ControllerBase.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/1fc26775b5c8409bd86fc24e9ba6e576853d04f93cfabce9540b96e7a14cf4/FromFormAttribute.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/225d9583e6f9a3d6562454fe6c321ad48dbcf7efa345cdb4926c9ea94e419b4/IHostedService.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/2b12ac325ae37d972f33c2ecf5682ca7fbc723b25c8e52e28366e5e32de6/CoinbaseClient.Data.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/2ed0b9ac6f38582bb12c1da48ab7a433bbc18fecd8254daaedcac0ca22b2a0/Environments.cs" root0="SKIP_HIGHLIGHTING" />
@@ -46,15 +65,18 @@
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/4e2fde9977d984b7eefe6f24d793b89e9d8e16eb7ed33cfb3d399b8f250d1/IBar.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/4fd4252130c18ca3712ae0d8da9da7abd241cedd387466b5e786e739e74bfc74/StringExtensions.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/5155ca22acf2c244e86db7d5a4a2c6babf3b7dd1f038f5aea3187367b8611d/CancellationToken.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/596f24e488ce6c9fb3a4dfbb3d25974a335ff0ef9e478bab9d5d73bf985e297/HttpRequestHeaders.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/5cbecd82b0bae2f47ccc3c82ec1df21fa2985e74adec7867ba049baa436db4/WebApplicationBuilder.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/5d46f35cc10c0f21348d324d6965a48709c61fa67dfdcfa0254ce8cdbbb8/DateTime.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/5e2bd591e07aaf6a6593b849994d3372cb25515051e7c8b4463dd626268e14/Environment.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/5f06c2196cce4789b3c148130ae67da9c3f000/_744c8/IEnumerator.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/6335a9b3ee98432a2f7d34b0e72bc7ff493724d88a327119c915b2d7a511c/FromQueryAttribute.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/661139fcf964b63ed25fcffc86ebfe84a2d5bb9c854399ef9c317f28aff92b/Debug.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/6810bd46214b504ab33de4b2a9f3bdfbf762c361c7b01e847061a93c8273111/SqliteDbContextOptionsBuilderExtensions.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/68737ecfec66fff22e94a954224e96164ceb9c989214723b4faf276dc66919/HttpGetAttribute.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/6a2e8076f5d536590622179ab5cf24a4f84d4c95144f3cef88620eccb48ea/DebugProvider.Unix.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/6af31c04eaa20f3cc463536d85a60f65fb839af6a6e63e67793aaddd71bff/Select.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/6f836dac43ebe77696fa38a47eb393d62464a28b55f87726bffd94a5e172fa4/HttpClient.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/70df3e5caa697356d2da36622f77875efdb4473eafb5bfb84fe07e71a22b9499/EntityFrameworkServiceCollectionExtensions.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/70e2a418451b7ee32f574e6210974c5692cddc6b0a0ebd9b8706d87a7b1cf99/OrderClass.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/73be4941f0697511fa919d3cd3229bf89563fc31da3985a66dfbaee6fd89422/IdentityServiceCollectionExtensions.cs" root0="SKIP_HIGHLIGHTING" />
@@ -74,20 +96,27 @@
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/98f5e861c5ca4baa98cbc0a1fcb11de0d8f86bfb84f982a333640e6778cbbd9/ModelBuilder.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/9a87d0709ab828c4a7e87febfed4f94817b8cc48d52527897234f41734b99e/CallerArgumentExpressionAttribute.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/9a9d3898abfd83f6ee176ff68ac0a16b795390f82268312297df053ea254a31/TimeInForce.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/a1479e689a331cde9217fbc4dc7aca90704f74e6d3c4a393701d1e33863f5/DefaultTypeConverter.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/a1a4387d7a2364378ce613d6cc71cbb6be4f319d264fb1a76312741edbc23ad/NullableHelper.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/a1a59674744830c52bb8ec2c75c1a5b1b21ec7b871acd25d24a346472da73b/DbContext.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/a5e896a979729c55a5e29de42d3d2d1f99a1c338b01b5595e09dfc2cbd92b191/PropertyDescriptorCollection.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/a95d1afcf735b545735f9ae7c6adab5dd0a6ded2c4fe1e11bd3bcf391d754e/DatabaseDeveloperPageExceptionFilterServiceExtensions.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/aad252b0a04509969f5da31ea594847e36b88a1868cc356f6d3ff15a0a8c8/TextReader.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/aae5ef3897027e56c19b5f0345959133ecd9fa90d6a136dfdd6f9fd7e7b/DebugProvider.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/acc9ac9466af2476a5f1829d68fafe077b31daa19ea3e1d31227fc53d127/EnumToStringConverter.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/b14793231523498e57fb61ff8c7af76852a1301afb1fd6885b33ab752829bb65/TypeConverter.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/b4b454f02849a63e74d8658756cbd75cefd9b3d52b5f0a9ef7827dc876501e/IAlpacaCryptoDataClient.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/b8367264a05acd301ea13989be34e562f187b81979f7a9c95b691302772dc/CsvReader.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/bc2cfce894cea34e7741ab9334e9b5bfcf926a0239fae9e34c9e2f4d971eb/SignInOptions.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/bd4f5318ef94544965375aab62ef0b244c0248c11531f916d69a39838e7e41/NewOrderRequest.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/bfd8c4efd1ef9920893d6c1b2a2464cd9b28e54bd9fa9574dbd4a810a0cd/CultureInfo.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/c21ddb6590bc2623c6e51cc7d38cc2242cdbd337c76c613756e7875fdb6ea67c/ApiControllerAttribute.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/c3f347194c2ded55dfd0195cb3b785a32b1818de597af373e3d64d4c1605b8a/DbContextOptionsBuilder.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/c93bad9b568f68662a593246af7c6a65fd4d47b5c270ad34f1b16f3054a7eeb1/InjectAttribute.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/d4e59de53d71a2d4e16f0bd6ef3b688aa3a2217f740f614fdca2bbe27b1b02b/OrderQuantity.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/d8893c2e15c55cdfb2bb5bf9177dfad1dd11a354c1cf256cc13b66a7c042d2d6/ApplicationException.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/d964468d5e582f3323b04f9320537e533e4af1ffadbe16c64471e422e4db421/OrderType.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/dac2f5c6fb679113438c1a67ba2be8af92f881eb193087dc7e5e68a3adb14/HttpResponseMessage.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/de397da5eaca13f9b8a34322cb7fca0ed87e79551ad58212a28438ebcb0f7ac/RouteAttribute.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/e52a70dae11948fa5bfb33d03fd2e7d9b6ece182647aa4d9b1221413ac57dc7/IdentityUser.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/e65021dc9370cace72f265fe2fe6e895435992bc549eb010f5c2d5bb7473c6/BarTimeFrame.cs" root0="SKIP_HIGHLIGHTING" />
@@ -126,24 +155,27 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;reference.settingsdialog.IDE.editor.colors.C#&quot;,
-    &quot;ts.external.directory.path&quot;: &quot;/Users/brandon/RiderProjects/TestWebApp/TestWebApp/ClientApp/node_modules/typescript/lib&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "WebServerToolWindowFactoryState": "false",
+    "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "reference.settingsdialog.IDE.editor.colors.C#",
+    "ts.external.directory.path": "/Users/brandon/RiderProjects/TestWebApp/TestWebApp/ClientApp/node_modules/typescript/lib",
+    "vue.rearranger.settings.migration": "true"
   },
-  &quot;keyToStringList&quot;: {
-    &quot;rider.external.source.directories&quot;: [
-      &quot;/Users/brandon/Library/Application Support/JetBrains/Rider2022.3/resharper-host/DecompilerCache&quot;,
-      &quot;/Users/brandon/Library/Application Support/JetBrains/Rider2022.3/resharper-host/SourcesCache&quot;,
-      &quot;/Users/brandon/.local/share/Symbols/src&quot;
+  "keyToStringList": {
+    "com.intellij.ide.scratch.ScratchImplUtil$2/New Scratch File": [
+      "TEXT"
+    ],
+    "rider.external.source.directories": [
+      "/Users/brandon/Library/Application Support/JetBrains/Rider2022.3/resharper-host/DecompilerCache",
+      "/Users/brandon/Library/Application Support/JetBrains/Rider2022.3/resharper-host/SourcesCache",
+      "/Users/brandon/.local/share/Symbols/src"
     ]
   }
-}</component>
+}]]></component>
   <component name="RunManager">
     <configuration name="TestWebApp" type="LaunchSettings" factoryName=".NET Launch Settings Profile">
       <option name="LAUNCH_PROFILE_PROJECT_FILE_PATH" value="$PROJECT_DIR$/Nummi/Nummi.csproj" />
@@ -176,7 +208,7 @@
       <workItem from="1671945061796" duration="34491000" />
       <workItem from="1672256612210" duration="25733000" />
       <workItem from="1672856391027" duration="192000" />
-      <workItem from="1672856610325" duration="1242000" />
+      <workItem from="1672856610325" duration="16339000" />
     </task>
     <task id="LOCAL-00001" summary="initial commit">
       <created>1671831132835</created>
@@ -199,7 +231,14 @@
       <option name="project" value="LOCAL" />
       <updated>1672857085257</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="update readme">
+      <created>1672858141590</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1672858141590</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -223,7 +262,8 @@
     <MESSAGE value="initial commit" />
     <MESSAGE value="Add coinbase client, bot stuff" />
     <MESSAGE value="Rename project" />
-    <option name="LAST_COMMIT_MESSAGE" value="Rename project" />
+    <MESSAGE value="update readme" />
+    <option name="LAST_COMMIT_MESSAGE" value="update readme" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

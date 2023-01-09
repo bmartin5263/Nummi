@@ -1,4 +1,5 @@
 using Nummi.Core.Domain.Stocks;
+using Nummi.Core.Domain.Stocks.Bot;
 using Nummi.Core.Domain.Stocks.Data;
 
 
@@ -56,6 +57,16 @@ public static class ModelMapper {
             BidSize = quote.BidSize,
             AskSize = quote.AskSize,
             Tape = quote.Tape
+        };
+    }
+
+    public static StockBotDto ToDto(this StockBot bot) {
+        return new StockBotDto {
+            Id = bot.Id.ToString(),
+            Name = bot.Name,
+            Strategy = bot.Strategy?.GetType().Name,
+            Profit = bot.Profit,
+            AvailableCash = bot.AvailableCash,
         };
     }
 }

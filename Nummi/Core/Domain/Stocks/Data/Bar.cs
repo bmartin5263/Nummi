@@ -1,10 +1,10 @@
 using System.Diagnostics.CodeAnalysis;
 
-namespace Nummi.Core.Domain.Stocks; 
+namespace Nummi.Core.Domain.Stocks.Data; 
 
 [SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Global")] // used by serializer
 [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
-public class Bar {
+public class Bar : IBar {
     
     public string Symbol { get; }
     public DateTime TimeUtc { get; }
