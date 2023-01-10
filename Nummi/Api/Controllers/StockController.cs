@@ -40,7 +40,7 @@ public class StockController : ControllerBase {
     [HttpGet]
     [Route("crypto/{symbol}")]
     public async Task<Coinbase.Models.Response<Money>> GetCryptoSnapshot(string symbol) {
-        return await coinbaseClient.GetSpotPriceAsync("ETH-USD");
+        return await coinbaseClient.GetSpotPriceAsync(symbol);
     }
 
     [HttpPost]
@@ -75,7 +75,7 @@ public class StockController : ControllerBase {
     public void Csv() {
         Console.WriteLine(Directory.GetCurrentDirectory());
         // var stream = files[0].OpenReadStream();
-        var stream = Files.OpenStream(Resources.BitStampBtcUsd1H);
+        var stream = Resources.OpenStream(Resources.BitStampBtcUsd1H);
         var records = Serializer.ReadCsv<BitstampBar>(stream);
         var list = records.ToList();
         list.Reverse();

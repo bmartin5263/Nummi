@@ -15,11 +15,10 @@ public class BotExecutor : BackgroundService {
     }
 
     protected override Task ExecuteAsync(CancellationToken stoppingToken) {
-        List<Task> tasks = new List<Task>();
         for (uint i = 0; i < NumThreads; ++i) {
             Threads[i] = new BotThread(i, ServiceProvider, stoppingToken);
             var id = i;
-            tasks.Add(Task.Run(() => Threads[id].MainLoop(), stoppingToken));
+            Task.Run(() => Threads[id].MainLoop(), stoppingToken);
         }
         return Task.CompletedTask;
     }

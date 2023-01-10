@@ -59,7 +59,7 @@ builder.Services.AddSingleton<IAlpacaClient, AlpacaClientPaper>();
 builder.Services.AddSingleton<CoinbaseClient>();
 builder.Services.AddSingleton<CryptowatchClient>();
 // builder.Services.AddSingleton<IHostedService, BotExecutor2>(_ => new BotExecutor2(new StockBot("Alpha")));
-builder.Services.AddSingleton<BotExecutor>(provider => new BotExecutor(provider, 4));
+builder.Services.AddSingleton<BotExecutor>(provider => new BotExecutor(provider, 1));
 builder.Services.AddSingleton<IHostedService, BotExecutor>(
     serviceProvider => serviceProvider.GetService<BotExecutor>()!);
 // builder.Services.AddSingleton<IHostedService, BotExecutor>(_ => new BotExecutor("BotExecutor2"));

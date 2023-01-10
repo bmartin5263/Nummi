@@ -60,13 +60,13 @@ public static class ModelMapper {
         };
     }
 
-    public static StockBotDto ToDto(this StockBot bot) {
+    public static StockBotDto ToDto(this TradingBot bot) {
         return new StockBotDto {
             Id = bot.Id.ToString(),
             Name = bot.Name,
-            Strategy = bot.Strategy?.GetType().Name,
+            Strategy = bot.Strategy?.GetType().Name ?? "null",
             Profit = bot.Profit,
-            AvailableCash = bot.AvailableCash,
+            AvailableCash = bot.Funds,
         };
     }
 }

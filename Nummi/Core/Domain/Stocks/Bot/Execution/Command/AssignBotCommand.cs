@@ -9,7 +9,7 @@ public class AssignBotCommand : ICommand {
         BotId = botId;
     }
     
-    public void Execute(BotThread.BotThreadController botThread) {
-        botThread.AssignBot(BotId);
+    public void Execute(BotThread.BotThreadController controller) {
+        controller.AssignBot(BotId);
     }
 }

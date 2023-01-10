@@ -17,7 +17,7 @@ using Nummi.Core.Domain.Stocks.Bot.Strategy;
 namespace Nummi.Core.Database;
 
 public class AppDb : ApiAuthorizationDbContext<User> {
-    public DbSet<StockBot> Bots { get; set; } = default!;
+    public DbSet<TradingBot> Bots { get; set; } = default!;
     
     public AppDb(DbContextOptions options, IOptions<OperationalStoreOptions> operationalStoreOptions)
         : base(options, operationalStoreOptions)
@@ -26,20 +26,21 @@ public class AppDb : ApiAuthorizationDbContext<User> {
     
     protected override void OnModelCreating(ModelBuilder modelBuilder) {
         base.OnModelCreating(modelBuilder);
+    }
+    
+    protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder) {
+        base.ConfigureConventions(configurationBuilder);
         
-        modelBuilder
-            .Entity<StockBot>()
-            .Property(e => e.Strategy)
-            .HasConversion(
-                v => JsonConvert.SerializeObject(v, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore }),
-                v => JsonConvert.DeserializeObject<ITradingStrategy>(v, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore }));
+        configurationBuilder
+            .Properties<ITradingStrategy>()
+            .HaveConversion<TradingStrategyConverter>();        
         
-        modelBuilder
-            .Entity<StockBot>()
-            .Property(e => e.Id)
-            .HasConversion(
-                v => v.ToString(),
-                v => Ksuid.FromString(v)
-            );
+        configurationBuilder
+            .Properties<BotError>()
+            .HaveConversion<GenericJsonConverter<BotError>>();        
+        
+        configurationBuilder
+            .Properties<Ksuid>()
+            .HaveConversion<KsuidConverter>();
     }
 }

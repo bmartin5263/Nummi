@@ -4,42 +4,39 @@ using KSUID;
 using Nummi.Core.Database;
 using Nummi.Core.Domain.Stocks.Bot.Execution.Command;
 using Nummi.Core.Domain.Stocks.Bot.Strategy;
+using Nummi.Core.Util;
 
 namespace Nummi.Core.Domain.Stocks.Bot.Execution; 
 
 public class BotThread {
 
     public uint Id { get; }
+    public Ksuid? BotId { get; private set; }
+    
     private CancellationToken CancellationToken { get; }
     private IServiceProvider ServiceProvider { get; }
     private ConcurrentQueue<ICommand> CommandQueue { get; }
     private TimeSpan DefaultSleepTime { get; } = TimeSpan.FromSeconds(5);
-
-    public Ksuid? BotId { get; private set; }
+    private BotThreadController Controller { get; }
 
     public BotThread(uint id, IServiceProvider serviceProvider, CancellationToken cancellationToken) {
         Id = id;
         ServiceProvider = serviceProvider;
         CancellationToken = cancellationToken;
         CommandQueue = new ConcurrentQueue<ICommand>();
+        Controller = new BotThreadController(this);
     }
 
-    public async void MainLoop() {
+    public void MainLoop() {
         Message("Entering Main Loop");
         while (!CancellationToken.IsCancellationRequested) {
             ProcessCommands();
-            if (BotId != null) {
-                using var scope = ServiceProvider.CreateScope();
-                await RunBotStrategy(scope);
-            }
-            else {
-                Message("No Bot Assigned");
-                await Task.Delay(TimeSpan.FromSeconds(5), CancellationToken);
-            }
+            Task sleepTask = RunBotLogic();
+            sleepTask.Wait(CancellationToken);
         }
     }
 
-    public void ProcessCommands() {
+    private void ProcessCommands() {
         while (!CommandQueue.IsEmpty) {
             if (CommandQueue.TryDequeue(out ICommand? command)) {
                 command.Execute(new BotThreadController(this));
@@ -47,25 +44,45 @@ public class BotThread {
         }
     }
 
-    public Task RunBotStrategy(IServiceScope scope) {
-        Message("Executing Bot Strategy");
-        StockBot? bot = FetchBot(scope);
-        if (bot == null) {
-            Message($"Bot {BotId} no longer exists!");
-            new BotThreadController(this).RemoveBot();
-            return Sleep();
+    private Task RunBotLogic() {
+        if (BotId == null) {
+            Message("No Bot Assigned");
+            return Task.Delay(DefaultSleepTime, CancellationToken);
         }
         
-        ITradingStrategy? strategy = bot.Strategy;
-        if (strategy == null) {
-            Message($"{bot} lacks a TradingStrategy");
-            return Sleep();
+        using var scope = ServiceProvider.CreateScope();
+        
+        Message("Executing Bot Strategy");
+        using var appDb = scope.ServiceProvider.GetService<AppDb>()!;
+        using var transaction = new DbTransaction(appDb);
+
+        TradingBot? bot = appDb.Bots.Find(BotId);
+        if (bot == null) {
+            HandleBotNoLongerExists();
+            return Sleep(DefaultSleepTime);
         }
-        var context = new BotExecutionContext(CancellationToken);
-        strategy.Action(context);
-        return strategy.Sleep(context);
+
+        if (bot.ErrorState != null) {
+            HandleBotInErrorState(bot);
+            return Sleep(DefaultSleepTime);
+        }
+        
+        if (!bot.HasTradingStrategy) {
+            HandleBotStrategyMissing(bot);
+            return Sleep(DefaultSleepTime);
+        }
+        
+        var context = new BotExecutionContext(bot, scope, CancellationToken);
+        try {
+            bot.ExecuteStrategy(context);
+            return Sleep(TimeSpan.FromMinutes(1));
+        }
+        catch (Exception e) {
+            HandleBotStrategyError(bot, e);
+            return Sleep(DefaultSleepTime);
+        }
     }
-    
+
     public void RegisterBot(Ksuid botId) {
         CommandQueue.Enqueue(new AssignBotCommand(botId));
     }
@@ -78,15 +95,28 @@ public class BotThread {
         Console.WriteLine(Id + " - " + msg, args);
     }
 
-    private StockBot? FetchBot(IServiceScope scope) {
-        using var appDb = scope.ServiceProvider.GetService<AppDb>()!;
-        return appDb.Bots.FirstOrDefault(b => b.Id == BotId);
+    private void HandleBotNoLongerExists() {
+        Message($"Bot {BotId} no longer exists!");
+        Controller.RemoveBot();
     }
 
-    private Task Sleep() {
-        return Task.Delay(DefaultSleepTime, CancellationToken);
+    private void HandleBotStrategyError(TradingBot bot, Exception e) {
+        Message($"{bot.Name} threw an Exception: {e}");
+        bot.ErrorState = new BotError(DateTime.Now, e.ToString());
     }
 
+    private void HandleBotStrategyMissing(TradingBot bot) {
+        Message($"{bot.Name} lacks a TradingStrategy");
+    }
+
+    private void HandleBotInErrorState(TradingBot bot) {
+        Message($"{bot.Name} is in an error state {bot.ErrorState!.Message}");
+    }
+
+    private Task Sleep(TimeSpan time) {
+        return Task.Delay(time, CancellationToken);
+    }
+    
     public class BotThreadController {
         private BotThread BotThread { get; }
         

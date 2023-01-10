@@ -3,10 +3,11 @@ using Microsoft.AspNetCore.Mvc;
 using Nummi.Api.Model;
 using Nummi.Core.Domain.Stocks.Bot;
 using Nummi.Core.Domain.Stocks.Bot.Execution;
+using Nummi.Core.Domain.Stocks.Bot.Strategy;
 
 namespace Nummi.Api.Controllers; 
 
-[Route("api/bot")]
+[Route("api")]
 [ApiController]
 public class BotController : ControllerBase {
 
@@ -18,15 +19,22 @@ public class BotController : ControllerBase {
         this.botExecutor = botExecutor;
     }
 
+    [Route("bot")]
     [HttpPost]
     public StockBotDto CreateBot(CreateBotRequest request) {
         return botService.CreateBot(request).ToDto();
     }
     
-    [Route("{id}")]
+    [Route("bot/{id}")]
     [HttpGet]
     public StockBotDto GetBot(string id) {
         return botService.GetBot(Ksuid.FromString(id)).ToDto();
+    }
+    
+    [Route("bot/{id}/strategy")]
+    [HttpPost]
+    public StockBotDto SetBotStrategy(string id, ChangeStrategyRequest request) {
+        return botService.ChangeBotStrategy(Ksuid.FromString(id), request).ToDto();
     }
     
     [Route("threads")]

@@ -1,5 +1,6 @@
 using KSUID;
 using Nummi.Core.Database;
+using Nummi.Core.Domain.Stocks.Bot.Strategy;
 using Nummi.Core.Util;
 
 using static Nummi.Core.Util.Assertions;
@@ -14,15 +15,23 @@ public class BotService {
         this.appDb = appDb;
     }
 
-    public StockBot CreateBot(CreateBotRequest request) {
-        var bot = new StockBot(request.Name!);
+    public TradingBot CreateBot(CreateBotRequest request) {
+        var bot = new TradingBot(request.Name!);
         appDb.Bots.Add(bot);
         Assert(appDb.SaveChanges() == 1);
         return bot;
     }
 
-    public StockBot GetBot(Ksuid id) {
+    public TradingBot GetBot(Ksuid id) {
         return appDb.Bots.First(b => b.Id == id);
+    }
+
+    public TradingBot ChangeBotStrategy(Ksuid botId, ChangeStrategyRequest request) {
+        var bot = GetBot(botId);
+        var strategy = TradingStrategyFactory.Create(request.FullStrategyName);
+        bot.Strategy = strategy;
+        appDb.SaveChanges();
+        return GetBot(botId);
     }
 
     public void ValidateId(Ksuid id) {
