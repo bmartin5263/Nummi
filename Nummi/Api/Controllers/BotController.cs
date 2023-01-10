@@ -1,9 +1,9 @@
 using KSUID;
 using Microsoft.AspNetCore.Mvc;
 using Nummi.Api.Model;
-using Nummi.Core.Domain.Stocks.Bot;
-using Nummi.Core.Domain.Stocks.Bot.Execution;
-using Nummi.Core.Domain.Stocks.Bot.Strategy;
+using Nummi.Core.Domain.Crypto.Bot;
+using Nummi.Core.Domain.Crypto.Bot.Execution;
+using Nummi.Core.Domain.Crypto.Bot.Strategy;
 
 namespace Nummi.Api.Controllers; 
 

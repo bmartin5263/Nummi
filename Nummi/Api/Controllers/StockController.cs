@@ -1,11 +1,10 @@
 ﻿using Coinbase.Models;
 using Microsoft.AspNetCore.Mvc;
 using Nummi.Api.Model;
-using Nummi.Core.Domain.Stocks.Data;
-using Nummi.Core.Domain.Stocks.Ordering;
+using Nummi.Core.Domain.Crypto.Data;
+using Nummi.Core.Domain.Crypto.Ordering;
 using Nummi.Core.External.Coinbase;
 using Nummi.Core.Util;
-using YahooFinanceClient.Models;
 
 namespace Nummi.Api.Controllers;
 

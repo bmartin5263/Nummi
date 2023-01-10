@@ -1,7 +1,5 @@
-using Nummi.Core.Domain.Stocks;
-using Nummi.Core.Domain.Stocks.Bot;
-using Nummi.Core.Domain.Stocks.Data;
-
+using Nummi.Core.Domain.Crypto.Bot;
+using Nummi.Core.Domain.Crypto.Data;
 
 namespace Nummi.Api.Model; 
 

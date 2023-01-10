@@ -1,6 +1,6 @@
-using Nummi.Core.Domain.Stocks.Bot;
-using Nummi.Core.Domain.Stocks.Bot.Execution;
-using Nummi.Core.Domain.Stocks.Bot.Strategy;
+using Nummi.Core.Domain.Crypto.Bot;
+using Nummi.Core.Domain.Crypto.Bot.Execution;
+using Nummi.Core.Domain.Crypto.Bot.Strategy;
 
 namespace NummiTests;
 

@@ -1,18 +1,11 @@
-﻿using Alpaca.Markets;
-using Duende.IdentityServer.EntityFramework.Entities;
-using Duende.IdentityServer.EntityFramework.Options;
-using Duende.IdentityServer.Models;
+﻿using Duende.IdentityServer.EntityFramework.Options;
 using KSUID;
 using Microsoft.AspNetCore.ApiAuthorization.IdentityServer;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
-using Nummi.Core.Domain.Stocks.Ordering;
+using Nummi.Core.Domain.Crypto.Bot;
+using Nummi.Core.Domain.Crypto.Bot.Strategy;
 using Nummi.Core.Domain.User;
-using Nummi.Core.Domain.Stocks;
-using Nummi.Core.Domain.Stocks.Bot;
-using Nummi.Core.Domain.Stocks.Bot.Strategy;
 
 namespace Nummi.Core.Database;
 

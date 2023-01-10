@@ -1,12 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Nummi.Core.Database;
-using Nummi.Core.Domain.Stocks.Data;
-using Nummi.Core.Domain.Stocks.Ordering;
+using Nummi.Core.Domain.Crypto.Data;
+using Nummi.Core.Domain.Crypto.Ordering;
 using Nummi.Core.Domain.User;
 using Nummi.Core.External.Alpaca;
-using Nummi.Api.Model;
-using Nummi.Core.Domain;
-using Nummi.Core.Domain.Stocks;
 
 namespace Nummi.Api.Controllers;
 

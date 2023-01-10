@@ -1,7 +1,3 @@
-using Humanizer;
-using KSUID;
-using Nummi.Core.Domain.Stocks.Bot.Strategy;
-
 namespace Nummi.Api.Model; 
 
 public class StockBotDto {

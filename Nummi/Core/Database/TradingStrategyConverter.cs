@@ -1,10 +1,8 @@
-using Coinbase.Models;
 using KSUID;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Linq;
-using Nummi.Core.Domain.Stocks.Bot.Strategy;
+using Nummi.Core.Domain.Crypto.Bot.Strategy;
 
 namespace Nummi.Core.Database;
 
