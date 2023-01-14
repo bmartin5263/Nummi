@@ -9,6 +9,7 @@ using Nummi.Core.Domain.Crypto.Bot.Execution;
 using Nummi.Core.Domain.Crypto.Client;
 using Nummi.Core.Domain.Crypto.Data;
 using Nummi.Core.Domain.Crypto.Ordering;
+using Nummi.Core.Domain.Crypto.Trading.Strategy;
 using Nummi.Core.Domain.User;
 using Nummi.Core.External.Alpaca;
 using Nummi.Core.External.Coinbase;
@@ -51,11 +52,15 @@ builder.Services.AddControllersWithViews()
 builder.Services.AddRazorPages();
 builder.Services.AddScoped<OrderService>();
 builder.Services.AddScoped<BotService>();
+builder.Services.AddScoped<StrategyService>();
 builder.Services.AddSingleton<MarketDataService>();
 builder.Services.AddSingleton<IStockClient, StockClientAlpaca>();
 builder.Services.AddSingleton<IAlpacaClient, AlpacaClientPaper>();
 builder.Services.AddSingleton<CoinbaseClient>();
 builder.Services.AddSingleton<CryptowatchClient>();
+builder.Services.AddSingleton<CryptoClientLive>();
+builder.Services.AddSingleton<CryptoClientMock>();
+builder.Services.AddSingleton<CryptoClientPaper>();
 // builder.Services.AddSingleton<IHostedService, BotExecutor2>(_ => new BotExecutor2(new StockBot("Alpha")));
 builder.Services.AddSingleton<BotExecutor>(provider => new BotExecutor(provider, 1));
 builder.Services.AddSingleton<IHostedService, BotExecutor>(

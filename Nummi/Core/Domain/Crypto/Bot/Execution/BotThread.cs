@@ -29,7 +29,8 @@ public class BotThread {
         Message("Entering Main Loop");
         while (!CancellationToken.IsCancellationRequested) {
             ProcessCommands();
-            Task sleepTask = RunBotLogic();
+            var sleepTime = RunBotLogic();
+            Task sleepTask = Task.Delay(sleepTime, CancellationToken);
             sleepTask.Wait(CancellationToken);
         }
     }
@@ -42,46 +43,37 @@ public class BotThread {
         }
     }
 
-    private Task RunBotLogic() {
+    private TimeSpan RunBotLogic() {
         if (BotId == null) {
             Message("No Bot Assigned");
-            return Task.Delay(DefaultSleepTime, CancellationToken);
+            return DefaultSleepTime;
         }
         
         using var scope = ServiceProvider.CreateScope();
-        
-        Message("Executing Bot Strategy");
         using var appDb = scope.ServiceProvider.GetService<AppDb>()!;
         using var transaction = new DbTransaction(appDb);
+        var logger = scope.ServiceProvider.GetService<ILogger>()!;
 
         TradingBot? bot = appDb.Bots.Find(BotId);
         if (bot == null) {
-            HandleBotNoLongerExists();
-            return Sleep(DefaultSleepTime);
+            Message($"Bot {BotId} no longer exists!");
+            Controller.RemoveBot();
+            return DefaultSleepTime;
         }
 
-        if (bot.ErrorState != null) {
-            HandleBotInErrorState(bot);
-            return Sleep(DefaultSleepTime);
-        }
-        
-        if (!bot.HasTradingStrategy) {
-            HandleBotStrategyMissing(bot);
-            return Sleep(DefaultSleepTime);
-        }
-        
-        var context = new BotExecutionContext(bot, scope, CancellationToken);
         try {
-            bot.ExecuteStrategy(context);
-            return Sleep(TimeSpan.FromMinutes(1));
+            var env = new BotEnvironment(ServiceProvider, scope, appDb, logger);
+            var sleepTime = bot.WakeUp(env);
+            return sleepTime;
         }
         catch (Exception e) {
-            HandleBotStrategyError(bot, e);
-            return Sleep(DefaultSleepTime);
+            logger.LogWarning(e, "Trading Bot \"{BotName}\" threw an Exception during execution", bot.Name);
+            return DefaultSleepTime;
         }
     }
 
     public void RegisterBot(Ksuid botId) {
+        AssertBotExists(botId);
         CommandQueue.Enqueue(new AssignBotCommand(botId));
     }
 
@@ -90,31 +82,15 @@ public class BotThread {
     }
 
     private void Message(string msg, params object[] args) {
-        Console.WriteLine(Id + " - " + msg, args);
+        Console.WriteLine("Thread #" + Id + " - " + msg, args);
     }
 
-    private void HandleBotNoLongerExists() {
-        Message($"Bot {BotId} no longer exists!");
-        Controller.RemoveBot();
+    private void AssertBotExists(Ksuid botId) {
+        using var scope = ServiceProvider.CreateScope();
+        using var appDb = scope.ServiceProvider.GetService<AppDb>()!;
+        appDb.Bots.FindById(botId);
     }
 
-    private void HandleBotStrategyError(TradingBot bot, Exception e) {
-        Message($"{bot.Name} threw an Exception: {e}");
-        bot.ErrorState = new BotError(DateTime.Now, e.ToString());
-    }
-
-    private void HandleBotStrategyMissing(TradingBot bot) {
-        Message($"{bot.Name} lacks a TradingStrategy");
-    }
-
-    private void HandleBotInErrorState(TradingBot bot) {
-        Message($"{bot.Name} is in an error state {bot.ErrorState!.Message}");
-    }
-
-    private Task Sleep(TimeSpan time) {
-        return Task.Delay(time, CancellationToken);
-    }
-    
     public class BotThreadController {
         private BotThread BotThread { get; }
         

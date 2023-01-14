@@ -35,7 +35,7 @@ public class Order {
     public Guid? ReplacedByOrderId { get; private set; }
     public Guid? ReplacesOrderId { get; private set; }
 
-    public Order(Guid orderId = default, string? clientOrderId = null, DateTime? createdAtUtc = default, DateTime? updatedAtUtc = default, DateTime? submittedAtUtc = default, DateTime? filledAtUtc = default, DateTime? expiredAtUtc = default, DateTime? cancelledAtUtc = default, DateTime? failedAtUtc = default, DateTime? replacedAtUtc = default, Guid assetId = default, string symbol = null, AssetClass assetClass = default, decimal? notional = default, decimal? quantity = default, decimal filledQuantity = default, long integerQuantity = default, long integerFilledQuantity = default, OrderType orderType = default, OrderClass orderClass = default, OrderSide orderSide = default, TimeInForce timeInForce = default, decimal? limitPrice = default, decimal? stopPrice = default, decimal? trailOffsetInDollars = default, decimal? trailOffsetInPercent = default, decimal? highWaterMark = default, decimal? averageFillPrice = default, Alpaca.Markets.OrderStatus orderStatus = default, Guid? replacedByOrderId = default, Guid? replacesOrderId = default) {
+    public Order(Guid orderId = default, string? clientOrderId = null, DateTime? createdAtUtc = default, DateTime? updatedAtUtc = default, DateTime? submittedAtUtc = default, DateTime? filledAtUtc = default, DateTime? expiredAtUtc = default, DateTime? cancelledAtUtc = default, DateTime? failedAtUtc = default, DateTime? replacedAtUtc = default, Guid assetId = default, string symbol = default!, AssetClass assetClass = default, decimal? notional = default, decimal? quantity = default, decimal filledQuantity = default, long integerQuantity = default, long integerFilledQuantity = default, OrderType orderType = default, OrderClass orderClass = default, OrderSide orderSide = default, TimeInForce timeInForce = default, decimal? limitPrice = default, decimal? stopPrice = default, decimal? trailOffsetInDollars = default, decimal? trailOffsetInPercent = default, decimal? highWaterMark = default, decimal? averageFillPrice = default, Alpaca.Markets.OrderStatus orderStatus = default, Guid? replacedByOrderId = default, Guid? replacesOrderId = default) {
         OrderId = orderId;
         ClientOrderId = clientOrderId;
         CreatedAtUtc = createdAtUtc;
@@ -67,9 +67,5 @@ public class Order {
         OrderStatus = orderStatus;
         ReplacedByOrderId = replacedByOrderId;
         ReplacesOrderId = replacesOrderId;
-    }
-
-    public Order() {
-        
     }
 }

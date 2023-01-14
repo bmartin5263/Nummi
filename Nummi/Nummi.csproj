@@ -48,7 +48,6 @@
       <_ContentIncludedByDefault Remove="Pages\_ViewImports.cshtml" />
     </ItemGroup>
     <ItemGroup>
-      <Folder Include="Core\Database\Migrations" />
       <Folder Include="Core\External\Yahoo" />
     </ItemGroup>
 

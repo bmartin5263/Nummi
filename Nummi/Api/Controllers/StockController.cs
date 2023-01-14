@@ -75,7 +75,7 @@ public class StockController : ControllerBase {
         Console.WriteLine(Directory.GetCurrentDirectory());
         // var stream = files[0].OpenReadStream();
         var stream = Resources.OpenStream(Resources.BitStampBtcUsd1H);
-        var records = Serializer.ReadCsv<BitstampBar>(stream);
+        var records = Serializer.FromCsv<BitstampBar>(stream);
         var list = records.ToList();
         list.Reverse();
         for (int i = 0; i < 10; ++i) {

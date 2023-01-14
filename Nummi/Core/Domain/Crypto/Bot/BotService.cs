@@ -1,34 +1,33 @@
 using KSUID;
 using Nummi.Core.Database;
-using Nummi.Core.Domain.Crypto.Bot.Strategy;
 using static Nummi.Core.Util.Assertions;
 
 namespace Nummi.Core.Domain.Crypto.Bot; 
 
 public class BotService {
 
-    private readonly AppDb appDb;
+    private AppDb AppDb { get; }
     
     public BotService(AppDb appDb) {
-        this.appDb = appDb;
+        AppDb = appDb;
     }
 
     public TradingBot CreateBot(CreateBotRequest request) {
         var bot = new TradingBot(request.Name!);
-        appDb.Bots.Add(bot);
-        Assert(appDb.SaveChanges() == 1);
+        AppDb.Bots.Add(bot);
+        Assert(AppDb.SaveChanges() == 1);
         return bot;
     }
 
     public TradingBot GetBot(Ksuid id) {
-        return appDb.Bots.First(b => b.Id == id);
+        return AppDb.Bots.FindById(id);
     }
 
-    public TradingBot ChangeBotStrategy(Ksuid botId, ChangeStrategyRequest request) {
+    public TradingBot SetBotStrategy(Ksuid botId, Ksuid strategyId) {
         var bot = GetBot(botId);
-        var strategy = TradingStrategyFactory.Create(request.FullStrategyName);
+        var strategy = AppDb.Strategies.FindById(strategyId);
         bot.Strategy = strategy;
-        appDb.SaveChanges();
+        AppDb.SaveChanges();
         return GetBot(botId);
     }
 

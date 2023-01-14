@@ -1,5 +1,6 @@
 using Nummi.Core.Domain.Crypto.Bot;
 using Nummi.Core.Domain.Crypto.Data;
+using Nummi.Core.Domain.Crypto.Trading.Strategy;
 
 namespace Nummi.Api.Model; 
 
@@ -63,8 +64,22 @@ public static class ModelMapper {
             Id = bot.Id.ToString(),
             Name = bot.Name,
             Strategy = bot.Strategy?.GetType().Name ?? "null",
-            Profit = bot.Profit,
             AvailableCash = bot.Funds,
+        };
+    }
+
+    public static StrategyDto ToDto(this TradingStrategy strategy) {
+        return new StrategyDto {
+            Id = strategy.Id.ToString(),
+            Frequency = strategy.Frequency,
+            Initialized = strategy.Initialized,
+            Profit = strategy.Profit,
+            TimesExecuted = strategy.TimesExecuted,
+            LastExecutedAt = strategy.LastExecutedAt,
+            TimesFailed = strategy.TimesFailed,
+            ErrorState = strategy.ErrorState,
+            ErrorHistory = strategy.ErrorHistory,
+            ImplementationDetails = strategy.GetStateMap()
         };
     }
 }
