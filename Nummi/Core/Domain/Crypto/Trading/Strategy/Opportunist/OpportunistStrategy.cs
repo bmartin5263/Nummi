@@ -3,19 +3,29 @@ using Nummi.Core.Util;
 
 namespace Nummi.Core.Domain.Crypto.Trading.Strategy.Opportunist; 
 
-public class OpportunistStrategy : TradingStrategy, IParameterizedStrategy<OpportunistParameters> {
-
+public class OpportunistStrategy : 
+    TradingStrategy, 
+    IParameterizedStrategy<OpportunistStrategy.OpportunistParameters> 
+{
+    public class OpportunistParameters {
+        public string? SomeData { get; set; }
+        public int? Number { get; set; }
+        public override string ToString() => this.ToFormattedString();
+    }
     [Column("OpportunistParameters")] 
     public OpportunistParameters? Parameters { get; set; }
 
+    public class OpportunistState {
+        public int Counter { get; set; }
+        public OpportunistState(int counter) { Counter = counter; }
+        public override string ToString() => this.ToFormattedString();
+    }
     [Column("OpportunistState")]
     public OpportunistState? State { get; set; }
     
     public Type ParameterObjectType => typeof(OpportunistParameters);
 
-    public OpportunistStrategy() : base(TimeSpan.FromMinutes(1)) {
-        
-    }
+    public OpportunistStrategy() : base(TimeSpan.FromMinutes(1)) { }
 
     public void AcceptParameters(OpportunistParameters parameters) {
         Parameters = parameters;

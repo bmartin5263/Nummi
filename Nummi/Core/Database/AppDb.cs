@@ -43,7 +43,7 @@ public class AppDb : ApiAuthorizationDbContext<User> {
         builder.ConvertProperties<Ksuid, KsuidConverter>();
         builder.SerializeToJson<BotError>();
         builder.SerializeToJson<BotErrorHistory>();
-        builder.SerializeToJson<OpportunistParameters>();
-        builder.SerializeToJson<OpportunistState>();
+        builder.SerializeToJson<OpportunistStrategy.OpportunistParameters>();
+        builder.SerializeToJson<OpportunistStrategy.OpportunistState>();
     }
 }
