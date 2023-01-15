@@ -33,6 +33,18 @@ public class BlogService {
         return blog!;
     }
 
+
+    public Blog UpdateBlogPostText(string blogId, string text) {
+        var blog = AppDb.Blogs
+            .Include(b => b.Post)
+            .FirstOrDefault(b => b.Id == blogId);
+
+        blog!.Post!.Content = text;
+        AppDb.SaveChanges();
+        
+        return blog;
+    }
+
     public Post GetPostById(string id) {
         var post = AppDb.Posts.FindById(id);
         return post;

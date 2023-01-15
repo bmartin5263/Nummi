@@ -34,14 +34,15 @@ public class TradingBot {
 
     public TimeSpan WakeUp(BotEnvironment env) {
         if (Strategy == null) {
+            Message("No Strategy Assigned, going to sleep");
             return TimeSpan.FromSeconds(5);
         }
 
         try {
             RunTradingStrategy(env);
         }
-        catch (StrategyException) {
-            
+        catch (StrategyException e) {
+            Message($"Strategy threw an exception {e}");
         }
 
         return Strategy.Frequency;
@@ -55,5 +56,9 @@ public class TradingBot {
 
     public override string ToString() {
         return this.ToFormattedString();
+    }
+
+    private void Message(string msg) {
+        Console.WriteLine($"{Name} - {msg}");
     }
 }

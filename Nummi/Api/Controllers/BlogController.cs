@@ -53,5 +53,13 @@ public class BlogController : ControllerBase {
             .AssociateBlogWithPost(blogId, postId)
             .ToDto();
     }
+
+    [Route("/blog/post")]
+    [HttpPatch]
+    public BlogDto UpdateBlogPostText(string blogId, string text) {
+        return BlogService
+            .UpdateBlogPostText(blogId, text)
+            .ToDto();
+    }
     
 }

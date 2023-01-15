@@ -11,7 +11,7 @@ using Nummi.Core.Database;
 namespace Nummi.Core.Database.Migrations
 {
     [DbContext(typeof(AppDb))]
-    [Migration("20230115020052_Initial")]
+    [Migration("20230115052428_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -310,7 +310,8 @@ namespace Nummi.Core.Database.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("StrategyId");
+                    b.HasIndex("StrategyId")
+                        .IsUnique();
 
                     b.ToTable("Bot");
                 });
@@ -456,12 +457,10 @@ namespace Nummi.Core.Database.Migrations
                     b.HasBaseType("Nummi.Core.Domain.Crypto.Trading.Strategy.TradingStrategy");
 
                     b.Property<string>("Parameters")
-                        .IsRequired()
                         .HasColumnType("TEXT")
                         .HasColumnName("OpportunistParameters");
 
                     b.Property<string>("State")
-                        .IsRequired()
                         .HasColumnType("TEXT")
                         .HasColumnName("OpportunistState");
 
@@ -524,8 +523,8 @@ namespace Nummi.Core.Database.Migrations
             modelBuilder.Entity("Nummi.Core.Domain.Crypto.Bot.TradingBot", b =>
                 {
                     b.HasOne("Nummi.Core.Domain.Crypto.Trading.Strategy.TradingStrategy", "Strategy")
-                        .WithMany()
-                        .HasForeignKey("StrategyId");
+                        .WithOne()
+                        .HasForeignKey("Nummi.Core.Domain.Crypto.Bot.TradingBot", "StrategyId");
 
                     b.Navigation("Strategy");
                 });

@@ -31,6 +31,11 @@ public class AppDb : ApiAuthorizationDbContext<User> {
         
         modelBuilder.Entity<TradingBot>()
             .Property<string?>("StrategyId");
+        
+        modelBuilder.Entity<TradingBot>()
+            .HasOne(b => b.Strategy)
+            .WithOne()
+            .HasForeignKey<TradingBot>("StrategyId");
     }
     
     protected override void ConfigureConventions(ModelConfigurationBuilder builder) {

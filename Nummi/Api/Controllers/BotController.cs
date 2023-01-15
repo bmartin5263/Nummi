@@ -53,5 +53,21 @@ public class BotController : ControllerBase {
             .SetBotStrategy(botId, strategyId)
             .ToDto();
     }
+    
+    [Route("{botId}/strategy")]
+    [HttpPost]
+    public StockBotDto RunBotStrategy(string botId) {
+        return BotService
+            .RunBotStrategy(botId)
+            .ToDto();
+    }
+    
+    [Route("{strategyId}/strategy2")]
+    [HttpPost]
+    public StrategyDto RunBotStrategy2(string strategyId) {
+        return BotService
+            .RunBotStrategy2(strategyId)
+            .ToDto();
+    }
 
 }

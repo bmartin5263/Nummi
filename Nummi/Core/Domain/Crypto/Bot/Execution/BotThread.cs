@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using Microsoft.EntityFrameworkCore;
 using Nummi.Core.Database;
 using Nummi.Core.Domain.Crypto.Bot.Execution.Command;
 using Nummi.Core.Util;
@@ -51,23 +52,30 @@ public class BotThread {
         using var scope = ServiceProvider.CreateScope();
         using var appDb = scope.ServiceProvider.GetService<AppDb>()!;
         using var transaction = new DbTransaction(appDb);
-        var logger = scope.ServiceProvider.GetService<ILogger>()!;
 
-        TradingBot? bot = appDb.Bots.Find(BotId);
+        TradingBot? bot = appDb.Bots
+            .Include(b => b.Strategy)
+            .FirstOrDefault(b => b.Id == BotId);
+        
         if (bot == null) {
             Message($"Bot {BotId} no longer exists!");
             Controller.RemoveBot();
             return DefaultSleepTime;
         }
 
+        Message($"Waking Bot {bot.Name}");
         try {
-            var env = new BotEnvironment(ServiceProvider, scope, appDb, logger);
+            var env = new BotEnvironment(ServiceProvider, scope, appDb);
             var sleepTime = bot.WakeUp(env);
+            Message($"Going to Sleep For {sleepTime}");
             return sleepTime;
         }
         catch (Exception e) {
-            logger.LogWarning(e, "Trading Bot \"{BotName}\" threw an Exception during execution", bot.Name);
+            Message($"Trading Bot \"{bot.Name}\" threw an Exception during execution: {e}");
             return DefaultSleepTime;
+        }
+        finally {
+            appDb.Strategies.Update(bot.Strategy!);
         }
     }
 

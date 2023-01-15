@@ -11,6 +11,7 @@ public class DbTransaction : IDisposable {
     }
 
     public void Dispose() {
+        Console.WriteLine("Saving Changes...");
         appDb.SaveChanges();
     }
 }

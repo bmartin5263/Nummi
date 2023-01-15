@@ -7,13 +7,11 @@ public class BotEnvironment {
     public IServiceProvider ServiceProvider { get; }
     public IServiceScope Scope { get; }
     public AppDb AppDb { get; }
-    public ILogger Logger { get; }
     
-    public BotEnvironment(IServiceProvider serviceProvider, IServiceScope scope, AppDb appDb, ILogger logger) {
+    public BotEnvironment(IServiceProvider serviceProvider, IServiceScope scope, AppDb appDb) {
         ServiceProvider = serviceProvider;
         Scope = scope;
         AppDb = appDb;
-        Logger = logger;
     }
 
     public T GetService<T>() {

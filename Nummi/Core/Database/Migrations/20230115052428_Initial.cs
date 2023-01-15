@@ -328,7 +328,8 @@ namespace Nummi.Core.Database.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_Bot_StrategyId",
                 table: "Bot",
-                column: "StrategyId");
+                column: "StrategyId",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_DeviceCodes_DeviceCode",
