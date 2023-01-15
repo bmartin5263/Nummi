@@ -13,7 +13,7 @@ namespace Nummi.Core.Domain.Crypto.Trading.Strategy;
 public abstract class TradingStrategy {
     
     // Unique id for this strategy
-    public Ksuid Id { get; } = Ksuid.Generate();
+    public string Id { get; } = Ksuid.Generate().ToString();
     
     // How often should this strategy check for possible trades
     public TimeSpan Frequency { get; }

@@ -1,11 +1,9 @@
-using KSUID;
-
 namespace Nummi.Core.Domain.Crypto.Bot.Execution.Command; 
 
 public class AssignBotCommand : ICommand {
-    private Ksuid BotId { get; }
+    private string BotId { get; }
     
-    public AssignBotCommand(Ksuid botId) {
+    public AssignBotCommand(string botId) {
         BotId = botId;
     }
     

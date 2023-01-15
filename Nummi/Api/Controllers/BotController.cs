@@ -1,67 +1,57 @@
-using KSUID;
 using Microsoft.AspNetCore.Mvc;
 using Nummi.Api.Model;
 using Nummi.Core.Domain.Crypto.Bot;
-using Nummi.Core.Domain.Crypto.Bot.Execution;
 
 namespace Nummi.Api.Controllers; 
 
-[Route("api")]
+[Route("api/bot")]
 [ApiController]
 public class BotController : ControllerBase {
 
-    private BotService botService;
-    private BotExecutor botExecutor;
+    private BotService BotService {get; set;}
 
-    public BotController(BotService botService, BotExecutor botExecutor) {
-        this.botService = botService;
-        this.botExecutor = botExecutor;
+    public BotController(BotService botService) {
+        BotService = botService;
     }
 
-    [Route("bot")]
+    [Route("")]
     [HttpPost]
     public StockBotDto CreateBot(CreateBotRequest request) {
-        return botService.CreateBot(request).ToDto();
+        return BotService
+            .CreateBot(request)
+            .ToDto();
     }
     
-    [Route("bot/{id}")]
+    [Route("{botId}")]
     [HttpGet]
-    public StockBotDto GetBot(string id) {
-        return botService.GetBot(Ksuid.FromString(id)).ToDto();
-    }
-    //
-    // [Route("bot/{id}/strategy")]
-    // [HttpPost]
-    // public StockBotDto SetBotStrategy(string id, CreateStrategyRequest request) {
-    //     return botService.SetBotStrategy(Ksuid.FromString(id), request).ToDto();
-    // }
-    
-    [Route("threads")]
-    [HttpGet]
-    public BotThreadsOverview GetThreads() {
-        return botExecutor.GetOverview();
+    public StockBotDto GetBotById(string botId) {
+        return BotService
+            .GetBotById(botId)
+            .ToDto();
     }
     
-    [Route("threads/{threadId}/bot")]
-    [HttpPost]
-    public void AssignBotToThread(
-        uint threadId,
-        [FromBody] AssignBotRequest request
-    ) {
-        var botId = Ksuid.FromString(request.BotId);
-        botService.ValidateId(botId);
-        
-        var thread = botExecutor.GetThread(threadId);
-        thread.RegisterBot(botId);
-    }
-    
-    [Route("threads/{threadId}/bot")]
+    [Route("{botId}")]
     [HttpDelete]
-    public void RemoveBotFromThread(
-        uint threadId
-    ) {
-        var thread = botExecutor.GetThread(threadId);
-        thread.DeregisterBot();
+    public void DeleteBotById(string botId) {
+        BotService.DeleteBotById(botId);
     }
     
+    [HttpGet]
+    public BotFilterResponse GetAllBots() {
+        var bots = BotService
+            .GetBots()
+            .Select(v => v.ToDto())
+            .ToList();
+        
+        return new BotFilterResponse(bots);
+    }
+    
+    [Route("{botId}/strategy/{strategyId}")]
+    [HttpPatch]
+    public StockBotDto SetBotStrategy(string botId, string strategyId) {
+        return BotService
+            .SetBotStrategy(botId, strategyId)
+            .ToDto();
+    }
+
 }

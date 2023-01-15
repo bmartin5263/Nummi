@@ -8,14 +8,35 @@ namespace Nummi.Api.Controllers;
 [ApiController]
 public class StrategyController : ControllerBase {
 
-    private readonly StrategyService strategyService;
+    private StrategyService StrategyService { get; }
 
     public StrategyController(StrategyService strategyService) {
-        this.strategyService = strategyService;
+        StrategyService = strategyService;
     }
     
+    [Route("")]
     [HttpPost]
     public StrategyDto CreateStrategy([FromBody] CreateStrategyRequest request) {
-        return strategyService.CreateStrategy(request.StrategyName!, request.Parameters).ToDto();
+        return StrategyService
+            .CreateStrategy(request.StrategyName!, request.Parameters)
+            .ToDto();
+    }
+    
+    [Route("")]
+    [HttpGet]
+    public StrategyFilterResponse GetStrategies() {
+        var strategies = StrategyService.GetStrategies()
+            .Select(v => v.ToDto())
+            .ToList();
+
+        return new StrategyFilterResponse(strategies);
+    }
+    
+    [Route("{strategyId}")]
+    [HttpGet]
+    public StrategyDto GetStrategyById(string strategyId) {
+        return StrategyService
+            .GetStrategyById(strategyId)
+            .ToDto();
     }
 }

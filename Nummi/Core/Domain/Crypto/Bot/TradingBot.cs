@@ -12,19 +12,20 @@ namespace Nummi.Core.Domain.Crypto.Bot;
 public class TradingBot {
 
     // Unique identifier for this Bot
-    public Ksuid Id { get; }
+    public string Id { get; } = Ksuid.Generate().ToString();
     
     // Human-readable Name for this Bot
     public string Name { get; set; }
 
-    public TradingStrategy? Strategy { get; set; }
-    
+    [ForeignKey("StrategyId")]
+    public virtual TradingStrategy? Strategy { get; set; }
+
     // How much money is available for trading
     public decimal Funds { get; private set; }
 
-    public TradingBot(string name) {
-        Id = Ksuid.Generate();
+    public TradingBot(string name, decimal funds) {
         Name = name;
+        Funds = funds;
     }
     
     public void AllocateFunds(decimal amount) {

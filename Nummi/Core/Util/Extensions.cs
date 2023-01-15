@@ -1,3 +1,5 @@
+using KSUID;
+
 namespace Nummi.Core.Util; 
 
 public static class Extensions {
@@ -19,6 +21,10 @@ public static class Extensions {
 
     public static T ThrowIfNull<T>(this T? self, Func<Exception> supplier) {
         return OrElseThrow(self, supplier);
+    }
+
+    public static Ksuid ToKsuid(this string self) {
+        return Ksuid.FromString(self);
     }
 
 }

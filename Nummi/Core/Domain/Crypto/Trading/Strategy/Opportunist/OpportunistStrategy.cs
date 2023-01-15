@@ -5,26 +5,17 @@ namespace Nummi.Core.Domain.Crypto.Trading.Strategy.Opportunist;
 
 public class OpportunistStrategy : TradingStrategy, IParameterizedStrategy<OpportunistParameters> {
 
-    [Column("OpportunistParameters")]
-    public OpportunistParameters? Parameters { get; set; }
+    [Column("OpportunistParameters")] 
+    public OpportunistParameters Parameters { get; set; } = new();
 
     [Column("OpportunistState")] 
     public OpportunistState State { get; private set;  } = new("lololol", 69);
+    
+    public Type ParameterObjectType => typeof(OpportunistParameters);
 
     public OpportunistStrategy() : base(TimeSpan.FromMinutes(1)) {
     }
-    
-    protected override void DoInitialize(TradingContext env) {
-        Parameters.ThrowIfNull(() => new ArgumentException("Missing Parameters"));
-    }
 
-    protected override Result DoCheckForTrades(TradingContext env) {
-        Parameters.ThrowIfNull(() => new ArgumentException("Missing Parameters"));
-        return new Result();
-    }
-
-    public Type ParameterObjectType => typeof(OpportunistParameters);
-    
     public void AcceptParameters(OpportunistParameters parameters) {
         Parameters = parameters;
     }
@@ -34,5 +25,14 @@ public class OpportunistStrategy : TradingStrategy, IParameterizedStrategy<Oppor
             { "state", State },
             { "parameters", Parameters }
         };
+    }
+
+    protected override void DoInitialize(TradingContext env) {
+        Parameters.ThrowIfNull(() => new ArgumentException("Missing Parameters"));
+    }
+
+    protected override Result DoCheckForTrades(TradingContext env) {
+        Parameters.ThrowIfNull(() => new ArgumentException("Missing Parameters"));
+        return new Result();
     }
 }

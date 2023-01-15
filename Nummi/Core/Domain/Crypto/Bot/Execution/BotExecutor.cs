@@ -28,7 +28,7 @@ public class BotExecutor : BackgroundService {
         return Threads[id];
     }
 
-    public BotThreadsOverview GetOverview() {
+    public BotThreadsOverview GetThreads() {
         return new BotThreadsOverview(
             NumThreads,
             Threads.Select(t => new BotThreadDetail(

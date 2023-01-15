@@ -1,6 +1,8 @@
 # Nummi - Cryptocurrency Trading Bots
 > Nummus (plural: nummi), a Latin term meaning "coin"
 
+Nummi is a work-in-progress cryptocurrency trading bot framework built using ASP .NET Core. 
+
 ## Project Structure
 | Directory      | Purpose |
 | ----------- | ----------- |

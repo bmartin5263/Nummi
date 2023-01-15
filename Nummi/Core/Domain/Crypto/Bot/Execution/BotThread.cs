@@ -1,5 +1,4 @@
 using System.Collections.Concurrent;
-using KSUID;
 using Nummi.Core.Database;
 using Nummi.Core.Domain.Crypto.Bot.Execution.Command;
 using Nummi.Core.Util;
@@ -9,7 +8,7 @@ namespace Nummi.Core.Domain.Crypto.Bot.Execution;
 public class BotThread {
 
     public uint Id { get; }
-    public Ksuid? BotId { get; private set; }
+    public string? BotId { get; private set; }
     
     private CancellationToken CancellationToken { get; }
     private IServiceProvider ServiceProvider { get; }
@@ -72,7 +71,7 @@ public class BotThread {
         }
     }
 
-    public void RegisterBot(Ksuid botId) {
+    public void RegisterBot(string botId) {
         AssertBotExists(botId);
         CommandQueue.Enqueue(new AssignBotCommand(botId));
     }
@@ -85,7 +84,7 @@ public class BotThread {
         Console.WriteLine("Thread #" + Id + " - " + msg, args);
     }
 
-    private void AssertBotExists(Ksuid botId) {
+    private void AssertBotExists(string botId) {
         using var scope = ServiceProvider.CreateScope();
         using var appDb = scope.ServiceProvider.GetService<AppDb>()!;
         appDb.Bots.FindById(botId);
@@ -98,7 +97,7 @@ public class BotThread {
             BotThread = botThread;
         }
         
-        public void AssignBot(Ksuid botId) {
+        public void AssignBot(string botId) {
             BotThread.Message($"Assigning Bot {botId}");
             BotThread.BotId = botId;
         }

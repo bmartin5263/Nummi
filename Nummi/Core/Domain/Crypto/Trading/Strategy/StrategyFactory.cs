@@ -18,7 +18,7 @@ public static class StrategyFactory {
             }
         }
         
-        throw new ArgumentException("No Strategy matching name '{}'", name);
+        throw new ArgumentException($"No Strategy matching name '{name}'");
     }
 
     public static T Create<T>(string name, JsonNode? parameterObject = null) where T : TradingStrategy {

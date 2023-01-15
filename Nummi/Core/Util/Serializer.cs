@@ -33,11 +33,19 @@ public class Serializer {
     }
 
     public static T? FromJson<T>(string json) {
-        return JsonSerializer.Deserialize<T>(json);
+        var serializeOptions = new JsonSerializerOptions
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+        };
+        return JsonSerializer.Deserialize<T>(json, serializeOptions);
     }
 
     public static T? FromJson<T>(string json, Type type) {
-        return (T?) JsonSerializer.Deserialize(json, type);
+        var serializeOptions = new JsonSerializerOptions
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+        };
+        return (T?) JsonSerializer.Deserialize(json, type, serializeOptions);
     }
 
     public static T? FromJson<T>(JsonNode? node, Type type) {

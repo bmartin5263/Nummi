@@ -6,6 +6,7 @@ using Microsoft.Extensions.Options;
 using Nummi.Core.Domain.Crypto.Bot;
 using Nummi.Core.Domain.Crypto.Trading.Strategy;
 using Nummi.Core.Domain.Crypto.Trading.Strategy.Opportunist;
+using Nummi.Core.Domain.Test;
 using Nummi.Core.Domain.User;
 
 namespace Nummi.Core.Database;
@@ -14,7 +15,9 @@ public class AppDb : ApiAuthorizationDbContext<User> {
     public DbSet<TradingBot> Bots { get; set; } = default!;
     public DbSet<TradingStrategy> Strategies { get; set; } = default!;
     public DbSet<OpportunistStrategy> OpportunistStrategies { get; set; } = default!;
-    
+    public DbSet<Blog> Blogs { get; set; } = default!;
+    public DbSet<Post> Posts { get; set; } = default!;
+
     public AppDb(DbContextOptions options, IOptions<OperationalStoreOptions> operationalStoreOptions)
         : base(options, operationalStoreOptions)
     {
@@ -22,6 +25,12 @@ public class AppDb : ApiAuthorizationDbContext<User> {
     
     protected override void OnModelCreating(ModelBuilder modelBuilder) {
         base.OnModelCreating(modelBuilder);
+
+        modelBuilder.Entity<Blog>()
+            .Property<string?>("PostId");
+        
+        modelBuilder.Entity<TradingBot>()
+            .Property<string?>("StrategyId");
     }
     
     protected override void ConfigureConventions(ModelConfigurationBuilder builder) {
