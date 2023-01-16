@@ -130,10 +130,7 @@ namespace Nummi.Core.Database.Migrations
                     LastExecutedAt = table.Column<DateTime>(type: "TEXT", nullable: true),
                     TimesFailed = table.Column<uint>(type: "INTEGER", nullable: false),
                     ErrorState = table.Column<string>(type: "TEXT", nullable: true),
-                    ErrorHistory = table.Column<string>(type: "TEXT", nullable: true),
-                    Discriminator = table.Column<string>(type: "TEXT", nullable: false),
-                    OpportunistParameters = table.Column<string>(type: "TEXT", nullable: true),
-                    OpportunistState = table.Column<string>(type: "TEXT", nullable: true)
+                    ErrorHistory = table.Column<string>(type: "TEXT", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -283,6 +280,25 @@ namespace Nummi.Core.Database.Migrations
                         principalColumn: "Id");
                 });
 
+            migrationBuilder.CreateTable(
+                name: "OpportunistStrategy",
+                columns: table => new
+                {
+                    Id = table.Column<string>(type: "TEXT", nullable: false),
+                    OpportunistParameters = table.Column<string>(type: "TEXT", nullable: true),
+                    OpportunistState = table.Column<string>(type: "TEXT", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_OpportunistStrategy", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_OpportunistStrategy_Strategy_Id",
+                        column: x => x.Id,
+                        principalTable: "Strategy",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
                 table: "AspNetRoleClaims",
@@ -397,6 +413,9 @@ namespace Nummi.Core.Database.Migrations
 
             migrationBuilder.DropTable(
                 name: "Keys");
+
+            migrationBuilder.DropTable(
+                name: "OpportunistStrategy");
 
             migrationBuilder.DropTable(
                 name: "PersistedGrants");

@@ -11,8 +11,8 @@ using Nummi.Core.Database;
 namespace Nummi.Core.Database.Migrations
 {
     [DbContext(typeof(AppDb))]
-    [Migration("20230115052428_Initial")]
-    partial class Initial
+    [Migration("20230116035941_RemoveIdGeneration")]
+    partial class RemoveIdGeneration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -293,7 +293,7 @@ namespace Nummi.Core.Database.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("Nummi.Core.Domain.Crypto.Bot.TradingBot", b =>
+            modelBuilder.Entity("Nummi.Core.Domain.Crypto.Bots.Bot", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("TEXT");
@@ -316,13 +316,41 @@ namespace Nummi.Core.Database.Migrations
                     b.ToTable("Bot");
                 });
 
-            modelBuilder.Entity("Nummi.Core.Domain.Crypto.Trading.Strategy.TradingStrategy", b =>
+            modelBuilder.Entity("Nummi.Core.Domain.Crypto.Bots.Execution.BotThreadEntity", b =>
                 {
-                    b.Property<string>("Id")
+                    b.Property<uint>("Id")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("BotId")
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("Discriminator")
-                        .IsRequired()
+                    b.HasKey("Id");
+
+                    b.HasIndex("BotId")
+                        .IsUnique();
+
+                    b.ToTable("BotThread");
+                });
+
+            modelBuilder.Entity("Nummi.Core.Domain.Crypto.Data.HistoricalPrice", b =>
+                {
+                    b.Property<string>("Symbol")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("Time")
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("Price")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Symbol", "Time");
+
+                    b.ToTable("HistoricalPrice");
+                });
+
+            modelBuilder.Entity("Nummi.Core.Domain.Crypto.Strategies.Strategy", b =>
+                {
+                    b.Property<string>("Id")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("ErrorHistory")
@@ -348,11 +376,9 @@ namespace Nummi.Core.Database.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Strategy");
+                    b.ToTable("Strategy", (string)null);
 
-                    b.HasDiscriminator<string>("Discriminator").HasValue("TradingStrategy");
-
-                    b.UseTphMappingStrategy();
+                    b.UseTptMappingStrategy();
                 });
 
             modelBuilder.Entity("Nummi.Core.Domain.Test.Blog", b =>
@@ -452,21 +478,17 @@ namespace Nummi.Core.Database.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
-            modelBuilder.Entity("Nummi.Core.Domain.Crypto.Trading.Strategy.Opportunist.OpportunistStrategy", b =>
+            modelBuilder.Entity("Nummi.Core.Domain.Crypto.Strategies.Opportunist.OpportunistStrategy", b =>
                 {
-                    b.HasBaseType("Nummi.Core.Domain.Crypto.Trading.Strategy.TradingStrategy");
+                    b.HasBaseType("Nummi.Core.Domain.Crypto.Strategies.Strategy");
 
                     b.Property<string>("Parameters")
-                        .HasColumnType("TEXT")
-                        .HasColumnName("OpportunistParameters");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("State")
-                        .HasColumnType("TEXT")
-                        .HasColumnName("OpportunistState");
+                        .HasColumnType("TEXT");
 
-                    b.ToTable("Strategy");
-
-                    b.HasDiscriminator().HasValue("OpportunistStrategy");
+                    b.ToTable("OpportunistStrategy", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -520,13 +542,22 @@ namespace Nummi.Core.Database.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Nummi.Core.Domain.Crypto.Bot.TradingBot", b =>
+            modelBuilder.Entity("Nummi.Core.Domain.Crypto.Bots.Bot", b =>
                 {
-                    b.HasOne("Nummi.Core.Domain.Crypto.Trading.Strategy.TradingStrategy", "Strategy")
+                    b.HasOne("Nummi.Core.Domain.Crypto.Strategies.Strategy", "Strategy")
                         .WithOne()
-                        .HasForeignKey("Nummi.Core.Domain.Crypto.Bot.TradingBot", "StrategyId");
+                        .HasForeignKey("Nummi.Core.Domain.Crypto.Bots.Bot", "StrategyId");
 
                     b.Navigation("Strategy");
+                });
+
+            modelBuilder.Entity("Nummi.Core.Domain.Crypto.Bots.Execution.BotThreadEntity", b =>
+                {
+                    b.HasOne("Nummi.Core.Domain.Crypto.Bots.Bot", "Bot")
+                        .WithOne()
+                        .HasForeignKey("Nummi.Core.Domain.Crypto.Bots.Execution.BotThreadEntity", "BotId");
+
+                    b.Navigation("Bot");
                 });
 
             modelBuilder.Entity("Nummi.Core.Domain.Test.Blog", b =>
@@ -536,6 +567,15 @@ namespace Nummi.Core.Database.Migrations
                         .HasForeignKey("PostId");
 
                     b.Navigation("Post");
+                });
+
+            modelBuilder.Entity("Nummi.Core.Domain.Crypto.Strategies.Opportunist.OpportunistStrategy", b =>
+                {
+                    b.HasOne("Nummi.Core.Domain.Crypto.Strategies.Strategy", null)
+                        .WithOne()
+                        .HasForeignKey("Nummi.Core.Domain.Crypto.Strategies.Opportunist.OpportunistStrategy", "Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }
