@@ -1,17 +1,17 @@
-using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 using KSUID;
 using Microsoft.EntityFrameworkCore;
-using Nummi.Core.Domain.Crypto.Bot;
+using NLog;
 using Nummi.Core.Util;
 
-namespace Nummi.Core.Domain.Crypto.Trading.Strategy; 
+namespace Nummi.Core.Domain.Crypto.Strategies; 
 
-[Table("Strategy")]
 [PrimaryKey("Id")]
-[JsonConverter(typeof(Serializer.AbstractTypeConverter<TradingStrategy>))]
-public abstract class TradingStrategy {
+[JsonConverter(typeof(Serializer.AbstractTypeConverter<Strategy>))]
+public abstract class Strategy {
     
+    private static readonly Logger Log = LogManager.GetCurrentClassLogger();
+
     // Unique id for this strategy
     public string Id { get; } = Ksuid.Generate().ToString();
     
@@ -34,12 +34,12 @@ public abstract class TradingStrategy {
     public uint TimesFailed { get; private set; }
     
     // The current error state. Includes info on what error occurred and when
-    public BotError? ErrorState { get; private set; }
+    public StrategyError? ErrorState { get; private set; }
     
     // Historical errors
-    public BotErrorHistory? ErrorHistory { get; private set; }
+    public StrategyErrorHistory? ErrorHistory { get; private set; }
     
-    protected TradingStrategy(TimeSpan frequency) {
+    protected Strategy(TimeSpan frequency) {
         Frequency = frequency;
     }
     
@@ -54,17 +54,24 @@ public abstract class TradingStrategy {
     }
 
     public Result CheckForTrades(TradingContext env) {
+        if (ErrorState != null) {
+            Log.Info("ErrorState is not null, cannot run strategy while in error state");
+            return new Result();
+        }
         if (!Initialized) {
             Initialize(env);
         }
         try {
             ++TimesExecuted;
             LastExecutedAt = DateTime.Now;
-            return DoCheckForTrades(env);
+            var result = DoCheckForTrades(env);
+            env.AppDb.Attach(this);
+            env.AppDb.Update(this);
+            return result;
         }
         catch (Exception e) {
             ++TimesFailed;
-            ErrorState = new BotError(DateTime.Now, e.ToString());
+            PushErrorState(new StrategyError(DateTime.Now, e.ToString()));
             throw new StrategyException($"ExecuteTrades() failed for user TradingStrategy {Id}", e);
         }
     }
@@ -73,11 +80,18 @@ public abstract class TradingStrategy {
         Profit += amount;
     }
 
+    private void PushErrorState(StrategyError error) {
+        if (ErrorState != null) {
+            ClearErrorState();
+        }
+        ErrorState = error;
+    }
+
     public void ClearErrorState() {
         if (ErrorState == null) {
             throw new ArgumentException("No error state to clear");
         }
-        ErrorHistory ??= new BotErrorHistory();
+        ErrorHistory ??= new StrategyErrorHistory();
         ErrorHistory.Add(ErrorState);
         ErrorState = null;
     }

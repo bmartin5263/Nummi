@@ -1,6 +1,6 @@
 using Nummi.Core.Database;
 
-namespace Nummi.Core.Domain.Crypto.Bot; 
+namespace Nummi.Core.Domain.Crypto.Bots; 
 
 public class BotEnvironment {
     

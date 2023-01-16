@@ -1,12 +1,15 @@
 using System.Collections.Concurrent;
 using Microsoft.EntityFrameworkCore;
+using NLog;
 using Nummi.Core.Database;
-using Nummi.Core.Domain.Crypto.Bot.Execution.Command;
+using Nummi.Core.Domain.Crypto.Bots.Execution.Command;
 using Nummi.Core.Util;
 
-namespace Nummi.Core.Domain.Crypto.Bot.Execution; 
+namespace Nummi.Core.Domain.Crypto.Bots.Execution; 
 
 public class BotThread {
+    
+    private static readonly Logger Log = LogManager.GetCurrentClassLogger();
 
     public uint Id { get; }
     public string? BotId { get; private set; }
@@ -25,7 +28,29 @@ public class BotThread {
         Controller = new BotThreadController(this);
     }
 
+    public void InitializeBot() {
+        using var scope = ServiceProvider.CreateScope();
+        using var appDb = scope.ServiceProvider.GetService<AppDb>()!;
+
+        var botThread = appDb.BotThreads
+            .Include(v => v.Bot)
+            .FirstOrDefault(v => v.Id == Id);
+        
+        if (botThread == null) {
+            appDb.BotThreads.Add(new BotThreadEntity(Id));
+        }
+        else {
+            if (botThread.Bot != null) {
+                Message($"Auto Assigning Bot [{botThread.Bot.Name}]");
+                BotId = botThread.Bot.Id;
+            }
+        }
+
+        appDb.SaveChanges();
+    }
+
     public void MainLoop() {
+        InitializeBot();
         Message("Entering Main Loop");
         while (!CancellationToken.IsCancellationRequested) {
             ProcessCommands();
@@ -53,7 +78,7 @@ public class BotThread {
         using var appDb = scope.ServiceProvider.GetService<AppDb>()!;
         using var transaction = new DbTransaction(appDb);
 
-        TradingBot? bot = appDb.Bots
+        Bot? bot = appDb.Bots
             .Include(b => b.Strategy)
             .FirstOrDefault(b => b.Id == BotId);
         
@@ -89,13 +114,24 @@ public class BotThread {
     }
 
     private void Message(string msg, params object[] args) {
-        Console.WriteLine("Thread #" + Id + " - " + msg, args);
+        Log.Info($"Thread #{Id} - " + msg, args);
     }
 
     private void AssertBotExists(string botId) {
         using var scope = ServiceProvider.CreateScope();
         using var appDb = scope.ServiceProvider.GetService<AppDb>()!;
         appDb.Bots.FindById(botId);
+    }
+
+    private BotThreadEntity GetBotThreadEntity(AppDb appDb) {
+        var botThread = appDb.BotThreads.Find(Id);
+        if (botThread != null) {
+            return botThread;
+        }
+        botThread = new BotThreadEntity(Id);
+        appDb.BotThreads.Add(botThread);
+        appDb.Attach(botThread);
+        return botThread;
     }
 
     public class BotThreadController {
@@ -108,10 +144,23 @@ public class BotThread {
         public void AssignBot(string botId) {
             BotThread.Message($"Assigning Bot {botId}");
             BotThread.BotId = botId;
+            
+            using var scope = BotThread.ServiceProvider.CreateScope();
+            using var appDb = scope.ServiceProvider.GetService<AppDb>()!;
+            var bot = appDb.Bots.FindById(botId);
+            var botThreadEntity = BotThread.GetBotThreadEntity(appDb);
+            botThreadEntity.Bot = bot;
+            appDb.SaveChanges();
         }
 
         public void RemoveBot() {
             BotThread.BotId = null;
+            
+            using var scope = BotThread.ServiceProvider.CreateScope();
+            using var appDb = scope.ServiceProvider.GetService<AppDb>()!;
+            var botThreadEntity = BotThread.GetBotThreadEntity(appDb);
+            botThreadEntity.Bot = null;
+            appDb.SaveChanges();
         }
     }
 }

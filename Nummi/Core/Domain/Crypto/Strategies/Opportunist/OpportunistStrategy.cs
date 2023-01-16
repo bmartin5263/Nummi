@@ -1,26 +1,23 @@
-using System.ComponentModel.DataAnnotations.Schema;
+using Nummi.Core.Domain.Crypto.Data;
 using Nummi.Core.Util;
 
-namespace Nummi.Core.Domain.Crypto.Trading.Strategy.Opportunist; 
+namespace Nummi.Core.Domain.Crypto.Strategies.Opportunist; 
 
 public class OpportunistStrategy : 
-    TradingStrategy, 
+    Strategy, 
     IParameterizedStrategy<OpportunistStrategy.OpportunistParameters> 
 {
     public class OpportunistParameters {
-        public string? SomeData { get; set; }
-        public int? Number { get; set; }
+        public IList<string> Symbols { get; set; } = new List<string>();
         public override string ToString() => this.ToFormattedString();
     }
-    [Column("OpportunistParameters")] 
     public OpportunistParameters? Parameters { get; set; }
 
     public class OpportunistState {
-        public int Counter { get; set; }
-        public OpportunistState(int counter) { Counter = counter; }
+        public IDictionary<string, IList<HistoricalPrice>> HistoricalPrices { get; } =
+            new Dictionary<string, IList<HistoricalPrice>>();
         public override string ToString() => this.ToFormattedString();
     }
-    [Column("OpportunistState")]
     public OpportunistState? State { get; set; }
     
     public Type ParameterObjectType => typeof(OpportunistParameters);
@@ -40,17 +37,28 @@ public class OpportunistStrategy :
 
     protected override void DoInitialize(TradingContext env) {
         Parameters.ThrowIfNull(() => new ArgumentException("Missing Parameters"));
-        State = new OpportunistState(10);
+        State = new OpportunistState();
         Message("Initialized");
     }
 
     protected override Result DoCheckForTrades(TradingContext env) {
         Parameters.ThrowIfNull(() => new ArgumentException("Missing Parameters"));
         Message("Checking For Trades");
-        Message($"Parameters: {Parameters}");
-        Message($"State: {State}");
-        ++State!.Counter;
-        ++Parameters!.Number;
+
+        throw new ArithmeticException("wtf");
+
+        var prices = env.BinanceClient.GetSpotPrice(Parameters!.Symbols).ToList();
+        env.AppDb.HistoricalPrices.AddRange(prices);
+        foreach (var price in prices) {
+            if (!State!.HistoricalPrices.ContainsKey(price.Symbol)) {
+                var list = new List<HistoricalPrice> { price };
+                State.HistoricalPrices[price.Symbol] = list;
+            }
+            else {
+                State.HistoricalPrices[price.Symbol].Add(price);
+            }
+        }
+        
         return new Result();
     }
     

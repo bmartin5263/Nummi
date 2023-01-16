@@ -1,7 +1,7 @@
-// using Nummi.Core.Domain.Crypto.Bot;
-// using Nummi.Core.Domain.Crypto.Bot.Execution;
-// using Nummi.Core.Domain.Crypto.Bot.Strategy;
-// using Nummi.Core.Domain.Crypto.Trading.Strategy;
+// using Nummi.Core.Domain.Crypto.Bots;
+// using Nummi.Core.Domain.Crypto.Bots.Execution;
+// using Nummi.Core.Domain.Crypto.Bots.Strategy;
+// using Nummi.Core.Domain.Crypto.Strategies;
 //
 // namespace NummiTests;
 //

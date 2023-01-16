@@ -1,4 +1,4 @@
-namespace Nummi.Core.Domain.Crypto.Trading.Strategy; 
+namespace Nummi.Core.Domain.Crypto.Strategies; 
 
 public class StrategyException : Exception {
     public StrategyException(string? message) : base(message) { }

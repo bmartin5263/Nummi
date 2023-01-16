@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Nummi.Api.Model;
-using Nummi.Core.Domain.Crypto.Bot;
-using Nummi.Core.Domain.Crypto.Bot.Execution;
+using Nummi.Core.Domain.Crypto.Bots;
+using Nummi.Core.Domain.Crypto.Bots.Execution;
 
 namespace Nummi.Api.Controllers; 
 
@@ -9,8 +9,8 @@ namespace Nummi.Api.Controllers;
 [ApiController]
 public class ThreadController : ControllerBase {
 
-    private BotService BotService {get; set;}
-    private BotExecutor BotExecutor {get; set;}
+    private BotService BotService {get; }
+    private BotExecutor BotExecutor {get; }
 
     public ThreadController(BotService botService, BotExecutor botExecutor) {
         BotService = botService;

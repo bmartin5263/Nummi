@@ -1,4 +1,4 @@
-using Nummi.Core.Domain.Crypto.Bot;
+using Nummi.Core.Domain.Crypto.Strategies;
 
 namespace Nummi.Api.Model; 
 
@@ -10,7 +10,7 @@ public class StrategyDto {
     public uint TimesExecuted { get; set; }
     public DateTime? LastExecutedAt { get; set; }
     public uint? TimesFailed { get; set; }
-    public BotError? ErrorState { get; set; }
-    public BotErrorHistory? ErrorHistory { get; set; }
+    public StrategyError? ErrorState { get; set; }
+    public StrategyErrorHistory? ErrorHistory { get; set; }
     public IDictionary<string, object?>? ImplementationDetails { get; set; }
 }

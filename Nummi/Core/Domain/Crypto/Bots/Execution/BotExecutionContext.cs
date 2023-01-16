@@ -1,11 +1,11 @@
-namespace Nummi.Core.Domain.Crypto.Bot.Execution; 
+namespace Nummi.Core.Domain.Crypto.Bots.Execution; 
 
 public class BotExecutionContext {
-    public TradingBot Bot { get; }
+    public Bot Bot { get; }
     public IServiceScope Scope { get; }
     public CancellationToken CancellationToken { get; }
 
-    public BotExecutionContext(TradingBot bot, IServiceScope scope, CancellationToken cancellationToken) {
+    public BotExecutionContext(Bot bot, IServiceScope scope, CancellationToken cancellationToken) {
         Bot = bot;
         CancellationToken = cancellationToken;
         Scope = scope;

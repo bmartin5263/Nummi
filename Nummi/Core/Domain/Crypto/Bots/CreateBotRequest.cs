@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace Nummi.Core.Domain.Crypto.Bot; 
+namespace Nummi.Core.Domain.Crypto.Bots; 
 
 public class CreateBotRequest {
     [Required]

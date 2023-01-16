@@ -1,11 +1,12 @@
 using Microsoft.EntityFrameworkCore;
 using Nummi.Core.Database;
 using Nummi.Core.Domain.Crypto.Client;
-using Nummi.Core.Domain.Crypto.Trading.Strategy;
+using Nummi.Core.Domain.Crypto.Strategies;
+using Nummi.Core.External.Binance;
 using Nummi.Core.Util;
 using static Nummi.Core.Util.Assertions;
 
-namespace Nummi.Core.Domain.Crypto.Bot; 
+namespace Nummi.Core.Domain.Crypto.Bots; 
 
 public class BotService {
 
@@ -17,20 +18,20 @@ public class BotService {
         ServiceProvider = serviceProvider;
     }
 
-    public TradingBot CreateBot(CreateBotRequest request) {
-        var bot = new TradingBot(request.Name!, request.Funds ?? 0);
+    public Bot CreateBot(CreateBotRequest request) {
+        var bot = new Bot(request.Name!, request.Funds ?? 0);
         AppDb.Bots.Add(bot);
         Assert(AppDb.SaveChanges() == 1);
         return bot;
     }
 
-    public TradingBot GetBotById(string id) {
+    public Bot GetBotById(string id) {
         var bot = AppDb.Bots
             .Include(b => b.Strategy)
             .FirstOrDefault(b => b.Id == id);
 
         if (bot == null) {
-            throw new EntityNotFoundException<TradingBot>(id);
+            throw new EntityNotFoundException<Bot>(id);
         }
         
         return bot;
@@ -45,13 +46,13 @@ public class BotService {
         AppDb.SaveChanges();
     }
 
-    public IEnumerable<TradingBot> GetBots() {
+    public IEnumerable<Bot> GetBots() {
         return AppDb.Bots
             .Include(b => b.Strategy)
             .ToList();
     }
 
-    public TradingBot SetBotStrategy(string botId, string strategyId) {
+    public Bot SetBotStrategy(string botId, string strategyId) {
         var bot = GetBotById(botId);
         var strategy = AppDb.Strategies.FindById(strategyId);
         bot.Strategy = strategy;
@@ -59,7 +60,7 @@ public class BotService {
         return GetBotById(botId);
     }
 
-    public TradingBot RunBotStrategy(string botId) {
+    public Bot RunBotStrategy(string botId) {
         var bot = GetBotById(botId);
 
         var env = new BotEnvironment(
@@ -75,7 +76,7 @@ public class BotService {
         return GetBotById(botId);
     }
 
-    public TradingStrategy RunBotStrategy2(string strategyId) {
+    public Strategy RunBotStrategy2(string strategyId) {
         var strategy = AppDb.Strategies.FindById(strategyId);
 
         var env = new BotEnvironment(
@@ -85,10 +86,12 @@ public class BotService {
         );
 
         var cryptoClient = env.GetService<CryptoClientMock>();
-        var tradingContext = new TradingContext(cryptoClient, 0);
+        var binanceClient = env.GetService<BinanceClient>();
+        var tradingContext = new TradingContext(cryptoClient, 0, binanceClient, AppDb);
         
         strategy.CheckForTrades(tradingContext);
         
+        AppDb.Strategies.Update(strategy!);
         AppDb.SaveChanges();
         return strategy;
     }

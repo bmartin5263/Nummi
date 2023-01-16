@@ -1,4 +1,4 @@
-namespace Nummi.Core.Domain.Crypto.Bot.Execution; 
+namespace Nummi.Core.Domain.Crypto.Bots.Execution; 
 
 public class BotExecutor : BackgroundService {
     

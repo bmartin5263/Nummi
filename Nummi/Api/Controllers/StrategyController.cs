@@ -1,6 +1,7 @@
+using System.Text.Json.Nodes;
 using Microsoft.AspNetCore.Mvc;
 using Nummi.Api.Model;
-using Nummi.Core.Domain.Crypto.Trading.Strategy;
+using Nummi.Core.Domain.Crypto.Strategies;
 
 namespace Nummi.Api.Controllers; 
 
@@ -22,10 +23,19 @@ public class StrategyController : ControllerBase {
             .ToDto();
     }
     
+    [Route("{strategyId}")]
+    [HttpPut]
+    public StrategyDto UpdateStrategyParameters(string strategyId, [FromBody] JsonNode parameters) {
+        return StrategyService
+            .UpdateStrategyParameters(strategyId, parameters)
+            .ToDto();
+    }
+    
     [Route("")]
     [HttpGet]
     public StrategyFilterResponse GetStrategies() {
-        var strategies = StrategyService.GetStrategies()
+        var strategies = StrategyService
+            .GetStrategies()
             .Select(v => v.ToDto())
             .ToList();
 
@@ -38,5 +48,11 @@ public class StrategyController : ControllerBase {
         return StrategyService
             .GetStrategyById(strategyId)
             .ToDto();
+    }
+    
+    [Route("{strategyId}/error")]
+    [HttpDelete]
+    public void ClearErrorState(string strategyId) {
+        StrategyService.ClearErrorState(strategyId);
     }
 }

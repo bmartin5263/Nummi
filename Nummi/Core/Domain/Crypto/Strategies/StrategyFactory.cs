@@ -1,16 +1,16 @@
 using System.Text.Json.Nodes;
 using Nummi.Core.Util;
 
-namespace Nummi.Core.Domain.Crypto.Trading.Strategy; 
+namespace Nummi.Core.Domain.Crypto.Strategies; 
 
 public static class StrategyFactory {
     
     private static readonly Type[] KNOWN_SUBTYPES = AppDomain.CurrentDomain.GetAssemblies()
         .SelectMany(domainAssembly => domainAssembly.GetExportedTypes())
-        .Where(type => typeof(TradingStrategy).IsAssignableFrom(type))
+        .Where(type => typeof(Strategy).IsAssignableFrom(type))
         .ToArray();
 
-    public static TradingStrategy Create(string name, JsonNode? parameterObject) {
+    public static Strategy Create(string name, JsonNode? parameterObject) {
         Console.WriteLine($"Attempting to Instantiate Strategy with name matching '{name}'");
         var lowercase = name.ToLower();
         foreach (var type in KNOWN_SUBTYPES) {
@@ -24,12 +24,12 @@ public static class StrategyFactory {
         throw new ArgumentException($"No Strategy matching name '{name}'");
     }
 
-    public static T Create<T>(string name, JsonNode? parameterObject = null) where T : TradingStrategy {
+    public static T Create<T>(string name, JsonNode? parameterObject = null) where T : Strategy {
         return (T) Create(name, parameterObject);
     }
 
-    private static TradingStrategy InstantiateStrategy(Type type, JsonNode? parameterObject) {
-        var strategy = (TradingStrategy) Activator.CreateInstance(type)!;
+    private static Strategy InstantiateStrategy(Type type, JsonNode? parameterObject) {
+        var strategy = (Strategy) Activator.CreateInstance(type)!;
         var strategyImplType = strategy.GetType();
 
         bool isParameterized = strategyImplType.GetInterfaces()
@@ -41,7 +41,7 @@ public static class StrategyFactory {
         return strategy;
     }
 
-    private static void InjectParameterObject(TradingStrategy strategy, JsonNode parameterObject) {
+    public static void InjectParameterObject(Strategy strategy, JsonNode parameterObject) {
         IParameterizedStrategy parameterizedStrategy = (IParameterizedStrategy) strategy;
         var type = parameterizedStrategy.ParameterObjectType;
         var parametersInstance = Serializer.FromJson<object>(parameterObject, type)!;

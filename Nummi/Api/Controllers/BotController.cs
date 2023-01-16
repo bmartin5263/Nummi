@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Nummi.Api.Model;
-using Nummi.Core.Domain.Crypto.Bot;
+using Nummi.Core.Domain.Crypto.Bots;
 
 namespace Nummi.Api.Controllers; 
 

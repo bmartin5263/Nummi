@@ -1,6 +1,6 @@
-using Nummi.Core.Domain.Crypto.Bot;
+using Nummi.Core.Domain.Crypto.Bots;
 using Nummi.Core.Domain.Crypto.Data;
-using Nummi.Core.Domain.Crypto.Trading.Strategy;
+using Nummi.Core.Domain.Crypto.Strategies;
 using Nummi.Core.Domain.Test;
 
 namespace Nummi.Api.Model; 
@@ -60,7 +60,7 @@ public static class ModelMapper {
         };
     }
 
-    public static StockBotDto ToDto(this TradingBot bot) {
+    public static StockBotDto ToDto(this Bot bot) {
         return new StockBotDto {
             Id = bot.Id.ToString(),
             Name = bot.Name,
@@ -69,7 +69,7 @@ public static class ModelMapper {
         };
     }
 
-    public static StrategyDto ToDto(this TradingStrategy strategy) {
+    public static StrategyDto ToDto(this Strategy strategy) {
         return new StrategyDto {
             Id = strategy.Id.ToString(),
             Frequency = strategy.Frequency,
