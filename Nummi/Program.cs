@@ -59,7 +59,7 @@ builder.Services.AddSingleton<MarketDataService>();
 builder.Services.AddSingleton<IStockClient, StockClientAlpaca>();
 builder.Services.AddSingleton<IAlpacaClient, AlpacaClientPaper>();
 builder.Services.AddSingleton<CoinbaseClient>();
-builder.Services.AddSingleton<BinanceClient>();
+builder.Services.AddSingleton<BinanceClientAdapter>();
 builder.Services.AddSingleton<CryptowatchClient>();
 builder.Services.AddSingleton<CryptoClientLive>();
 builder.Services.AddSingleton<CryptoClientMock>();

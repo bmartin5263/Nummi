@@ -7,9 +7,9 @@ namespace Nummi.Core.Domain.Crypto.Data;
 [Table("HistoricalPrice")]
 [PrimaryKey(nameof(Symbol), nameof(Time))]
 public class HistoricalPrice {
-    public string Symbol { get; set; }
-    public DateTime Time { get; set; }
-    public decimal Price { get; set; }
+    public string Symbol { get; init; }
+    public DateTime Time { get; init; }
+    public decimal Price { get; init; }
 
     private HistoricalPrice() {
         Symbol = "";

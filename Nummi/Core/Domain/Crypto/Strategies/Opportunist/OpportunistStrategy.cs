@@ -1,3 +1,4 @@
+using NLog;
 using Nummi.Core.Domain.Crypto.Data;
 using Nummi.Core.Util;
 
@@ -7,8 +8,10 @@ public class OpportunistStrategy :
     Strategy, 
     IParameterizedStrategy<OpportunistStrategy.OpportunistParameters> 
 {
+    private static readonly Logger Log = LogManager.GetCurrentClassLogger();
+
     public class OpportunistParameters {
-        public IList<string> Symbols { get; set; } = new List<string>();
+        public ISet<string> Symbols { get; set; } = new HashSet<string>();
         public override string ToString() => this.ToFormattedString();
     }
     public OpportunistParameters? Parameters { get; set; }
@@ -44,25 +47,19 @@ public class OpportunistStrategy :
     protected override Result DoCheckForTrades(TradingContext env) {
         Parameters.ThrowIfNull(() => new ArgumentException("Missing Parameters"));
         Message("Checking For Trades");
-
-        throw new ArithmeticException("wtf");
-
-        var prices = env.BinanceClient.GetSpotPrice(Parameters!.Symbols).ToList();
-        env.AppDb.HistoricalPrices.AddRange(prices);
-        foreach (var price in prices) {
-            if (!State!.HistoricalPrices.ContainsKey(price.Symbol)) {
-                var list = new List<HistoricalPrice> { price };
-                State.HistoricalPrices[price.Symbol] = list;
-            }
-            else {
-                State.HistoricalPrices[price.Symbol].Add(price);
-            }
-        }
         
+        List<HistoricalPrice> prices = env.BinanceClientAdapter.GetSpotPrice(Parameters!.Symbols).ToList();
+        foreach (var symbol in Parameters.Symbols) {
+            IEnumerable<HistoricalMinuteCandlestick> candlesticks = env.BinanceClientAdapter.GetMinuteCandlestick(symbol);
+            env.AppDb.HistoricalMinuteCandlesticks.AddRange(candlesticks);
+        }
+
+        env.AppDb.HistoricalPrices.AddRange(prices);
+
         return new Result();
     }
     
     private void Message(string msg) {
-        Console.WriteLine($"{nameof(OpportunistStrategy)} - {msg}");
+        Log.Info($"{Id} - {msg}");
     }
 }

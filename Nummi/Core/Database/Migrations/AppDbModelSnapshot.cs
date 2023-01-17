@@ -329,6 +329,37 @@ namespace Nummi.Core.Database.Migrations
                     b.ToTable("BotThread");
                 });
 
+            modelBuilder.Entity("Nummi.Core.Domain.Crypto.Data.HistoricalMinuteCandlestick", b =>
+                {
+                    b.Property<string>("Symbol")
+                        .HasColumnType("TEXT");
+
+                    b.Property<long>("OpenTimeEpoch")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<decimal>("Close")
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("High")
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("Low")
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("Open")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("OpenTime")
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("Volume")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Symbol", "OpenTimeEpoch");
+
+                    b.ToTable("HistoricalMinuteCandlestick");
+                });
+
             modelBuilder.Entity("Nummi.Core.Domain.Crypto.Data.HistoricalPrice", b =>
                 {
                     b.Property<string>("Symbol")

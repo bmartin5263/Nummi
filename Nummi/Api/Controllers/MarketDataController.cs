@@ -10,18 +10,18 @@ public class MarketDataController : ControllerBase {
 
     [Route("")]
     [HttpGet]
-    public IEnumerable<HistoricalPrice> GetPrice(IList<string> symbols) {
-        var client = new BinanceClient();
+    public IEnumerable<HistoricalPrice> GetPrice(ISet<string> symbols) {
+        var client = new BinanceClientAdapter();
         var response = client.GetSpotPrice(symbols);
         return response;
     }
 
-    [Route("/all")]
-    [HttpGet]
-    public IEnumerable<HistoricalPrice> GetPrice() {
-        var client = new BinanceClient();
-        var response = client.GetSpotPrice();
-        return response;
-    }
+    // [Route("/all")]
+    // [HttpGet]
+    // public IEnumerable<HistoricalPrice> GetPrice() {
+    //     var client = new BinanceClientAdapter();
+    //     var response = client.GetSpotPrice();
+    //     return response;
+    // }
 
 }

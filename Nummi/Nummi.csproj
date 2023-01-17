@@ -18,7 +18,6 @@
 
     <ItemGroup>
         <PackageReference Include="Alpaca.Markets" Version="6.1.7" />
-        <PackageReference Include="Binance.Net" Version="8.3.0" />
         <PackageReference Include="Coinbase" Version="6.0.1" />
         <PackageReference Include="CsvHelper" Version="30.0.1" />
         <PackageReference Include="Ksuid" Version="1.0.0" />

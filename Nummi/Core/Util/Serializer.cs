@@ -1,13 +1,22 @@
 using System.Globalization;
+using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
+using System.Text.Json.Serialization.Metadata;
 using CsvHelper;
 
 namespace Nummi.Core.Util; 
 
 public class Serializer {
+    
     private const string TYPE_FIELD = "$type";
+    
+    private static JsonSerializerOptions DEFAULT_OPTIONS => new()
+    {
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        TypeInfoResolver = new PrivateConstructorContractResolver()
+    };
 
     public static IEnumerable<T> FromCsv<T>(string path) {
         var reader = new StreamReader(path);
@@ -25,35 +34,35 @@ public class Serializer {
     }
 
     public static string ToJson<T>(T value) {
-        var serializeOptions = new JsonSerializerOptions
-        {
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-        };
-        return JsonSerializer.Serialize(value, serializeOptions);
+        return JsonSerializer.Serialize(value, DEFAULT_OPTIONS);
+    }
+
+    public static JsonNode? ToJsonNode(string json) {
+        return JsonSerializer.SerializeToNode(json, DEFAULT_OPTIONS);
     }
 
     public static T? FromJson<T>(string json) {
-        var serializeOptions = new JsonSerializerOptions
-        {
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-        };
-        return JsonSerializer.Deserialize<T>(json, serializeOptions);
+        return JsonSerializer.Deserialize<T>(json, DEFAULT_OPTIONS);
     }
 
+    public static JsonElement ToJsonElement(string json) {
+        return JsonSerializer.Deserialize<JsonElement>(json, DEFAULT_OPTIONS);
+    }
+
+    // public static T? FromJsonToNode<T>(string json) {
+    //     var DEFAULT_OPTIONS = new JsonSerializerOptions
+    //     {
+    //         PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+    //     };
+    //     return JsonSerializer.Deserialize<T>(json, DEFAULT_OPTIONS);
+    // }
+
     public static T? FromJson<T>(string json, Type type) {
-        var serializeOptions = new JsonSerializerOptions
-        {
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-        };
-        return (T?) JsonSerializer.Deserialize(json, type, serializeOptions);
+        return (T?) JsonSerializer.Deserialize(json, type, DEFAULT_OPTIONS);
     }
 
     public static T? FromJson<T>(JsonNode? node, Type type) {
-        var serializeOptions = new JsonSerializerOptions
-        {
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-        };
-        return (T?) node.Deserialize(type, serializeOptions);
+        return (T?) node.Deserialize(type, DEFAULT_OPTIONS);
     }
 
     public class AbstractTypeConverter<T> : JsonConverter<T> {
@@ -80,5 +89,22 @@ public class Serializer {
             node.Add(TYPE_FIELD, value!.GetType().Name);
             node.WriteTo(writer);
         }
+    }
+}
+
+public class PrivateConstructorContractResolver : DefaultJsonTypeInfoResolver
+{
+    public override JsonTypeInfo GetTypeInfo(Type type, JsonSerializerOptions options)
+    {
+        JsonTypeInfo jsonTypeInfo = base.GetTypeInfo(type, options);
+
+        if (jsonTypeInfo.Kind == JsonTypeInfoKind.Object && jsonTypeInfo.CreateObject is null) {
+            if (jsonTypeInfo.Type.GetConstructors(BindingFlags.Public | BindingFlags.Instance).All(c => c.GetParameters().Length != 0)) {
+                // The type doesn't have public constructors
+                jsonTypeInfo.CreateObject = () => Activator.CreateInstance(jsonTypeInfo.Type, true)!;
+            }
+        }
+
+        return jsonTypeInfo;
     }
 }

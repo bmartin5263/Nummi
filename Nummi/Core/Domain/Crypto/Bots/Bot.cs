@@ -53,7 +53,7 @@ public class Bot {
 
     private void RunTradingStrategy(BotEnvironment env) {
         var cryptoClient = env.GetService<CryptoClientMock>();
-        var binanceClient = env.GetService<BinanceClient>();
+        var binanceClient = env.GetService<BinanceClientAdapter>();
         var tradingContext = new TradingContext(cryptoClient, Funds, binanceClient, env.AppDb);
         var result = Strategy!.CheckForTrades(tradingContext);
     }

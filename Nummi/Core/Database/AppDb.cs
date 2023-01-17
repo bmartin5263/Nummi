@@ -18,6 +18,7 @@ public class AppDb : ApiAuthorizationDbContext<User> {
     public DbSet<Strategy> Strategies { get; set; } = default!;
     public DbSet<OpportunistStrategy> OpportunistStrategies { get; set; } = default!;
     public DbSet<HistoricalPrice> HistoricalPrices { get; set; } = default!;
+    public DbSet<HistoricalMinuteCandlestick> HistoricalMinuteCandlesticks { get; set; } = default!;
     public DbSet<BotThreadEntity> BotThreads { get; set; } = default!;
     public DbSet<Blog> Blogs { get; set; } = default!;
     public DbSet<Post> Posts { get; set; } = default!;
@@ -51,6 +52,12 @@ public class AppDb : ApiAuthorizationDbContext<User> {
         
         modelBuilder.Entity<Strategy>().ToTable(nameof(Strategy));
         modelBuilder.Entity<OpportunistStrategy>().ToTable(nameof(OpportunistStrategy));
+        
+        modelBuilder.Entity<Strategy>().OwnsOne(
+            s => s.ErrorState, ownedNavigationBuilder =>
+            {
+                ownedNavigationBuilder.ToJson();
+            });
     }
     
     protected override void ConfigureConventions(ModelConfigurationBuilder builder) {

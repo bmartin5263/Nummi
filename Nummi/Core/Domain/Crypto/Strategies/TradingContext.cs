@@ -7,13 +7,13 @@ namespace Nummi.Core.Domain.Crypto.Strategies;
 public class TradingContext {
     public ICryptoClient CryptoClient { get; }
     public decimal Allowance { get; }
-    public BinanceClient BinanceClient { get; }
+    public BinanceClientAdapter BinanceClientAdapter { get; }
     public AppDb AppDb { get; }
 
-    public TradingContext(ICryptoClient cryptoClient, decimal allowance, BinanceClient binanceClient, AppDb appDb) {
+    public TradingContext(ICryptoClient cryptoClient, decimal allowance, BinanceClientAdapter binanceClientAdapter, AppDb appDb) {
         CryptoClient = cryptoClient;
         Allowance = allowance;
-        BinanceClient = binanceClient;
+        BinanceClientAdapter = binanceClientAdapter;
         AppDb = appDb;
     }
 }

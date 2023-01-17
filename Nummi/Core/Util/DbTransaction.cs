@@ -1,9 +1,13 @@
+using Microsoft.EntityFrameworkCore;
+using NLog;
 using Nummi.Core.Database;
 
 namespace Nummi.Core.Util; 
 
 public class DbTransaction : IDisposable {
     
+    private static readonly Logger Log = LogManager.GetCurrentClassLogger();
+
     private readonly AppDb appDb;
     
     public DbTransaction(AppDb appDb) {
@@ -11,7 +15,11 @@ public class DbTransaction : IDisposable {
     }
 
     public void Dispose() {
-        Console.WriteLine("Saving Changes...");
-        appDb.SaveChanges();
+        try {
+            appDb.SaveChanges();
+        }
+        catch (DbUpdateException e) {
+            Log.Info(e.Message);
+        }
     }
 }
