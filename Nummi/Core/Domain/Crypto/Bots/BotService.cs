@@ -63,7 +63,7 @@ public class BotService {
     public Bot RunBotStrategy(string botId) {
         var bot = GetBotById(botId);
 
-        var env = new BotEnvironment(
+        var env = new ApplicationContext(
             serviceProvider: ServiceProvider,
             scope: ServiceProvider.CreateScope(),
             appDb: AppDb
@@ -79,7 +79,7 @@ public class BotService {
     public Strategy RunBotStrategy2(string strategyId) {
         var strategy = AppDb.Strategies.FindById(strategyId);
 
-        var env = new BotEnvironment(
+        var env = new ApplicationContext(
             serviceProvider: ServiceProvider,
             scope: ServiceProvider.CreateScope(),
             appDb: AppDb
@@ -87,7 +87,7 @@ public class BotService {
 
         var cryptoClient = env.GetService<CryptoClientMock>();
         var binanceClient = env.GetService<BinanceClientAdapter>();
-        var tradingContext = new TradingContext(cryptoClient, 0, binanceClient, AppDb);
+        var tradingContext = new TradingContext(TradingEnvironment.Simulated, cryptoClient, 0, binanceClient, AppDb);
         
         strategy.CheckForTrades(tradingContext);
         
@@ -98,6 +98,12 @@ public class BotService {
 
     public void ValidateId(string id) {
         GetBotById(id);
+    }
+    
+    public void ClearErrorState(string botId) {
+        var bot = GetBotById(botId);
+        bot.ClearErrorState();
+        AppDb.SaveChanges();
     }
     
 }

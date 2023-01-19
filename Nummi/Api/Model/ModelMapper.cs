@@ -60,28 +60,46 @@ public static class ModelMapper {
         };
     }
 
-    public static StockBotDto ToDto(this Bot bot) {
-        return new StockBotDto {
+    public static BotDto ToDto(this Bot bot) {
+        return new BotDto {
             Id = bot.Id.ToString(),
             Name = bot.Name,
-            Strategy = bot.Strategy?.ToDto(),
+            Environment = bot.Environment,
+            InErrorState = bot.InErrorState,
             Funds = bot.Funds,
+            LastStrategyLog = bot.LastStrategyLog?.ToDto(),
+            Strategy = bot.Strategy?.ToDto()
         };
     }
 
     public static StrategyDto ToDto(this Strategy strategy) {
-        return new StrategyDto {
-            Id = strategy.Id.ToString(),
+        var dto = new StrategyDto {
+            Id = strategy.Id,
             Frequency = strategy.Frequency,
             Initialized = strategy.Initialized,
             Profit = strategy.Profit,
             TimesExecuted = strategy.TimesExecuted,
             LastExecutedAt = strategy.LastExecutedAt,
             TimesFailed = strategy.TimesFailed,
-            ErrorState = strategy.ErrorState,
-            ErrorHistory = strategy.ErrorHistory,
-            ImplementationDetails = strategy.GetStateMap()
+            Logs = strategy.Logs.Select(ToDto).ToList()
         };
+        if (strategy is IParameterizedStrategy parameterizedStrategy) {
+            dto.Parameters = parameterizedStrategy.Parameters;
+        }
+
+        return dto;
+    }
+
+    public static StrategyLogDto ToDto(this StrategyLog log) {
+        var dto = new StrategyLogDto {
+            Id = log.Id,
+            StrategyId = log.Strategy.Id,
+            Environment = log.Environment,
+            StartTime = log.StartTime,
+            EndTime = log.EndTime,
+            Error = log.Error
+        };
+        return dto;
     }
 
     public static BlogDto ToDto(this Blog blog) {

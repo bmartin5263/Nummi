@@ -70,6 +70,37 @@ namespace Nummi.Core.Database.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "HistoricalMinuteCandlestick",
+                columns: table => new
+                {
+                    Symbol = table.Column<string>(type: "TEXT", nullable: false),
+                    OpenTimeEpoch = table.Column<long>(type: "INTEGER", nullable: false),
+                    OpenTime = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    Open = table.Column<decimal>(type: "TEXT", nullable: false),
+                    High = table.Column<decimal>(type: "TEXT", nullable: false),
+                    Low = table.Column<decimal>(type: "TEXT", nullable: false),
+                    Close = table.Column<decimal>(type: "TEXT", nullable: false),
+                    Volume = table.Column<decimal>(type: "TEXT", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_HistoricalMinuteCandlestick", x => new { x.Symbol, x.OpenTimeEpoch });
+                });
+
+            migrationBuilder.CreateTable(
+                name: "HistoricalPrice",
+                columns: table => new
+                {
+                    Symbol = table.Column<string>(type: "TEXT", nullable: false),
+                    Time = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    Price = table.Column<decimal>(type: "TEXT", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_HistoricalPrice", x => new { x.Symbol, x.Time });
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Keys",
                 columns: table => new
                 {
@@ -112,7 +143,8 @@ namespace Nummi.Core.Database.Migrations
                 columns: table => new
                 {
                     Id = table.Column<string>(type: "TEXT", nullable: false),
-                    Content = table.Column<string>(type: "TEXT", nullable: false)
+                    Content = table.Column<string>(type: "TEXT", nullable: false),
+                    Meta = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -128,9 +160,7 @@ namespace Nummi.Core.Database.Migrations
                     Profit = table.Column<decimal>(type: "TEXT", nullable: false),
                     TimesExecuted = table.Column<uint>(type: "INTEGER", nullable: false),
                     LastExecutedAt = table.Column<DateTime>(type: "TEXT", nullable: true),
-                    TimesFailed = table.Column<uint>(type: "INTEGER", nullable: false),
-                    ErrorState = table.Column<string>(type: "TEXT", nullable: true),
-                    ErrorHistory = table.Column<string>(type: "TEXT", nullable: true)
+                    TimesFailed = table.Column<uint>(type: "INTEGER", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -262,31 +292,11 @@ namespace Nummi.Core.Database.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Bot",
-                columns: table => new
-                {
-                    Id = table.Column<string>(type: "TEXT", nullable: false),
-                    Name = table.Column<string>(type: "TEXT", nullable: false),
-                    StrategyId = table.Column<string>(type: "TEXT", nullable: true),
-                    Funds = table.Column<decimal>(type: "TEXT", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Bot", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Bot_Strategy_StrategyId",
-                        column: x => x.StrategyId,
-                        principalTable: "Strategy",
-                        principalColumn: "Id");
-                });
-
-            migrationBuilder.CreateTable(
                 name: "OpportunistStrategy",
                 columns: table => new
                 {
                     Id = table.Column<string>(type: "TEXT", nullable: false),
-                    OpportunistParameters = table.Column<string>(type: "TEXT", nullable: true),
-                    OpportunistState = table.Column<string>(type: "TEXT", nullable: true)
+                    Symbols = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -297,6 +307,72 @@ namespace Nummi.Core.Database.Migrations
                         principalTable: "Strategy",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "StrategyLog",
+                columns: table => new
+                {
+                    Id = table.Column<string>(type: "TEXT", nullable: false),
+                    StrategyId = table.Column<string>(type: "TEXT", nullable: false),
+                    Environment = table.Column<string>(type: "TEXT", nullable: false),
+                    StartTime = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    EndTime = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    TotalTime = table.Column<TimeSpan>(type: "TEXT", nullable: false),
+                    Error = table.Column<string>(type: "TEXT", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_StrategyLog", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_StrategyLog_Strategy_StrategyId",
+                        column: x => x.StrategyId,
+                        principalTable: "Strategy",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.SetNull);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Bot",
+                columns: table => new
+                {
+                    Id = table.Column<string>(type: "TEXT", nullable: false),
+                    Name = table.Column<string>(type: "TEXT", nullable: false),
+                    StrategyId = table.Column<string>(type: "TEXT", nullable: true),
+                    LastStrategyLogId = table.Column<string>(type: "TEXT", nullable: true),
+                    InErrorState = table.Column<bool>(type: "INTEGER", nullable: false),
+                    Funds = table.Column<decimal>(type: "TEXT", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Bot", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Bot_StrategyLog_LastStrategyLogId",
+                        column: x => x.LastStrategyLogId,
+                        principalTable: "StrategyLog",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_Bot_Strategy_StrategyId",
+                        column: x => x.StrategyId,
+                        principalTable: "Strategy",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "BotThread",
+                columns: table => new
+                {
+                    Id = table.Column<uint>(type: "INTEGER", nullable: false),
+                    BotId = table.Column<string>(type: "TEXT", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_BotThread", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_BotThread_Bot_BotId",
+                        column: x => x.BotId,
+                        principalTable: "Bot",
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateIndex(
@@ -339,12 +415,25 @@ namespace Nummi.Core.Database.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_Blogs_PostId",
                 table: "Blogs",
-                column: "PostId");
+                column: "PostId",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Bot_LastStrategyLogId",
+                table: "Bot",
+                column: "LastStrategyLogId",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Bot_StrategyId",
                 table: "Bot",
                 column: "StrategyId",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_BotThread_BotId",
+                table: "BotThread",
+                column: "BotId",
                 unique: true);
 
             migrationBuilder.CreateIndex(
@@ -382,6 +471,11 @@ namespace Nummi.Core.Database.Migrations
                 name: "IX_PersistedGrants_SubjectId_SessionId_Type",
                 table: "PersistedGrants",
                 columns: new[] { "SubjectId", "SessionId", "Type" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_StrategyLog_StrategyId",
+                table: "StrategyLog",
+                column: "StrategyId");
         }
 
         /// <inheritdoc />
@@ -406,10 +500,16 @@ namespace Nummi.Core.Database.Migrations
                 name: "Blogs");
 
             migrationBuilder.DropTable(
-                name: "Bot");
+                name: "BotThread");
 
             migrationBuilder.DropTable(
                 name: "DeviceCodes");
+
+            migrationBuilder.DropTable(
+                name: "HistoricalMinuteCandlestick");
+
+            migrationBuilder.DropTable(
+                name: "HistoricalPrice");
 
             migrationBuilder.DropTable(
                 name: "Keys");
@@ -428,6 +528,12 @@ namespace Nummi.Core.Database.Migrations
 
             migrationBuilder.DropTable(
                 name: "Posts");
+
+            migrationBuilder.DropTable(
+                name: "Bot");
+
+            migrationBuilder.DropTable(
+                name: "StrategyLog");
 
             migrationBuilder.DropTable(
                 name: "Strategy");

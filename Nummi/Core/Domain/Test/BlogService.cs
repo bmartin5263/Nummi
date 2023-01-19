@@ -25,6 +25,14 @@ public class BlogService {
         return AppDb.Posts.FindById(post.Id);
     }
 
+
+    public Post UpdatePost(string id, int num) {
+        var post = AppDb.Posts.FindById(id);
+        post.Meta.FavoriteNumber = num;
+        AppDb.SaveChanges();
+        return AppDb.Posts.FindById(post.Id);
+    }
+
     public Blog GetBlogById(string id) {
         var blog = AppDb.Blogs
             .Include(b => b.Post)

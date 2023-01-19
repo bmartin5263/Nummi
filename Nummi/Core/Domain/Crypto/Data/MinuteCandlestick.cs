@@ -4,9 +4,9 @@ using Nummi.Core.Util;
 
 namespace Nummi.Core.Domain.Crypto.Data; 
 
-[Table(nameof(HistoricalMinuteCandlestick))]
+[Table("Historical" + nameof(MinuteCandlestick))]
 [PrimaryKey(nameof(Symbol), nameof(OpenTimeEpoch))]
-public class HistoricalMinuteCandlestick {
+public class MinuteCandlestick {
     public string Symbol { get; set; }
     public long OpenTimeEpoch { get; set; }
     public DateTime OpenTime { get; set; }
@@ -16,12 +16,12 @@ public class HistoricalMinuteCandlestick {
     public decimal Close { get; set; }
     public decimal Volume { get; set; }
 
-    private HistoricalMinuteCandlestick() {
+    private MinuteCandlestick() {
         Symbol = "";
         OpenTime = DateTime.MinValue;
     }
 
-    public HistoricalMinuteCandlestick(string symbol, long openTimeEpoch, decimal open, decimal high, decimal low, decimal close, decimal volume) {
+    public MinuteCandlestick(string symbol, long openTimeEpoch, decimal open, decimal high, decimal low, decimal close, decimal volume) {
         Symbol = symbol;
         OpenTimeEpoch = openTimeEpoch;
         OpenTime = DateTimeOffset.FromUnixTimeMilliseconds(openTimeEpoch).DateTime;

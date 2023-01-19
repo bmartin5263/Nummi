@@ -32,73 +32,45 @@ public abstract class Strategy {
     
     // How many times this trading strategy threw an exception
     public uint TimesFailed { get; private set; }
-    
-    // The current error state. Includes info on what error occurred and when
-    public StrategyError? ErrorState { get; private set; }
-    
-    // Historical errors
-    public StrategyErrorHistory? ErrorHistory { get; private set; }
-    
+
+    public virtual IList<StrategyLog> Logs { get; private set; } = new List<StrategyLog>();
+
     protected Strategy(TimeSpan frequency) {
         Frequency = frequency;
     }
-    
-    private void Initialize(TradingContext env) {
+
+    public StrategyLog CheckForTrades(TradingContext context) {
+        var logBuilder = new StrategyLogBuilder(this, context.Environment);
         try {
-            DoInitialize(env);
+            if (!Initialized) {
+                OnInitialize(context);
+                Initialized = true;
+            }
+        
+            var startTime = DateTime.Now;
+            LastExecutedAt = startTime;
+            ++TimesExecuted;
+            CheckForTrades(new TradingInterface(logBuilder));
+            
+            return logBuilder.Build();
         }
         catch (Exception e) {
-            throw new StrategyException($"PrepareForTrading() failed for user TradingStrategy {Id}", e);
+            Message($"Exception was thrown during CheckForTrades(): {e}");
+            ++TimesFailed;
+            logBuilder.Error = e;
+            throw new StrategyException(logBuilder.Build(), e);
         }
-        Initialized = true;
     }
 
-    public Result CheckForTrades(TradingContext env) {
-        if (ErrorState != null) {
-            Log.Info("ErrorState is not null, cannot run strategy while in error state");
-            return new Result();
-        }
-        if (!Initialized) {
-            Initialize(env);
-        }
-        try {
-            ++TimesExecuted;
-            LastExecutedAt = DateTime.Now;
-            var result = DoCheckForTrades(env);
-            env.AppDb.Attach(this);
-            env.AppDb.Update(this);
-            return result;
-        }
-        catch (Exception e) {
-            ++TimesFailed;
-            PushErrorState(new StrategyError(DateTime.Now, e.ToString()));
-            throw new StrategyException($"ExecuteTrades() failed for user TradingStrategy {Id}", e);
-        }
-    }
-    
     public void AddProfit(decimal amount) {
         Profit += amount;
     }
-
-    private void PushErrorState(StrategyError error) {
-        if (ErrorState != null) {
-            ClearErrorState();
-        }
-        ErrorState = error;
+    
+    protected void Message(string msg) {
+        Log.Info($"[{"Type".Purple()}:{GetType().Name.Cyan()}] - {msg}");
     }
 
-    public void ClearErrorState() {
-        if (ErrorState == null) {
-            throw new ArgumentException("No error state to clear");
-        }
-        ErrorHistory ??= new StrategyErrorHistory();
-        ErrorHistory.Add(ErrorState);
-        ErrorState = null;
-    }
-
-    protected abstract void DoInitialize(TradingContext env);
-    protected abstract Result DoCheckForTrades(TradingContext env);
-
-    public virtual IDictionary<string, object?>? GetStateMap() => null;
-
+    protected abstract void OnInitialize(TradingContext context);
+    protected abstract void CheckForTrades(TradingInterface context);
+    
 }

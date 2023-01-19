@@ -15,6 +15,9 @@ public class StrategyController : ControllerBase {
         StrategyService = strategyService;
     }
     
+    /// <summary>
+    /// Create a new instance of a given strategy with supplied parameters
+    /// </summary>
     [Route("")]
     [HttpPost]
     public StrategyDto CreateStrategy([FromBody] CreateStrategyRequest request) {
@@ -23,6 +26,9 @@ public class StrategyController : ControllerBase {
             .ToDto();
     }
     
+    /// <summary>
+    /// Update a given Strategy's parameters
+    /// </summary>
     [Route("{strategyId}")]
     [HttpPut]
     public StrategyDto UpdateStrategyParameters(string strategyId, [FromBody] JsonNode parameters) {
@@ -31,6 +37,9 @@ public class StrategyController : ControllerBase {
             .ToDto();
     }
     
+    /// <summary>
+    /// Get all strategies in the DB
+    /// </summary>
     [Route("")]
     [HttpGet]
     public StrategyFilterResponse GetStrategies() {
@@ -42,17 +51,14 @@ public class StrategyController : ControllerBase {
         return new StrategyFilterResponse(strategies);
     }
     
+    /// <summary>
+    /// Get a Strategy by its Id
+    /// </summary>
     [Route("{strategyId}")]
     [HttpGet]
     public StrategyDto GetStrategyById(string strategyId) {
         return StrategyService
             .GetStrategyById(strategyId)
             .ToDto();
-    }
-    
-    [Route("{strategyId}/error")]
-    [HttpDelete]
-    public void ClearErrorState(string strategyId) {
-        StrategyService.ClearErrorState(strategyId);
     }
 }

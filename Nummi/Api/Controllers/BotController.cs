@@ -14,28 +14,40 @@ public class BotController : ControllerBase {
         BotService = botService;
     }
 
+    /// <summary>
+    /// Create a new Bot instance
+    /// </summary>
     [Route("")]
     [HttpPost]
-    public StockBotDto CreateBot(CreateBotRequest request) {
+    public BotDto CreateBot(CreateBotRequest request) {
         return BotService
             .CreateBot(request)
             .ToDto();
     }
     
+    /// <summary>
+    /// Get a Bot by Id
+    /// </summary>
     [Route("{botId}")]
     [HttpGet]
-    public StockBotDto GetBotById(string botId) {
+    public BotDto GetBotById(string botId) {
         return BotService
             .GetBotById(botId)
             .ToDto();
     }
-    
+
+    /// <summary>
+    /// Delete a Bot by Id
+    /// </summary>
     [Route("{botId}")]
     [HttpDelete]
     public void DeleteBotById(string botId) {
         BotService.DeleteBotById(botId);
     }
     
+    /// <summary>
+    /// Get all Bots in the DB
+    /// </summary>
     [HttpGet]
     public BotFilterResponse GetAllBots() {
         var bots = BotService
@@ -46,28 +58,40 @@ public class BotController : ControllerBase {
         return new BotFilterResponse(bots);
     }
     
+    /// <summary>
+    /// Assign a Trading Strategy to a given Bot
+    /// </summary>
     [Route("{botId}/strategy/{strategyId}")]
     [HttpPatch]
-    public StockBotDto SetBotStrategy(string botId, string strategyId) {
+    public BotDto SetBotStrategy(string botId, string strategyId) {
         return BotService
             .SetBotStrategy(botId, strategyId)
             .ToDto();
     }
     
-    [Route("{botId}/strategy")]
-    [HttpPost]
-    public StockBotDto RunBotStrategy(string botId) {
-        return BotService
-            .RunBotStrategy(botId)
-            .ToDto();
-    }
+    // [Route("{botId}/strategy")]
+    // [HttpPost]
+    // public BotDto RunBotStrategy(string botId) {
+    //     return BotService
+    //         .RunBotStrategy(botId)
+    //         .ToDto();
+    // }
+    //
+    // [Route("{strategyId}/strategy2")]
+    // [HttpPost]
+    // public StrategyDto RunBotStrategy2(string strategyId) {
+    //     return BotService
+    //         .RunBotStrategy2(strategyId)
+    //         .ToDto();
+    // }
     
-    [Route("{strategyId}/strategy2")]
-    [HttpPost]
-    public StrategyDto RunBotStrategy2(string strategyId) {
-        return BotService
-            .RunBotStrategy2(strategyId)
-            .ToDto();
+    /// <summary>
+    /// Clears the Error State for a given Bot
+    /// </summary>
+    [Route("{botId}/error")]
+    [HttpDelete]
+    public void ClearErrorState(string botId) {
+        BotService.ClearErrorState(botId);
     }
 
 }

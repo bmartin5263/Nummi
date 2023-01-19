@@ -41,7 +41,7 @@ public class BotThread {
         }
         else {
             if (botThread.Bot != null) {
-                Message($"Auto Assigning Bot [{botThread.Bot.Name}]");
+                Message($"Auto Assigning Bot [{botThread.Bot.Name.Yellow()}]");
                 BotId = botThread.Bot.Id;
             }
         }
@@ -56,8 +56,10 @@ public class BotThread {
             ProcessCommands();
             var sleepTime = RunBotLogic();
             Task sleepTask = Task.Delay(sleepTime, CancellationToken);
+            Message($"Going to Sleep For {sleepTime}");
             sleepTask.Wait(CancellationToken);
         }
+        Message("Exiting");
     }
 
     private void ProcessCommands() {
@@ -80,6 +82,7 @@ public class BotThread {
 
         Bot? bot = appDb.Bots
             .Include(b => b.Strategy)
+            .Include(b => b.LastStrategyLog)
             .FirstOrDefault(b => b.Id == BotId);
         
         if (bot == null) {
@@ -90,17 +93,12 @@ public class BotThread {
 
         Message($"Waking Bot {bot.Name}");
         try {
-            var env = new BotEnvironment(ServiceProvider, scope, appDb);
-            var sleepTime = bot.WakeUp(env);
-            Message($"Going to Sleep For {sleepTime}");
-            return sleepTime;
+            var env = new ApplicationContext(ServiceProvider, scope, appDb);
+            return bot.WakeUp(env);
         }
         catch (Exception e) {
-            Message($"Trading Bot \"{bot.Name}\" threw an Exception during execution: {e}");
+            Message($"{"ERROR!!".Red()} Trading Bot \"{bot.Name.Yellow()}\" threw an Exception during execution: {e}");
             return DefaultSleepTime;
-        }
-        finally {
-            appDb.Strategies.Update(bot.Strategy!);
         }
     }
 
@@ -113,8 +111,8 @@ public class BotThread {
         CommandQueue.Enqueue(new RemoveBotCommand());
     }
 
-    private void Message(string msg, params object[] args) {
-        Log.Info($"Thread #{Id} - " + msg, args);
+    protected void Message(string msg) {
+        Log.Info($"[{"Id".Purple()}:{Id.ToString().Cyan()}] - {msg}");
     }
 
     private void AssertBotExists(string botId) {

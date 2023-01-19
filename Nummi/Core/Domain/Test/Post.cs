@@ -7,9 +7,11 @@ namespace Nummi.Core.Domain.Test;
 public class Post {
     public string Id { get; }
     public string Content { get; set; }
+    public Metadata Meta { get; set; }
 
     public Post(string content) {
         Id = Ksuid.Generate().ToString();
         Content = content;
+        Meta = new Metadata(DateTime.Now, "Johonas", 69);
     }
 }

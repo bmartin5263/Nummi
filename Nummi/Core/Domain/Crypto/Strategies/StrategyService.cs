@@ -40,11 +40,4 @@ public class StrategyService {
         
         return strategy;
     }
-
-    public void ClearErrorState(string strategyId) {
-        var strategy = GetStrategyById(strategyId);
-        strategy.ClearErrorState();
-        AppDb.Strategies.Update(strategy);
-        AppDb.SaveChanges();
-    }
 }

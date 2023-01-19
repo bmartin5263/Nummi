@@ -29,6 +29,14 @@ public class BlogController : ControllerBase {
             .CreatePost(content)
             .ToDto();
     }
+
+    [Route("/post/{id}")]
+    [HttpPost]
+    public PostDto UpdatePost(string id, int num) {
+        return BlogService
+            .UpdatePost(id, num)
+            .ToDto();
+    }
     
     [Route("/blog/{id}")]
     [HttpGet]

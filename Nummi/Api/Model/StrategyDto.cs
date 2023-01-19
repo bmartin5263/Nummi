@@ -1,5 +1,3 @@
-using Nummi.Core.Domain.Crypto.Strategies;
-
 namespace Nummi.Api.Model; 
 
 public class StrategyDto {
@@ -10,7 +8,6 @@ public class StrategyDto {
     public uint TimesExecuted { get; set; }
     public DateTime? LastExecutedAt { get; set; }
     public uint? TimesFailed { get; set; }
-    public StrategyError? ErrorState { get; set; }
-    public StrategyErrorHistory? ErrorHistory { get; set; }
-    public IDictionary<string, object?>? ImplementationDetails { get; set; }
+    public object? Parameters { get; set; }
+    public IList<StrategyLogDto> Logs { get; set; } = new List<StrategyLogDto>();
 }

@@ -26,9 +26,9 @@ public class BinanceClientAdapter {
             .Select(v => v.ToHistoricalPrice());
     }
     
-    public IEnumerable<HistoricalMinuteCandlestick> GetMinuteCandlestick(string symbol, DateTime? start = null, uint limit = 1) {
+    public IEnumerable<MinuteCandlestick> GetMinuteCandlestick(string symbol, DateTime? start = null, uint limit = 1) {
         if (Limited) {
-            return new List<HistoricalMinuteCandlestick>();
+            return new List<MinuteCandlestick>();
         }
 
         start ??= DateTime.Now.AddMinutes(-1);
@@ -44,11 +44,11 @@ public class BinanceClientAdapter {
             .OnStatusCode(IP_BANNED, v => LimitThyself(v))
             .ReadJsonElement();
 
-        var result = new List<HistoricalMinuteCandlestick>();
+        var result = new List<MinuteCandlestick>();
         var candlesticksIter = candlesticks.EnumerateArray();
         while (candlesticksIter.MoveNext()) {
             var candlestickValues = candlesticksIter.Current.EnumerateArray().ToList();
-            result.Add(new HistoricalMinuteCandlestick(
+            result.Add(new MinuteCandlestick(
                 symbol: symbol,
                 openTimeEpoch: candlestickValues[0].GetInt64(),
                 open: decimal.Parse(candlestickValues[1].GetString()!),

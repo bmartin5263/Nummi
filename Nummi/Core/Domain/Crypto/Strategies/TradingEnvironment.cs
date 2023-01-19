@@ -1,6 +1,6 @@
 namespace Nummi.Core.Domain.Crypto.Strategies; 
 
-public enum TradingMode {
+public enum TradingEnvironment {
     Simulated,
     Paper,
     Live

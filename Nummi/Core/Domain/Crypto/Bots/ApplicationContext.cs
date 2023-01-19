@@ -2,13 +2,13 @@ using Nummi.Core.Database;
 
 namespace Nummi.Core.Domain.Crypto.Bots; 
 
-public class BotEnvironment {
+public class ApplicationContext {
     
     public IServiceProvider ServiceProvider { get; }
     public IServiceScope Scope { get; }
     public AppDb AppDb { get; }
     
-    public BotEnvironment(IServiceProvider serviceProvider, IServiceScope scope, AppDb appDb) {
+    public ApplicationContext(IServiceProvider serviceProvider, IServiceScope scope, AppDb appDb) {
         ServiceProvider = serviceProvider;
         Scope = scope;
         AppDb = appDb;

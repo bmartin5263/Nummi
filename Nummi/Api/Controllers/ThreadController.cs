@@ -17,14 +17,20 @@ public class ThreadController : ControllerBase {
         BotExecutor = botExecutor;
     }
 
+    /// <summary>
+    /// Return all running Threads
+    /// </summary>
     [Route("")]
     [HttpGet]
     public BotThreadsOverview GetThreads() {
         return BotExecutor.GetThreads();
     }
     
+    /// <summary>
+    /// Assign a Bot to a given Thread
+    /// </summary>
     [Route("{threadId}/bot")]
-    [HttpPost]
+    [HttpPut]
     public void AssignBotToThread(
         uint threadId,
         [FromBody] AssignBotRequest request
@@ -36,6 +42,9 @@ public class ThreadController : ControllerBase {
         thread.RegisterBot(botId);
     }
     
+    /// <summary>
+    /// Remove a Thread's Bot
+    /// </summary>
     [Route("{threadId}/bot")]
     [HttpDelete]
     public void RemoveBotFromThread(
