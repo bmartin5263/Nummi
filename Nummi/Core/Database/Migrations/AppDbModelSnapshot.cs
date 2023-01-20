@@ -322,7 +322,7 @@ namespace Nummi.Core.Database.Migrations
                     b.ToTable("Bot");
                 });
 
-            modelBuilder.Entity("Nummi.Core.Domain.Crypto.Bots.Execution.BotThreadEntity", b =>
+            modelBuilder.Entity("Nummi.Core.Domain.Crypto.Bots.Thread.BotThreadEntity", b =>
                 {
                     b.Property<uint>("Id")
                         .HasColumnType("INTEGER");
@@ -338,23 +338,7 @@ namespace Nummi.Core.Database.Migrations
                     b.ToTable("BotThread");
                 });
 
-            modelBuilder.Entity("Nummi.Core.Domain.Crypto.Data.HistoricalPrice", b =>
-                {
-                    b.Property<string>("Symbol")
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime>("Time")
-                        .HasColumnType("TEXT");
-
-                    b.Property<decimal>("Price")
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Symbol", "Time");
-
-                    b.ToTable("HistoricalPrice");
-                });
-
-            modelBuilder.Entity("Nummi.Core.Domain.Crypto.Data.MinuteCandlestick", b =>
+            modelBuilder.Entity("Nummi.Core.Domain.Crypto.Data.MinuteBar", b =>
                 {
                     b.Property<string>("Symbol")
                         .HasColumnType("TEXT");
@@ -374,7 +358,7 @@ namespace Nummi.Core.Database.Migrations
                     b.Property<decimal>("Open")
                         .HasColumnType("TEXT");
 
-                    b.Property<DateTime>("OpenTime")
+                    b.Property<DateTime>("OpenTimeUtc")
                         .HasColumnType("TEXT");
 
                     b.Property<decimal>("Volume")
@@ -382,7 +366,23 @@ namespace Nummi.Core.Database.Migrations
 
                     b.HasKey("Symbol", "OpenTimeEpoch");
 
-                    b.ToTable("HistoricalMinuteCandlestick");
+                    b.ToTable("HistoricalMinuteBar");
+                });
+
+            modelBuilder.Entity("Nummi.Core.Domain.Crypto.Data.Price", b =>
+                {
+                    b.Property<string>("Symbol")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("Time")
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("Value")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Symbol", "Time");
+
+                    b.ToTable("HistoricalPrice");
                 });
 
             modelBuilder.Entity("Nummi.Core.Domain.Crypto.Strategies.Strategy", b =>
@@ -623,11 +623,11 @@ namespace Nummi.Core.Database.Migrations
                     b.Navigation("Strategy");
                 });
 
-            modelBuilder.Entity("Nummi.Core.Domain.Crypto.Bots.Execution.BotThreadEntity", b =>
+            modelBuilder.Entity("Nummi.Core.Domain.Crypto.Bots.Thread.BotThreadEntity", b =>
                 {
                     b.HasOne("Nummi.Core.Domain.Crypto.Bots.Bot", "Bot")
                         .WithOne()
-                        .HasForeignKey("Nummi.Core.Domain.Crypto.Bots.Execution.BotThreadEntity", "BotId");
+                        .HasForeignKey("Nummi.Core.Domain.Crypto.Bots.Thread.BotThreadEntity", "BotId");
 
                     b.Navigation("Bot");
                 });

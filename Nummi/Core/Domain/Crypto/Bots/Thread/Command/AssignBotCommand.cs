@@ -1,4 +1,4 @@
-namespace Nummi.Core.Domain.Crypto.Bots.Execution.Command; 
+namespace Nummi.Core.Domain.Crypto.Bots.Thread.Command; 
 
 public class AssignBotCommand : ICommand {
     private string BotId { get; }

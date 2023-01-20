@@ -2,10 +2,10 @@ using System.Collections.Concurrent;
 using Microsoft.EntityFrameworkCore;
 using NLog;
 using Nummi.Core.Database;
-using Nummi.Core.Domain.Crypto.Bots.Execution.Command;
+using Nummi.Core.Domain.Crypto.Bots.Thread.Command;
 using Nummi.Core.Util;
 
-namespace Nummi.Core.Domain.Crypto.Bots.Execution; 
+namespace Nummi.Core.Domain.Crypto.Bots.Thread; 
 
 public class BotThread {
     
@@ -97,7 +97,7 @@ public class BotThread {
             return bot.WakeUp(env);
         }
         catch (Exception e) {
-            Message($"{"ERROR!!".Red()} Trading Bot \"{bot.Name.Yellow()}\" threw an Exception during execution: {e}");
+            Message($"{"ERROR!!".Red()} Trading Bot [{bot.Name.Yellow()}] threw an Exception during execution: {e}");
             return DefaultSleepTime;
         }
     }

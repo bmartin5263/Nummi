@@ -5,7 +5,6 @@ using Microsoft.EntityFrameworkCore;
 using NLog;
 using Nummi.Core.Domain.Crypto.Client;
 using Nummi.Core.Domain.Crypto.Strategies;
-using Nummi.Core.External.Binance;
 using Nummi.Core.Util;
 
 namespace Nummi.Core.Domain.Crypto.Bots; 
@@ -56,11 +55,11 @@ public class Bot {
             return TimeSpan.FromSeconds(5);
         }
 
-        var now = DateTime.Now;
+        var now = DateTime.UtcNow;
         var lastExecutionTime = LastStrategyLog?.StartTime ?? DateTime.MinValue;
         if (lastExecutionTime + Strategy.Frequency > now) {
             var sleepTime = Strategy.Frequency - (now - lastExecutionTime);
-            Message("Not yet time to run strategy. Next execution in " + sleepTime);
+            Message($"Not yet time to run strategy. Last execution was at {lastExecutionTime.UtcToLocalTime()}");
             return sleepTime;
         }
 
@@ -78,9 +77,8 @@ public class Bot {
     }
 
     private void RunTradingStrategy(ApplicationContext env) {
-        var cryptoClient = env.GetService<CryptoClientMock>();
-        var binanceClient = env.GetService<BinanceClientAdapter>();
-        var tradingContext = new TradingContext(Environment, cryptoClient, Funds, binanceClient, env.AppDb);
+        var cryptoClient = env.GetScoped<CryptoClientMock>();
+        var tradingContext = new TradingContext(Environment, cryptoClient, Funds, env.AppDb);
         LastStrategyLog = Strategy!.CheckForTrades(tradingContext);
     }
 

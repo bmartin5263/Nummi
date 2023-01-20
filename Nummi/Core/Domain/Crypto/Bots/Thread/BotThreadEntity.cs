@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 
-namespace Nummi.Core.Domain.Crypto.Bots.Execution; 
+namespace Nummi.Core.Domain.Crypto.Bots.Thread; 
 
 [PrimaryKey(nameof(Id))]
 [Table("BotThread")]

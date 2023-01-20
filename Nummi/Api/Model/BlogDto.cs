@@ -1,4 +1,4 @@
-using Nummi.Api.Model;
+namespace Nummi.Api.Model; 
 
 public class BlogDto {
     public string? Id { get; set; }

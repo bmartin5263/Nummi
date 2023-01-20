@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Nummi.Api.Model;
 using Nummi.Core.Domain.Crypto.Bots;
-using Nummi.Core.Domain.Crypto.Bots.Execution;
+using Nummi.Core.Domain.Crypto.Bots.Thread;
 
 namespace Nummi.Api.Controllers; 
 
@@ -10,11 +10,11 @@ namespace Nummi.Api.Controllers;
 public class ThreadController : ControllerBase {
 
     private BotService BotService {get; }
-    private BotExecutor BotExecutor {get; }
+    private BotThreadSpawner BotThreadSpawner {get; }
 
-    public ThreadController(BotService botService, BotExecutor botExecutor) {
+    public ThreadController(BotService botService, BotThreadSpawner botThreadSpawner) {
         BotService = botService;
-        BotExecutor = botExecutor;
+        BotThreadSpawner = botThreadSpawner;
     }
 
     /// <summary>
@@ -23,7 +23,7 @@ public class ThreadController : ControllerBase {
     [Route("")]
     [HttpGet]
     public BotThreadsOverview GetThreads() {
-        return BotExecutor.GetThreads();
+        return BotThreadSpawner.GetThreads();
     }
     
     /// <summary>
@@ -38,7 +38,7 @@ public class ThreadController : ControllerBase {
         var botId = request.BotId!;
         BotService.ValidateId(botId);
         
-        var thread = BotExecutor.GetThread(threadId);
+        var thread = BotThreadSpawner.GetThread(threadId);
         thread.RegisterBot(botId);
     }
     
@@ -50,7 +50,7 @@ public class ThreadController : ControllerBase {
     public void RemoveBotFromThread(
         uint threadId
     ) {
-        var thread = BotExecutor.GetThread(threadId);
+        var thread = BotThreadSpawner.GetThread(threadId);
         thread.DeregisterBot();
     }
     

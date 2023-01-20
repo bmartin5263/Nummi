@@ -42,15 +42,24 @@ public abstract class Strategy {
     public StrategyLog CheckForTrades(TradingContext context) {
         var logBuilder = new StrategyLogBuilder(this, context.Environment);
         try {
+            var startTime = DateTime.UtcNow;
+            var tradingInterface = new TradingInterface(logBuilder);
             if (!Initialized) {
-                OnInitialize(context);
+                Message($"Initializing Strategy for First Run".Blue());
+                OnInitialize(tradingInterface);
                 Initialized = true;
             }
-        
-            var startTime = DateTime.Now;
+            else {
+                var elapsed = startTime - LastExecutedAt;
+                if (elapsed != null && elapsed >= Frequency * 2) {
+                    Message($"{"Clock Leap Detected!".Yellow()} (LastExecutedAt={LastExecutedAt?.UtcToLocalTime()}, Elapsed={elapsed})");
+                    OnClockLeap(tradingInterface, (TimeSpan) elapsed);
+                }
+            }
+
             LastExecutedAt = startTime;
             ++TimesExecuted;
-            CheckForTrades(new TradingInterface(logBuilder));
+            CheckForTrades(tradingInterface);
             
             return logBuilder.Build();
         }
@@ -70,7 +79,8 @@ public abstract class Strategy {
         Log.Info($"[{"Type".Purple()}:{GetType().Name.Cyan()}] - {msg}");
     }
 
-    protected abstract void OnInitialize(TradingContext context);
+    protected abstract void OnInitialize(TradingInterface context);
+    protected virtual void OnClockLeap(TradingInterface context, TimeSpan elapsed) {}
     protected abstract void CheckForTrades(TradingInterface context);
     
 }

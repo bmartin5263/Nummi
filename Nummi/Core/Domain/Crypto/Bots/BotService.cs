@@ -1,8 +1,5 @@
 using Microsoft.EntityFrameworkCore;
 using Nummi.Core.Database;
-using Nummi.Core.Domain.Crypto.Client;
-using Nummi.Core.Domain.Crypto.Strategies;
-using Nummi.Core.External.Binance;
 using Nummi.Core.Util;
 using static Nummi.Core.Util.Assertions;
 
@@ -11,11 +8,9 @@ namespace Nummi.Core.Domain.Crypto.Bots;
 public class BotService {
 
     private AppDb AppDb { get; }
-    private IServiceProvider ServiceProvider { get; }
 
-    public BotService(AppDb appDb, IServiceProvider serviceProvider) {
+    public BotService(AppDb appDb) {
         AppDb = appDb;
-        ServiceProvider = serviceProvider;
     }
 
     public Bot CreateBot(CreateBotRequest request) {
@@ -58,42 +53,6 @@ public class BotService {
         bot.Strategy = strategy;
         AppDb.SaveChanges();
         return GetBotById(botId);
-    }
-
-    public Bot RunBotStrategy(string botId) {
-        var bot = GetBotById(botId);
-
-        var env = new ApplicationContext(
-            serviceProvider: ServiceProvider,
-            scope: ServiceProvider.CreateScope(),
-            appDb: AppDb
-        );
-
-        bot.WakeUp(env);
-
-        AppDb.Strategies.Update(bot.Strategy!);
-        AppDb.SaveChanges();
-        return GetBotById(botId);
-    }
-
-    public Strategy RunBotStrategy2(string strategyId) {
-        var strategy = AppDb.Strategies.FindById(strategyId);
-
-        var env = new ApplicationContext(
-            serviceProvider: ServiceProvider,
-            scope: ServiceProvider.CreateScope(),
-            appDb: AppDb
-        );
-
-        var cryptoClient = env.GetService<CryptoClientMock>();
-        var binanceClient = env.GetService<BinanceClientAdapter>();
-        var tradingContext = new TradingContext(TradingEnvironment.Simulated, cryptoClient, 0, binanceClient, AppDb);
-        
-        strategy.CheckForTrades(tradingContext);
-        
-        AppDb.Strategies.Update(strategy!);
-        AppDb.SaveChanges();
-        return strategy;
     }
 
     public void ValidateId(string id) {

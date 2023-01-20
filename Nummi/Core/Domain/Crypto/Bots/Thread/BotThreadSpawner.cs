@@ -1,12 +1,12 @@
-namespace Nummi.Core.Domain.Crypto.Bots.Execution; 
+namespace Nummi.Core.Domain.Crypto.Bots.Thread; 
 
-public class BotExecutor : BackgroundService {
+public class BotThreadSpawner : BackgroundService {
     
     private IServiceProvider ServiceProvider { get; }
     private uint NumThreads { get; }
     private BotThread[] Threads { get; }
 
-    public BotExecutor(IServiceProvider serviceProvider, uint numThreads) {
+    public BotThreadSpawner(IServiceProvider serviceProvider, uint numThreads) {
         ServiceProvider = serviceProvider;
         NumThreads = numThreads;
         Threads = new BotThread[numThreads];

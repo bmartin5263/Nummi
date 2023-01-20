@@ -13,7 +13,7 @@ public class StrategyLogBuilder {
     public StrategyLogBuilder(Strategy strategy, TradingEnvironment environment) {
         Strategy = strategy;
         Environment = environment;
-        StartTime = DateTime.Now;
+        StartTime = DateTime.UtcNow;
     }
 
     public StrategyLog Build() {
@@ -21,7 +21,7 @@ public class StrategyLogBuilder {
             strategy: Strategy,
             environment: Environment,
             startTime: StartTime,
-            endTime: DateTime.Now,
+            endTime: DateTime.UtcNow,
             error: Error?.ToString()
         );
     }

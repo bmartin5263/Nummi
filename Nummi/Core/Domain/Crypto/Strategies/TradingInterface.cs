@@ -9,7 +9,15 @@ public class TradingInterface {
         LogBuilder = logBuilder;
     }
 
-    public MinuteCandlestick GetMinuteCandlestick() {
+    public IEnumerable<MinuteBar> GetMinuteBars(IEnumerable<string> symbols) {
+        throw new NotImplementedException();
+    } 
+
+    public IEnumerable<MinuteBar> GetHistoricalMinuteBars(
+        IEnumerable<string> symbols,
+        DateTime from,
+        DateTime to
+    ) {
         throw new NotImplementedException();
     } 
 }

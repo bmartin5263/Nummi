@@ -12,6 +12,6 @@ public class Post {
     public Post(string content) {
         Id = Ksuid.Generate().ToString();
         Content = content;
-        Meta = new Metadata(DateTime.Now, "Johonas", 69);
+        Meta = new Metadata(DateTime.UtcNow, "Johonas", 69);
     }
 }

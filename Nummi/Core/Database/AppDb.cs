@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.Extensions.Options;
 using Nummi.Core.Domain.Crypto.Bots;
-using Nummi.Core.Domain.Crypto.Bots.Execution;
+using Nummi.Core.Domain.Crypto.Bots.Thread;
 using Nummi.Core.Domain.Crypto.Data;
 using Nummi.Core.Domain.Crypto.Strategies;
 using Nummi.Core.Domain.Crypto.Strategies.Opportunist;
@@ -19,8 +19,8 @@ public class AppDb : ApiAuthorizationDbContext<User> {
     public DbSet<Strategy> Strategies { get; set; } = default!;
     public DbSet<StrategyLog> StrategyLogs { get; set; } = default!;
     public DbSet<OpportunistStrategy> OpportunistStrategies { get; set; } = default!;
-    public DbSet<HistoricalPrice> HistoricalPrices { get; set; } = default!;
-    public DbSet<MinuteCandlestick> HistoricalMinuteCandlesticks { get; set; } = default!;
+    public DbSet<Price> HistoricalPrices { get; set; } = default!;
+    public DbSet<MinuteBar> HistoricalMinuteBars { get; set; } = default!;
     public DbSet<BotThreadEntity> BotThreads { get; set; } = default!;
     public DbSet<Blog> Blogs { get; set; } = default!;
     public DbSet<Post> Posts { get; set; } = default!;
@@ -36,12 +36,6 @@ public class AppDb : ApiAuthorizationDbContext<User> {
         // TBT Strategy
         modelBuilder.Entity<Strategy>().ToTable(nameof(Strategy));
         modelBuilder.Entity<OpportunistStrategy>().ToTable(nameof(OpportunistStrategy));
-
-        modelBuilder.Entity<Strategy>()
-            .HasMany(c => c.Logs)
-            .WithOne(e => e.Strategy)
-            .IsRequired()
-            .OnDelete(DeleteBehavior.SetNull);
 
         modelBuilder.OneToOne<Blog, Post>("PostId", b => b.Post);
         modelBuilder.OneToOne<Bot, Strategy>("StrategyId", b => b.Strategy);

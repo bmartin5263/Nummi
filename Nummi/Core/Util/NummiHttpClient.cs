@@ -12,10 +12,22 @@ public class NummiHttpClient {
     
     private HttpClient Client { get; }
     private string BaseUrl { get; }
+    private Dictionary<HttpStatusCode, Action<HttpResponseReader>> DefaultStatusCodeActions { get; } = new();
+    private List<string> DefaultLogHeaders { get; } = new();
 
     public NummiHttpClient(HttpClient httpClient, string baseUrl) {
         Client = httpClient;
         BaseUrl = baseUrl;
+    }
+
+    public NummiHttpClient OnStatusCode(HttpStatusCode code, Action<HttpResponseReader> action) {
+        DefaultStatusCodeActions[code] = action;
+        return this;
+    }
+    
+    public NummiHttpClient LogHeaders(params string[] keys) {
+        DefaultLogHeaders.AddRange(keys);
+        return this;
     }
 
     public HttpRequestBuilder Post(string suffix = "", object? body = default) {
@@ -24,7 +36,9 @@ public class NummiHttpClient {
             method: HttpMethod.Post,
             baseUrl: BaseUrl,
             suffix: suffix,
-            body: body
+            body: body,
+            defaultStatusCodeActions: DefaultStatusCodeActions,
+            defaultLogHeaders: DefaultLogHeaders
         );
     }
 
@@ -34,7 +48,9 @@ public class NummiHttpClient {
             method: HttpMethod.Get,
             baseUrl: BaseUrl,
             suffix: suffix,
-            body: null
+            body: null,
+            defaultStatusCodeActions: DefaultStatusCodeActions,
+            defaultLogHeaders: DefaultLogHeaders
         );
     }
     
@@ -48,14 +64,26 @@ public class HttpRequestBuilder {
     private string Suffix { get; }
     private HttpMethod Method { get; }
     private object? Body { get; }
+    private IDictionary<HttpStatusCode, Action<HttpResponseReader>> DefaultStatusCodeActions { get; }
+    private IList<string> DefaultLogHeaders { get; }
     private IList<string>? PathArgs { get; set; }
     private IDictionary<string, string>? Parameters { get; set; }
 
-    public HttpRequestBuilder(HttpClient client, HttpMethod method, string baseUrl, string suffix, object? body) {
+    public HttpRequestBuilder(
+        HttpClient client, 
+        HttpMethod method, 
+        string baseUrl, 
+        string suffix, 
+        object? body, 
+        IDictionary<HttpStatusCode, Action<HttpResponseReader>> defaultStatusCodeActions, 
+        IList<string> defaultLogHeaders
+    ) {
         Client = client;
         BaseUrl = baseUrl;
         Suffix = suffix;
         Body = body;
+        DefaultStatusCodeActions = defaultStatusCodeActions;
+        DefaultLogHeaders = defaultLogHeaders;
         Method = method;
     }
 
@@ -91,7 +119,7 @@ public class HttpRequestBuilder {
             Content = content
         });
 
-        return new HttpResponseReader(response.Result);
+        return new HttpResponseReader(response.Result, DefaultStatusCodeActions, DefaultLogHeaders);
     }
 
     private HttpContent? CreateContent() {
@@ -167,14 +195,22 @@ public class HttpRequestBuilder {
 
 public class HttpResponseReader {
     private static readonly Logger Log = LogManager.GetCurrentClassLogger();
+    
     private HttpResponseMessage Response { get; }
+    private IDictionary<HttpStatusCode, Action<HttpResponseReader>> DefaultStatusCodeActions { get; }
+    private IList<string> DefaultLogHeaders { get; }
     private string Json { get; }
 
-    public HttpResponseReader(HttpResponseMessage response) {
+    public HttpResponseReader(HttpResponseMessage response, IDictionary<HttpStatusCode, Action<HttpResponseReader>> defaultStatusCodeActions, IList<string> defaultLogHeaders) {
         Response = response;
+        DefaultStatusCodeActions = defaultStatusCodeActions;
+        DefaultLogHeaders = defaultLogHeaders;
         Json = Response.Content.ReadAsStringAsync().Result;
         if (Response.IsSuccessStatusCode) {
             Log.Info("Code: ".Yellow() + Response.StatusCode.ToString().Green());
+            if (DefaultLogHeaders.Count > 0) {
+                LogHeaders(DefaultLogHeaders.ToArray());
+            }
         }
         else {
             Log.Info("Code: ".Yellow() + Response.StatusCode.ToString().Red());
@@ -183,7 +219,7 @@ public class HttpResponseReader {
         }
     }
 
-    public HttpResponseReader LogAllHeaders(params string[] keys) {
+    public HttpResponseReader LogAllHeaders() {
         Log.Info("Headers: ".Yellow() + Response.Headers.ToJoinedString().Cyan());
         return this;
     }
@@ -201,7 +237,29 @@ public class HttpResponseReader {
     }
 
     public HttpResponseReader OnStatusCode(HttpStatusCode code, Action<HttpResponseReader> action) {
-        if (Response.StatusCode == code) {
+        if (Response.StatusCode != code) {
+            return this;
+        }
+        
+        if (DefaultStatusCodeActions.TryGetValue(code, out Action<HttpResponseReader>? value)) {
+            value(this);
+        }
+        else {
+            action(this);
+        }
+
+        return this;
+    }
+
+    public HttpResponseReader OnStatusCodes(HttpStatusCode[] codes, Action<HttpResponseReader> action) {
+        if (!codes.Contains(Response.StatusCode)) {
+            return this;
+        }
+        
+        if (DefaultStatusCodeActions.TryGetValue(Response.StatusCode, out Action<HttpResponseReader>? value)) {
+            value(this);
+        }
+        else {
             action(this);
         }
 
@@ -210,6 +268,35 @@ public class HttpResponseReader {
 
     public HttpResponseReader OnStatusCode(int code, Action<HttpResponseReader> action) {
         return OnStatusCode((HttpStatusCode) code, action);
+    }
+    
+    public HttpResponseReader ReadHeader(string key, out IEnumerable<string>? values) {
+        Response.Headers.TryGetValues(key, out values);
+        return this;
+    }
+    
+    public HttpResponseReader ReadFirstHeader(string key, out string? value) {
+        Response.Headers.TryGetValues(key, out IEnumerable<string>? values);
+        value = values?.FirstOrDefault();
+        return this;
+    }
+    
+    public HttpResponseReader ReadFirstHeader(string key, out string value, string orElse) {
+        Response.Headers.TryGetValues(key, out IEnumerable<string>? values);
+        value = values?.FirstOrDefault(orElse) ?? orElse;
+        return this;
+    }
+    
+    public HttpResponseReader ReadFirstHeader<T>(string key, out T? value, Func<string, T> mapper) {
+        ReadFirstHeader(key, out string? strValue);
+        value = strValue != null ? mapper(strValue) : default;
+        return this;
+    }
+    
+    public HttpResponseReader ReadFirstHeader<T>(string key, out T value, T orElse, Func<string, T> mapper) {
+        ReadFirstHeader(key, out string? strValue);
+        value = strValue != null ? mapper(strValue) : orElse;
+        return this;
     }
 
     public T ReadJson<T>() {

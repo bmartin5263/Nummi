@@ -1,4 +1,4 @@
-namespace Nummi.Core.Domain.Crypto.Bots.Execution; 
+namespace Nummi.Core.Domain.Crypto.Bots.Thread; 
 
 public class BotExecutionContext {
     public Bot Bot { get; }

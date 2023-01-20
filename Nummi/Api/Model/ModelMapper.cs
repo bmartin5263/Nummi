@@ -35,7 +35,7 @@ public static class ModelMapper {
     public static BarDto ToDto(this Bar bar) {
         return new BarDto {
             Symbol = bar.Symbol,
-            TimeUtc = bar.TimeUtc,
+            TimeUtc = bar.OpenTimeUtc,
             Open = bar.Open,
             High = bar.High,
             Low = bar.Low,

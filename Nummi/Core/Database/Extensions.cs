@@ -55,7 +55,8 @@ public static class Extensions {
         builder.Entity<E>()
             .HasOne(hasOne)
             .WithMany(withMany)
-            .HasForeignKey(foreignKey);
+            .HasForeignKey(foreignKey)
+            .OnDelete(DeleteBehavior.SetNull);
     }
     
     public static void RegisterJsonProperty<E, P>(this ModelBuilder builder, Expression<Func<E, P>> propertyExpression) where E : class where P : class? {

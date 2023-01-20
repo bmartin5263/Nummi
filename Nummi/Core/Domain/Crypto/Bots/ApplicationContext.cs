@@ -14,7 +14,11 @@ public class ApplicationContext {
         AppDb = appDb;
     }
 
-    public T GetService<T>() {
+    public T GetSingleton<T>() {
         return ServiceProvider.GetService<T>()!;
+    }
+
+    public T GetScoped<T>() {
+        return Scope.ServiceProvider.GetService<T>()!;
     }
 }

@@ -7,7 +7,7 @@ namespace Nummi.Core.Domain.Crypto.Data;
 public class Bar : IBar {
     
     public string Symbol { get; }
-    public DateTime TimeUtc { get; }
+    public DateTime OpenTimeUtc { get; }
     public decimal Open { get; }
     public decimal High { get; }
     public decimal Low { get; }
@@ -18,7 +18,7 @@ public class Bar : IBar {
 
     public Bar(string symbol, DateTime timeUtc, decimal open, decimal high, decimal low, decimal close, decimal volume, decimal vwap, ulong tradeCount) {
         Symbol = symbol;
-        TimeUtc = timeUtc;
+        OpenTimeUtc = timeUtc;
         Open = open;
         High = high;
         Low = low;

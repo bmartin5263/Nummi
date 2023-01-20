@@ -19,7 +19,7 @@ public class OpportunistStrategy : Strategy, IParameterizedStrategy<OpportunistP
         Symbols = parameters.Symbols;
     }
 
-    protected override void OnInitialize(TradingContext env) {
+    protected override void OnInitialize(TradingInterface env) {
         Message("Initialized");
     }
     

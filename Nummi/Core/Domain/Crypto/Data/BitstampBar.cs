@@ -10,7 +10,7 @@ public class BitstampBar : IBar {
     public long Unix { get; set; } = default;
     
     [Name("date")]
-    public DateTime TimeUtc { get; set; } = default;
+    public DateTime OpenTimeUtc { get; set; } = default;
     
     [Name("symbol")]
     public string Symbol { get; set; } = default!;

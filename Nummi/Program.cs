@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using Nummi.Core.Database;
 using Nummi.Core.Domain.Crypto.Bots;
-using Nummi.Core.Domain.Crypto.Bots.Execution;
+using Nummi.Core.Domain.Crypto.Bots.Thread;
 using Nummi.Core.Domain.Crypto.Client;
 using Nummi.Core.Domain.Crypto.Data;
 using Nummi.Core.Domain.Crypto.Ordering;
@@ -15,7 +15,6 @@ using Nummi.Core.Domain.User;
 using Nummi.Core.External.Alpaca;
 using Nummi.Core.External.Binance;
 using Nummi.Core.External.Coinbase;
-using Nummi.Core.External.Cryptowatch;
 
 const string CONNECTION_STRING = "DefaultConnection";   // see appsettings.json
 
@@ -59,24 +58,23 @@ builder.Services.AddSingleton<MarketDataService>();
 builder.Services.AddSingleton<IStockClient, StockClientAlpaca>();
 builder.Services.AddSingleton<IAlpacaClient, AlpacaClientPaper>();
 builder.Services.AddSingleton<CoinbaseClient>();
-builder.Services.AddSingleton<BinanceClientAdapter>();
-builder.Services.AddSingleton<CryptowatchClient>();
-builder.Services.AddSingleton<CryptoClientLive>();
-builder.Services.AddSingleton<CryptoClientMock>();
-builder.Services.AddSingleton<CryptoClientPaper>();
+builder.Services.AddSingleton<BinanceClient>();
+builder.Services.AddScoped<CryptoClientLive>();
+builder.Services.AddScoped<CryptoClientMock>();
+builder.Services.AddScoped<CryptoClientPaper>();
 builder.Services.AddScoped<BlogService>();
 // builder.Services.AddSingleton<IHostedService, BotExecutor2>(_ => new BotExecutor2(new StockBot("Alpha")));
-builder.Services.AddSingleton<BotExecutor>(provider => new BotExecutor(provider, 1));
-builder.Services.AddSingleton<IHostedService, BotExecutor>(
-    serviceProvider => serviceProvider.GetService<BotExecutor>()!);
+builder.Services.AddSingleton<BotThreadSpawner>(provider => new BotThreadSpawner(provider, 1));
+builder.Services.AddSingleton<IHostedService, BotThreadSpawner>(
+    serviceProvider => serviceProvider.GetService<BotThreadSpawner>()!);
 // builder.Services.AddSingleton<IHostedService, BotExecutor>(_ => new BotExecutor("BotExecutor2"));
 builder.Services.AddSwaggerGen(options =>
 {
     options.SwaggerDoc("v1", new OpenApiInfo
     {
         Version = "v1",
-        Title = "Title",
-        Description = "Description",
+        Title = "Nummi",
+        Description = "Cryptocurrency Trading",
     });
 
     var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";

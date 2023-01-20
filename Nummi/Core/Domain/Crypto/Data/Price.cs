@@ -6,21 +6,21 @@ namespace Nummi.Core.Domain.Crypto.Data;
 
 [Table("HistoricalPrice")]
 [PrimaryKey(nameof(Symbol), nameof(Time))]
-public class HistoricalPrice {
+public class Price {
     public string Symbol { get; init; }
     public DateTime Time { get; init; }
-    public decimal Price { get; init; }
+    public decimal Value { get; init; }
 
-    private HistoricalPrice() {
+    private Price() {
         Symbol = "";
-        Time = DateTime.Now;
-        Price = 0;
+        Time = DateTime.UtcNow;
+        Value = 0;
     }
 
-    public HistoricalPrice(string symbol, decimal price, DateTime? time = null) {
+    public Price(string symbol, decimal value, DateTime? time = null) {
         Symbol = symbol;
-        Time = time ?? DateTime.Now.ToUniversalTime().Round(new TimeSpan(0, 1, 0));
-        Price = price;
+        Time = time ?? DateTime.UtcNow.Floor(new TimeSpan(0, 1, 0));
+        Value = value;
     }
 
     public override string ToString() {

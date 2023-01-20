@@ -4,27 +4,38 @@ using Nummi.Core.Util;
 
 namespace Nummi.Core.Domain.Crypto.Data; 
 
-[Table("Historical" + nameof(MinuteCandlestick))]
+[Table("Historical" + nameof(MinuteBar))]
 [PrimaryKey(nameof(Symbol), nameof(OpenTimeEpoch))]
-public class MinuteCandlestick {
+public class MinuteBar : IBar{
     public string Symbol { get; set; }
     public long OpenTimeEpoch { get; set; }
-    public DateTime OpenTime { get; set; }
+    public DateTime OpenTimeUtc { get; set; }
+
+    [NotMapped]
+    public DateTime OpenTimeLocal => OpenTimeUtc.ToLocalTime();
+    
+    [NotMapped]
+    public DateTime CloseTimeUtc { get; set; }
+
+    [NotMapped]
+    public DateTime CloseTimeLocal => CloseTimeUtc.ToLocalTime();
+    
     public decimal Open { get; set; }
     public decimal High { get; set; }
     public decimal Low { get; set; }
     public decimal Close { get; set; }
     public decimal Volume { get; set; }
 
-    private MinuteCandlestick() {
+    private MinuteBar() {
         Symbol = "";
-        OpenTime = DateTime.MinValue;
+        OpenTimeUtc = DateTime.MinValue;
     }
 
-    public MinuteCandlestick(string symbol, long openTimeEpoch, decimal open, decimal high, decimal low, decimal close, decimal volume) {
+    public MinuteBar(string symbol, long openTimeEpoch, long closeTimeEpoch, decimal open, decimal high, decimal low, decimal close, decimal volume) {
         Symbol = symbol;
         OpenTimeEpoch = openTimeEpoch;
-        OpenTime = DateTimeOffset.FromUnixTimeMilliseconds(openTimeEpoch).DateTime;
+        OpenTimeUtc = DateTimeOffset.FromUnixTimeMilliseconds(openTimeEpoch).DateTime;
+        CloseTimeUtc = DateTimeOffset.FromUnixTimeMilliseconds(closeTimeEpoch).DateTime;
         Open = open;
         High = high;
         Low = low;
