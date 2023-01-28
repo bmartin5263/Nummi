@@ -61,4 +61,15 @@ public class StrategyController : ControllerBase {
             .GetStrategyById(strategyId)
             .ToDto();
     }
+    
+    /// <summary>
+    /// Get a Strategy Log by its Id
+    /// </summary>
+    [Route("logs/{strategyLogId}")]
+    [HttpGet]
+    public StrategyLogDto GetLogById(string strategyLogId) {
+        return StrategyService
+            .GetLogById(strategyLogId)
+            .ToDto();
+    }
 }

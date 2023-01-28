@@ -3,6 +3,7 @@ using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
+using Nummi.Api.Filters;
 using Nummi.Core.Database;
 using Nummi.Core.Domain.Crypto.Bots;
 using Nummi.Core.Domain.Crypto.Bots.Thread;
@@ -30,7 +31,7 @@ void ConfigureDatabase(WebApplicationBuilder builder)
 void ConfigureIdentities(WebApplicationBuilder builder)
 {
     builder.Services.AddDefaultIdentity<User>(options => 
-            options.SignIn.RequireConfirmedAccount = true  // TODO - huh?
+            options.SignIn.RequireConfirmedAccount = true
         )
         .AddEntityFrameworkStores<AppDb>();
 
@@ -59,14 +60,13 @@ builder.Services.AddSingleton<IStockClient, StockClientAlpaca>();
 builder.Services.AddSingleton<IAlpacaClient, AlpacaClientPaper>();
 builder.Services.AddSingleton<CoinbaseClient>();
 builder.Services.AddSingleton<BinanceClient>();
-builder.Services.AddScoped<CryptoClientLive>();
-builder.Services.AddScoped<CryptoClientMock>();
-builder.Services.AddScoped<CryptoClientPaper>();
+builder.Services.AddScoped<CryptoDataClientLive>();
+builder.Services.AddScoped<CryptoDataClientDbProxy>();
 builder.Services.AddScoped<BlogService>();
 // builder.Services.AddSingleton<IHostedService, BotExecutor2>(_ => new BotExecutor2(new StockBot("Alpha")));
-builder.Services.AddSingleton<BotThreadSpawner>(provider => new BotThreadSpawner(provider, 1));
-builder.Services.AddSingleton<IHostedService, BotThreadSpawner>(
-    serviceProvider => serviceProvider.GetService<BotThreadSpawner>()!);
+builder.Services.AddSingleton<BotExecutionManager>(provider => new BotExecutionManager(provider, 1));
+builder.Services.AddSingleton<IHostedService, BotExecutionManager>(
+    serviceProvider => serviceProvider.GetService<BotExecutionManager>()!);
 // builder.Services.AddSingleton<IHostedService, BotExecutor>(_ => new BotExecutor("BotExecutor2"));
 builder.Services.AddSwaggerGen(options =>
 {
@@ -95,6 +95,11 @@ else
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
+
+app.UseExceptionHandler(new ExceptionHandlerOptions 
+{
+    ExceptionHandler = new JsonExceptionMiddleware(app.Environment).Invoke
+});
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();

@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using Nummi.Core.Domain.Crypto.Bots;
 using Nummi.Core.Domain.Crypto.Data;
 using Nummi.Core.Domain.Crypto.Strategies;
@@ -35,14 +36,13 @@ public static class ModelMapper {
     public static BarDto ToDto(this Bar bar) {
         return new BarDto {
             Symbol = bar.Symbol,
-            TimeUtc = bar.OpenTimeUtc,
+            OpenTimeUtc = bar.OpenTimeUtc,
+            CloseTimeUtc = bar.OpenTimeUtc + TimeSpan.FromMilliseconds(bar.PeriodMs),
             Open = bar.Open,
             High = bar.High,
             Low = bar.Low,
             Close = bar.Close,
-            Volume = bar.Volume,
-            Vwap = bar.Vwap,
-            TradeCount = bar.TradeCount
+            Volume = bar.Volume
         };
     }
 
@@ -64,7 +64,7 @@ public static class ModelMapper {
         return new BotDto {
             Id = bot.Id.ToString(),
             Name = bot.Name,
-            Environment = bot.Environment,
+            Mode = bot.Mode,
             InErrorState = bot.InErrorState,
             Funds = bot.Funds,
             LastStrategyLog = bot.LastStrategyLog?.ToDto(),
@@ -76,12 +76,10 @@ public static class ModelMapper {
         var dto = new StrategyDto {
             Id = strategy.Id,
             Frequency = strategy.Frequency,
-            Initialized = strategy.Initialized,
-            Profit = strategy.Profit,
             TimesExecuted = strategy.TimesExecuted,
             LastExecutedAt = strategy.LastExecutedAt,
             TimesFailed = strategy.TimesFailed,
-            Logs = strategy.Logs.Select(ToDto).ToList()
+            Logs = strategy.Logs?.Select(ToDto).ToList() ?? (IList<StrategyLogDto>) ImmutableList<StrategyLogDto>.Empty
         };
         if (strategy is IParameterizedStrategy parameterizedStrategy) {
             dto.Parameters = parameterizedStrategy.Parameters;
@@ -90,11 +88,18 @@ public static class ModelMapper {
         return dto;
     }
 
+    public static SimulationResultDto ToDto(this SimulationResult result) {
+        var dto = new SimulationResultDto {
+            Logs = result.Logs.Select(v => v.ToDto()).ToList()
+        };
+        return dto;
+    }
+
     public static StrategyLogDto ToDto(this StrategyLog log) {
         var dto = new StrategyLogDto {
             Id = log.Id,
             StrategyId = log.Strategy.Id,
-            Environment = log.Environment,
+            Environment = log.Mode,
             StartTime = log.StartTime,
             EndTime = log.EndTime,
             Error = log.Error

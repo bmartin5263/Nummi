@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics.CodeAnalysis;
+using System.Text.Json.Serialization;
 using KSUID;
 using Microsoft.EntityFrameworkCore;
 using Nummi.Core.Util;
@@ -13,9 +14,14 @@ public class StrategyLog {
     
     public string Id { get; } = Ksuid.Generate().ToString();
 
-    public virtual Strategy Strategy { get; private set; } = default!;
+    [JsonIgnore]
+    public Strategy Strategy { get; private set; } = default!;
     
-    public TradingEnvironment Environment { get; private set; }
+    [JsonConverter(typeof(JsonStringEnumConverter))]
+    public TradingMode Mode { get; private set; }
+    
+    [JsonConverter(typeof(JsonStringEnumConverter))]
+    public StrategyAction Action { get; private set; }
 
     public DateTime StartTime { get; private set; }
     
@@ -33,9 +39,9 @@ public class StrategyLog {
     [SuppressMessage("ReSharper", "UnusedMember.Local", Justification = "Used during Json conversion")]
     private StrategyLog() {}
 
-    public StrategyLog(Strategy strategy, TradingEnvironment environment, DateTime startTime, DateTime endTime, string? error = null) {
+    public StrategyLog(Strategy strategy, TradingMode mode, StrategyAction action, DateTime startTime, DateTime endTime, string? error = null) {
         Strategy = strategy;
-        Environment = environment;
+        Mode = mode;
         StartTime = startTime;
         EndTime = endTime;
         Error = error;
@@ -44,4 +50,8 @@ public class StrategyLog {
     public override string ToString() {
         return this.ToFormattedString();
     }
+}
+
+public enum StrategyAction {
+    Initializing, Trading
 }

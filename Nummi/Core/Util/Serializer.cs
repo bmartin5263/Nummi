@@ -36,6 +36,10 @@ public class Serializer {
     public static string ToJson<T>(T value) {
         return JsonSerializer.Serialize(value, DEFAULT_OPTIONS);
     }
+    
+    public static async void ToJsonAsync<T>(Stream writer, T value) { 
+        await JsonSerializer.SerializeAsync(writer, value, DEFAULT_OPTIONS);
+    }
 
     public static JsonNode? ToJsonNode(string json) {
         return JsonSerializer.SerializeToNode(json, DEFAULT_OPTIONS);

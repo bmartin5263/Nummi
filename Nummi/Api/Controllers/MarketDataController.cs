@@ -13,29 +13,23 @@ public class MarketDataController : ControllerBase {
     public MarketDataController(BinanceClient binanceClient) {
         BinanceClient = binanceClient;
     }
-
-    [Route("price")]
-    [HttpGet]
-    public IEnumerable<Price> GetPrice([FromQuery] HashSet<string> symbols) {
-        var response = BinanceClient.GetSpotPrice(symbols);
-        return response;
-    }
+    //
+    // [Route("price")]
+    // [HttpGet]
+    // public IEnumerable<Price> GetPrice([FromQuery] HashSet<string> symbols) {
+    //     var response = BinanceClient.GetSpotPrice(symbols, DateTime.UtcNow);
+    //     return response;
+    // }
 
     [Route("bars")]
     [HttpGet]
-    public IDictionary<string, MinuteBar> GetBars([FromQuery] string symbol) {
-        var response = BinanceClient.GetMinuteKlines(new HashSet<string> {symbol});
+    public IDictionary<string, Bar> GetBars([FromQuery] string symbol) {
+        var response = BinanceClient.GetBar(
+            symbols: new HashSet<string> {symbol},
+            time: DateTime.UtcNow,
+            period: Period.Minute
+        );
         return response;
-    }
-    
-    [Route("get-bars")]
-    [HttpPost]
-    public object GetBars([FromQuery] DateTime? startTime, [FromBody] HashSet<string> symbols) {
-        if (startTime == null) {
-            return BinanceClient.GetMinuteKlines(symbols);
-        }
-        DateTime ut = DateTime.SpecifyKind((DateTime)startTime, DateTimeKind.Utc);
-        return BinanceClient.GetMinuteKlines(symbols, ut);
     }
     
     [Route("exchange-info")]

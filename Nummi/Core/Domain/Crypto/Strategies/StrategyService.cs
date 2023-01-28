@@ -1,5 +1,8 @@
+using System.Net;
 using System.Text.Json.Nodes;
+using Microsoft.EntityFrameworkCore;
 using Nummi.Core.Database;
+using Nummi.Core.Exceptions;
 using Nummi.Core.Util;
 
 namespace Nummi.Core.Domain.Crypto.Strategies; 
@@ -20,7 +23,7 @@ public class StrategyService {
     }
 
     public Strategy UpdateStrategyParameters(string id, JsonNode parameterObject) {
-        var strategy = AppDb.Strategies.FindById(id);
+        var strategy = AppDb.Strategies.GetById(id, HttpStatusCode.BadRequest);
         StrategyFactory.InjectParameterObject(strategy, parameterObject);
         AppDb.SaveChanges();
         return strategy;
@@ -31,13 +34,13 @@ public class StrategyService {
     }
     
     public Strategy GetStrategyById(string id) {
-        var strategy = AppDb.Strategies
-            .FirstOrDefault(b => b.Id == id);
-
-        if (strategy == null) {
-            throw new EntityNotFoundException<Strategy>(id);
-        }
-        
-        return strategy;
+        return AppDb.Strategies.GetById(id, HttpStatusCode.BadRequest);
+    }
+    
+    public StrategyLog GetLogById(string id) {
+        return AppDb.StrategyLogs
+            .Include(l => l.Strategy)
+            .FirstOrDefault(l => l.Id == id)
+            .OrElseThrow(() => new EntityNotFoundException(typeof(StrategyLog), id, HttpStatusCode.BadRequest));
     }
 }

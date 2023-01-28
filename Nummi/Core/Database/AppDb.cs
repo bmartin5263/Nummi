@@ -20,8 +20,10 @@ public class AppDb : ApiAuthorizationDbContext<User> {
     public DbSet<StrategyLog> StrategyLogs { get; set; } = default!;
     public DbSet<OpportunistStrategy> OpportunistStrategies { get; set; } = default!;
     public DbSet<Price> HistoricalPrices { get; set; } = default!;
-    public DbSet<MinuteBar> HistoricalMinuteBars { get; set; } = default!;
+    public DbSet<Bar> HistoricalBars { get; set; } = default!;
     public DbSet<BotThreadEntity> BotThreads { get; set; } = default!;
+    public DbSet<SimulationResult> SimulationResults { get; set; } = default!;
+    
     public DbSet<Blog> Blogs { get; set; } = default!;
     public DbSet<Post> Posts { get; set; } = default!;
 
@@ -36,19 +38,28 @@ public class AppDb : ApiAuthorizationDbContext<User> {
         // TBT Strategy
         modelBuilder.Entity<Strategy>().ToTable(nameof(Strategy));
         modelBuilder.Entity<OpportunistStrategy>().ToTable(nameof(OpportunistStrategy));
+        
+        modelBuilder
+            .Entity<Bar>()
+            .Property(e => e.OpenTimeUtc)
+            .UsePropertyAccessMode(PropertyAccessMode.Property);
 
         modelBuilder.OneToOne<Blog, Post>("PostId", b => b.Post);
         modelBuilder.OneToOne<Bot, Strategy>("StrategyId", b => b.Strategy);
         modelBuilder.OneToOne<Bot, StrategyLog>("LastStrategyLogId", b => b.LastStrategyLog);
         modelBuilder.OneToOne<BotThreadEntity, Bot>("BotId", b => b.Bot);
         modelBuilder.OneToMany<StrategyLog, Strategy>("StrategyId", l => l.Strategy, s => s.Logs);
+        
         modelBuilder.RegisterJsonProperty<Post, Metadata>(p => p.Meta);
         modelBuilder.RegisterJsonProperty<OpportunistStrategy, ISet<string>?>(p => p.Symbols);
+        modelBuilder.RegisterJsonProperty<SimulationResult, List<StrategyLog>>(p => p.Logs);
     }
     
     protected override void ConfigureConventions(ModelConfigurationBuilder builder) {
         base.ConfigureConventions(builder);
         builder.ConvertProperties<Ksuid, KsuidConverter>();
-        builder.ConvertProperties<TradingEnvironment, EnumToStringConverter<TradingEnvironment>>();
+        builder.ConvertProperties<TradingMode, EnumToStringConverter<TradingMode>>();
+        builder.ConvertProperties<StrategyAction, EnumToStringConverter<StrategyAction>>();
+        builder.ConvertProperties<SimulationStatus, EnumToStringConverter<SimulationStatus>>();
     }
 }

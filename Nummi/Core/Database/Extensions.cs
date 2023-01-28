@@ -1,18 +1,36 @@
 using System.Linq.Expressions;
+using System.Net;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using Nummi.Core.Exceptions;
 using Nummi.Core.Util;
 
 namespace Nummi.Core.Database; 
 
 public static class Extensions {
     
-    public static T FindById<T>(this DbSet<T> set, object id) where T : class {
+    public static T GetById<T>(this DbSet<T> set, object id, HttpStatusCode code) where T : class {
+        return GetById(set, id, () => throw new EntityNotFoundException(typeof(T), id, code));
+    }
+
+    public static T GetById<T>(this DbSet<T> set, object id, Func<Exception> onMissing) where T : class {
         var obj = set.Find(id);
         if (obj == null) {
-            throw new EntityNotFoundException<Guid>(id);
+            throw onMissing();
+        }
+        return obj;
+    }
+
+    public static T GetById<T>(this IQueryable<T> set, object id, Func<T, object> idProperty, HttpStatusCode code) where T : class {
+        return GetById(set, id, idProperty, () => throw new EntityNotFoundException(typeof(T), id, code));
+    }
+
+    public static T GetById<T>(this IQueryable<T> set, object id, Func<T, object> idProperty, Func<Exception> onMissing) where T : class {
+        var obj = set.FirstOrDefault(o => id == idProperty(o));
+        if (obj == null) {
+            throw onMissing();
         }
         return obj;
     }

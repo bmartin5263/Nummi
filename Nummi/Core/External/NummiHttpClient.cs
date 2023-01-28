@@ -3,12 +3,11 @@ using System.Text;
 using System.Text.Json;
 using System.Web;
 using NLog;
+using Nummi.Core.Util;
 
-namespace Nummi.Core.Util; 
+namespace Nummi.Core.External; 
 
 public class NummiHttpClient {
-    
-    private static readonly Logger Log = LogManager.GetCurrentClassLogger();
     
     private HttpClient Client { get; }
     private string BaseUrl { get; }
@@ -115,11 +114,13 @@ public class HttpRequestBuilder {
             : $"{Method.ToString().Yellow()} {uri.Blue()} with body [{content}]"
         );
 
+        var tick = DateTime.Now;
         var response = Client.SendAsync(new HttpRequestMessage(method: Method, requestUri: uri) {
             Content = content
-        });
+        }).Result;
+        var tock = DateTime.Now;
 
-        return new HttpResponseReader(response.Result, DefaultStatusCodeActions, DefaultLogHeaders);
+        return new HttpResponseReader(response, tock - tick, DefaultStatusCodeActions, DefaultLogHeaders);
     }
 
     private HttpContent? CreateContent() {
@@ -197,25 +198,42 @@ public class HttpResponseReader {
     private static readonly Logger Log = LogManager.GetCurrentClassLogger();
     
     private HttpResponseMessage Response { get; }
+    private TimeSpan Time { get; }
     private IDictionary<HttpStatusCode, Action<HttpResponseReader>> DefaultStatusCodeActions { get; }
     private IList<string> DefaultLogHeaders { get; }
     private string Json { get; }
 
-    public HttpResponseReader(HttpResponseMessage response, IDictionary<HttpStatusCode, Action<HttpResponseReader>> defaultStatusCodeActions, IList<string> defaultLogHeaders) {
+    public HttpResponseReader(
+        HttpResponseMessage response,
+        TimeSpan time,
+        IDictionary<HttpStatusCode, Action<HttpResponseReader>> defaultStatusCodeActions, 
+        IList<string> defaultLogHeaders
+    ) {
         Response = response;
+        Time = time;
         DefaultStatusCodeActions = defaultStatusCodeActions;
         DefaultLogHeaders = defaultLogHeaders;
         Json = Response.Content.ReadAsStringAsync().Result;
         if (Response.IsSuccessStatusCode) {
             Log.Info("Code: ".Yellow() + Response.StatusCode.ToString().Green());
+            Log.Info("Time: ".Yellow() + Time.ToString().Cyan());
             if (DefaultLogHeaders.Count > 0) {
                 LogHeaders(DefaultLogHeaders.ToArray());
             }
         }
         else {
-            Log.Info("Code: ".Yellow() + Response.StatusCode.ToString().Red());
+            if (((int)Response.StatusCode >= 500) && ((int)Response.StatusCode <= 599)) {
+                Log.Info("Code: ".Yellow() + Response.StatusCode.ToString().Red());
+            }
+            else {
+                Log.Info("Code: ".Yellow() + Response.StatusCode.ToString().Purple());
+            }
             Log.Info("Headers: ".Yellow() + Response.Headers.ToJoinedString().Cyan());
             Log.Info("Body: ".Yellow() + Json.Purple());
+        }
+
+        if (DefaultStatusCodeActions.TryGetValue(Response.StatusCode, out Action<HttpResponseReader>? handler)) {
+            handler(this);
         }
     }
 

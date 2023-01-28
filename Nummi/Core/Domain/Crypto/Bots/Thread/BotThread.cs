@@ -3,6 +3,8 @@ using Microsoft.EntityFrameworkCore;
 using NLog;
 using Nummi.Core.Database;
 using Nummi.Core.Domain.Crypto.Bots.Thread.Command;
+using Nummi.Core.Domain.Crypto.Strategies;
+using Nummi.Core.Exceptions;
 using Nummi.Core.Util;
 
 namespace Nummi.Core.Domain.Crypto.Bots.Thread; 
@@ -12,8 +14,10 @@ public class BotThread {
     private static readonly Logger Log = LogManager.GetCurrentClassLogger();
 
     public uint Id { get; }
-    public string? BotId { get; private set; }
     
+    // TODO - thread safe
+    public string? BotId { get; private set; }
+
     private CancellationToken CancellationToken { get; }
     private IServiceProvider ServiceProvider { get; }
     private ConcurrentQueue<ICommand> CommandQueue { get; }
@@ -28,7 +32,7 @@ public class BotThread {
         Controller = new BotThreadController(this);
     }
 
-    public void InitializeBot() {
+    public void Initialize() {
         using var scope = ServiceProvider.CreateScope();
         using var appDb = scope.ServiceProvider.GetService<AppDb>()!;
 
@@ -50,7 +54,7 @@ public class BotThread {
     }
 
     public void MainLoop() {
-        InitializeBot();
+        Initialize();
         Message("Entering Main Loop");
         while (!CancellationToken.IsCancellationRequested) {
             ProcessCommands();
@@ -62,10 +66,19 @@ public class BotThread {
         Message("Exiting");
     }
 
+    public void AddCommand(ICommand command) {
+        CommandQueue.Enqueue(command);
+    }
+
     private void ProcessCommands() {
         while (!CommandQueue.IsEmpty) {
             if (CommandQueue.TryDequeue(out ICommand? command)) {
-                command.Execute(new BotThreadController(this));
+                try {
+                    command.Execute(new BotThreadController(this));
+                }
+                catch (Exception e) {
+                    Log.Error($"Command {command} failed to execute: {e}");
+                }
             }
         }
     }
@@ -86,39 +99,29 @@ public class BotThread {
             .FirstOrDefault(b => b.Id == BotId);
         
         if (bot == null) {
-            Message($"Bot {BotId} no longer exists!");
+            Message($"{"ERROR!!".Red()} Bot {BotId.Yellow()} no longer exists!");
             Controller.RemoveBot();
             return DefaultSleepTime;
         }
 
-        Message($"Waking Bot {bot.Name}");
+        if (bot.Mode == TradingMode.Simulated) {
+            Message($"{bot.Name.Yellow()} is a Simulation Bot which cannot execute in realtime trading");
+            return DefaultSleepTime;
+        }
+
+        Message($"Waking {bot.Name.Yellow()}");
         try {
-            var env = new ApplicationContext(ServiceProvider, scope, appDb);
-            return bot.WakeUp(env);
+            var env = new BotContext(ServiceProvider, scope, appDb);
+            return bot.RunRealtime(env);
         }
         catch (Exception e) {
-            Message($"{"ERROR!!".Red()} Trading Bot [{bot.Name.Yellow()}] threw an Exception during execution: {e}");
+            Message($"{"ERROR!!".Red()} Bot [{bot.Name.Yellow()}] threw an Exception during execution: {e}");
             return DefaultSleepTime;
         }
     }
 
-    public void RegisterBot(string botId) {
-        AssertBotExists(botId);
-        CommandQueue.Enqueue(new AssignBotCommand(botId));
-    }
-
-    public void DeregisterBot() {
-        CommandQueue.Enqueue(new RemoveBotCommand());
-    }
-
     protected void Message(string msg) {
         Log.Info($"[{"Id".Purple()}:{Id.ToString().Cyan()}] - {msg}");
-    }
-
-    private void AssertBotExists(string botId) {
-        using var scope = ServiceProvider.CreateScope();
-        using var appDb = scope.ServiceProvider.GetService<AppDb>()!;
-        appDb.Bots.FindById(botId);
     }
 
     private BotThreadEntity GetBotThreadEntity(AppDb appDb) {
@@ -133,32 +136,81 @@ public class BotThread {
     }
 
     public class BotThreadController {
-        private BotThread BotThread { get; }
+        private BotThread Self { get; }
         
-        public BotThreadController(BotThread botThread) {
-            BotThread = botThread;
+        public BotThreadController(BotThread self) {
+            Self = self;
         }
         
         public void AssignBot(string botId) {
-            BotThread.Message($"Assigning Bot {botId}");
-            BotThread.BotId = botId;
+            Self.Message($"Assigning Bot {botId}");
+            Self.BotId = botId;
             
-            using var scope = BotThread.ServiceProvider.CreateScope();
+            using var scope = Self.ServiceProvider.CreateScope();
             using var appDb = scope.ServiceProvider.GetService<AppDb>()!;
-            var bot = appDb.Bots.FindById(botId);
-            var botThreadEntity = BotThread.GetBotThreadEntity(appDb);
+            var bot = appDb.Bots.GetById(botId, () => new EntityNotFoundException("Bot no longer exists"));
+
+            var botThreadEntity = Self.GetBotThreadEntity(appDb);
             botThreadEntity.Bot = bot;
             appDb.SaveChanges();
         }
 
         public void RemoveBot() {
-            BotThread.BotId = null;
+            Self.BotId = null;
             
-            using var scope = BotThread.ServiceProvider.CreateScope();
+            using var scope = Self.ServiceProvider.CreateScope();
             using var appDb = scope.ServiceProvider.GetService<AppDb>()!;
-            var botThreadEntity = BotThread.GetBotThreadEntity(appDb);
+            var botThreadEntity = Self.GetBotThreadEntity(appDb);
             botThreadEntity.Bot = null;
             appDb.SaveChanges();
+        }
+
+        public void SimulateBot(SimulationParameters parameters, string resultId) {
+            using var scope = Self.ServiceProvider.CreateScope();
+            using var appDb = scope.ServiceProvider.GetService<AppDb>()!;
+            
+            var result = appDb.SimulationResults.GetById(resultId, 
+                onMissing: () => new EntityNotFoundException("Could not find StrategyResult"));
+            result.Status = SimulationStatus.Running;
+
+            appDb.SaveChanges();
+
+            try {
+                DoSimulateBot(parameters, result, appDb, scope);
+            }
+            catch (Exception e) {
+                Log.Error($"{"Error!!".Red()} Simulation failed. {e}");
+                result.Status = SimulationStatus.Failed;
+            }
+            
+            appDb.SaveChanges();
+        }
+
+        private void DoSimulateBot(
+            SimulationParameters parameters, 
+            SimulationResult result, 
+            AppDb appDb, 
+            IServiceScope scope
+        ) {
+            if (Self.BotId == null) {
+                throw new InvalidArgumentException($"Thread {Self.Id} does not have a Bot to simulate");
+            }
+
+            var bot = appDb.Bots
+                .Include(b => b.Strategy)
+                .FirstOrDefault(b => b.Id == Self.BotId)
+                .ThrowIfNull(() => new EntityNotFoundException("Bot no longer exists"));
+
+            var context = new BotContext(
+                serviceProvider: Self.ServiceProvider,
+                scope: scope,
+                appDb: appDb
+            );
+
+            var logs = bot.RunSimulation(context, parameters);
+            
+            result.AddLogs(logs);
+            result.Status = SimulationStatus.Finished;
         }
     }
 }

@@ -11,7 +11,7 @@ public class BotThreadEntity {
     public uint Id { get; }
     
     [ForeignKey("BotId")]
-    public virtual Bot? Bot { get; set; }
+    public Bot? Bot { get; set; }
 
     public BotThreadEntity(uint id) {
         Id = id;

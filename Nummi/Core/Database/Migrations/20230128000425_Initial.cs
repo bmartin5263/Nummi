@@ -70,12 +70,13 @@ namespace Nummi.Core.Database.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "HistoricalMinuteCandlestick",
+                name: "HistoricalBar",
                 columns: table => new
                 {
                     Symbol = table.Column<string>(type: "TEXT", nullable: false),
-                    OpenTimeEpoch = table.Column<long>(type: "INTEGER", nullable: false),
-                    OpenTime = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    OpenTimeUnixMs = table.Column<long>(type: "INTEGER", nullable: false),
+                    PeriodMs = table.Column<long>(type: "INTEGER", nullable: false),
+                    OpenTimeUtc = table.Column<DateTime>(type: "TEXT", nullable: false),
                     Open = table.Column<decimal>(type: "TEXT", nullable: false),
                     High = table.Column<decimal>(type: "TEXT", nullable: false),
                     Low = table.Column<decimal>(type: "TEXT", nullable: false),
@@ -84,7 +85,7 @@ namespace Nummi.Core.Database.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_HistoricalMinuteCandlestick", x => new { x.Symbol, x.OpenTimeEpoch });
+                    table.PrimaryKey("PK_HistoricalBar", x => new { x.Symbol, x.OpenTimeUnixMs, x.PeriodMs });
                 });
 
             migrationBuilder.CreateTable(
@@ -93,7 +94,7 @@ namespace Nummi.Core.Database.Migrations
                 {
                     Symbol = table.Column<string>(type: "TEXT", nullable: false),
                     Time = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    Price = table.Column<decimal>(type: "TEXT", nullable: false)
+                    Value = table.Column<decimal>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -152,15 +153,23 @@ namespace Nummi.Core.Database.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Strategy",
+                name: "SimulationResult",
                 columns: table => new
                 {
                     Id = table.Column<string>(type: "TEXT", nullable: false),
-                    Initialized = table.Column<bool>(type: "INTEGER", nullable: false),
-                    Profit = table.Column<decimal>(type: "TEXT", nullable: false),
-                    TimesExecuted = table.Column<uint>(type: "INTEGER", nullable: false),
-                    LastExecutedAt = table.Column<DateTime>(type: "TEXT", nullable: true),
-                    TimesFailed = table.Column<uint>(type: "INTEGER", nullable: false)
+                    Status = table.Column<string>(type: "TEXT", nullable: false),
+                    Logs = table.Column<string>(type: "text", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_SimulationResult", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Strategy",
+                columns: table => new
+                {
+                    Id = table.Column<string>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -315,7 +324,8 @@ namespace Nummi.Core.Database.Migrations
                 {
                     Id = table.Column<string>(type: "TEXT", nullable: false),
                     StrategyId = table.Column<string>(type: "TEXT", nullable: false),
-                    Environment = table.Column<string>(type: "TEXT", nullable: false),
+                    Mode = table.Column<string>(type: "TEXT", nullable: false),
+                    Action = table.Column<string>(type: "TEXT", nullable: false),
                     StartTime = table.Column<DateTime>(type: "TEXT", nullable: false),
                     EndTime = table.Column<DateTime>(type: "TEXT", nullable: false),
                     TotalTime = table.Column<TimeSpan>(type: "TEXT", nullable: false),
@@ -341,7 +351,8 @@ namespace Nummi.Core.Database.Migrations
                     StrategyId = table.Column<string>(type: "TEXT", nullable: true),
                     LastStrategyLogId = table.Column<string>(type: "TEXT", nullable: true),
                     InErrorState = table.Column<bool>(type: "INTEGER", nullable: false),
-                    Funds = table.Column<decimal>(type: "TEXT", nullable: false)
+                    Funds = table.Column<decimal>(type: "TEXT", nullable: false),
+                    Mode = table.Column<string>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -506,7 +517,7 @@ namespace Nummi.Core.Database.Migrations
                 name: "DeviceCodes");
 
             migrationBuilder.DropTable(
-                name: "HistoricalMinuteCandlestick");
+                name: "HistoricalBar");
 
             migrationBuilder.DropTable(
                 name: "HistoricalPrice");
@@ -519,6 +530,9 @@ namespace Nummi.Core.Database.Migrations
 
             migrationBuilder.DropTable(
                 name: "PersistedGrants");
+
+            migrationBuilder.DropTable(
+                name: "SimulationResult");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");

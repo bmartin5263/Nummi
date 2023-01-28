@@ -4,7 +4,6 @@ using Nummi.Api.Model;
 using Nummi.Core.Domain.Crypto.Data;
 using Nummi.Core.Domain.Crypto.Ordering;
 using Nummi.Core.External.Coinbase;
-using Nummi.Core.Util;
 
 namespace Nummi.Api.Controllers;
 
@@ -69,20 +68,6 @@ public class StockController : ControllerBase {
         throw new BadHttpRequestException("Bad stuff");
     }
 
-    [HttpPost]
-    [Route("csv")]
-    public void Csv() {
-        Console.WriteLine(Directory.GetCurrentDirectory());
-        // var stream = files[0].OpenReadStream();
-        var stream = Resources.OpenStream(Resources.BitStampBtcUsd1H);
-        var records = Serializer.FromCsv<BitstampBar>(stream);
-        var list = records.ToList();
-        list.Reverse();
-        for (int i = 0; i < 10; ++i) {
-            Console.WriteLine(list[i]);
-        }
-    }
-    
     //
     // [HttpPost]
     // [Route("{symbol}/order/{id}/process")]

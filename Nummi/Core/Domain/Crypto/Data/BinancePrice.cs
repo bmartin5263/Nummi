@@ -9,7 +9,7 @@ public class BinancePrice {
         Price = "0";
     }
 
-    public Price ToHistoricalPrice() {
+    public Price ToPrice() {
         return new Price(Symbol, decimal.Parse(Price));
     }
 }

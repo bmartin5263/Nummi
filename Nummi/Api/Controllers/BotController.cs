@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Nummi.Api.Model;
 using Nummi.Core.Domain.Crypto.Bots;
+using Nummi.Core.Domain.Crypto.Bots.Thread;
 
 namespace Nummi.Api.Controllers; 
 
@@ -69,22 +70,6 @@ public class BotController : ControllerBase {
             .ToDto();
     }
     
-    // [Route("{botId}/strategy")]
-    // [HttpPost]
-    // public BotDto RunBotStrategy(string botId) {
-    //     return BotService
-    //         .RunBotStrategy(botId)
-    //         .ToDto();
-    // }
-    //
-    // [Route("{strategyId}/strategy2")]
-    // [HttpPost]
-    // public StrategyDto RunBotStrategy2(string strategyId) {
-    //     return BotService
-    //         .RunBotStrategy2(strategyId)
-    //         .ToDto();
-    // }
-    
     /// <summary>
     /// Clears the Error State for a given Bot
     /// </summary>
@@ -94,4 +79,48 @@ public class BotController : ControllerBase {
         BotService.ClearErrorState(botId);
     }
 
+    /// <summary>
+    /// Assigns the given Bot to a thread for executing its trading strategy
+    /// </summary>
+    [Route("{botId}/activate")]
+    [HttpPut]
+    public BotThreadDetail ActivateBot(
+        string botId
+    ) {
+        return BotService.ActivateBot(botId);
+    }
+    
+    /// <summary>
+    /// Removes a Bot from its running thread, ending its strategy run
+    /// </summary>
+    [Route("{botId}/deactivate")]
+    [HttpDelete]
+    public BotThreadDetail DeactivateBot(
+        string botId
+    ) {
+        return BotService.DeactivateBot(botId);
+    }
+    
+    /// <summary>
+    /// Runs a Bot's strategy in simulation mode
+    /// </summary>
+    [Route("{botId}/simulation")]
+    [HttpPost]
+    public string RunSimulation(
+        string botId,
+        [FromBody] SimulationParameters parameters
+    ) {
+        return BotService.RunBotSimulation(botId, parameters);
+    }
+    
+    /// <summary>
+    /// Get the result of a simulation run. May not be complete if the simulation hasn't finished
+    /// </summary>
+    [Route("simulation/{simulationId}")]
+    [HttpPost]
+    public SimulationResultDto GetSimulationResult(
+        string simulationId
+    ) {
+        return BotService.GetSimulationResult(simulationId).ToDto();
+    }
 }

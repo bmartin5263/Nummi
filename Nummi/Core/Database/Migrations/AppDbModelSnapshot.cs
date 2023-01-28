@@ -304,6 +304,10 @@ namespace Nummi.Core.Database.Migrations
                     b.Property<string>("LastStrategyLogId")
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("Mode")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("TEXT");
@@ -322,6 +326,24 @@ namespace Nummi.Core.Database.Migrations
                     b.ToTable("Bot");
                 });
 
+            modelBuilder.Entity("Nummi.Core.Domain.Crypto.Bots.SimulationResult", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Logs")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("SimulationResult");
+                });
+
             modelBuilder.Entity("Nummi.Core.Domain.Crypto.Bots.Thread.BotThreadEntity", b =>
                 {
                     b.Property<uint>("Id")
@@ -338,12 +360,15 @@ namespace Nummi.Core.Database.Migrations
                     b.ToTable("BotThread");
                 });
 
-            modelBuilder.Entity("Nummi.Core.Domain.Crypto.Data.MinuteBar", b =>
+            modelBuilder.Entity("Nummi.Core.Domain.Crypto.Data.Bar", b =>
                 {
                     b.Property<string>("Symbol")
                         .HasColumnType("TEXT");
 
-                    b.Property<long>("OpenTimeEpoch")
+                    b.Property<long>("OpenTimeUnixMs")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<long>("PeriodMs")
                         .HasColumnType("INTEGER");
 
                     b.Property<decimal>("Close")
@@ -364,9 +389,9 @@ namespace Nummi.Core.Database.Migrations
                     b.Property<decimal>("Volume")
                         .HasColumnType("TEXT");
 
-                    b.HasKey("Symbol", "OpenTimeEpoch");
+                    b.HasKey("Symbol", "OpenTimeUnixMs", "PeriodMs");
 
-                    b.ToTable("HistoricalMinuteBar");
+                    b.ToTable("HistoricalBar");
                 });
 
             modelBuilder.Entity("Nummi.Core.Domain.Crypto.Data.Price", b =>
@@ -390,21 +415,6 @@ namespace Nummi.Core.Database.Migrations
                     b.Property<string>("Id")
                         .HasColumnType("TEXT");
 
-                    b.Property<bool>("Initialized")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<DateTime?>("LastExecutedAt")
-                        .HasColumnType("TEXT");
-
-                    b.Property<decimal>("Profit")
-                        .HasColumnType("TEXT");
-
-                    b.Property<uint>("TimesExecuted")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<uint>("TimesFailed")
-                        .HasColumnType("INTEGER");
-
                     b.HasKey("Id");
 
                     b.ToTable("Strategy", (string)null);
@@ -417,14 +427,18 @@ namespace Nummi.Core.Database.Migrations
                     b.Property<string>("Id")
                         .HasColumnType("TEXT");
 
-                    b.Property<DateTime>("EndTime")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Environment")
+                    b.Property<string>("Action")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<DateTime>("EndTime")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Error")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Mode")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<DateTime>("StartTime")

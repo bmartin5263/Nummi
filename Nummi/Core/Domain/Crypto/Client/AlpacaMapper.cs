@@ -1,6 +1,8 @@
 using Alpaca.Markets;
 using Nummi.Core.Domain.Crypto.Data;
 using Nummi.Core.Domain.Crypto.Ordering;
+using Nummi.Core.External.Binance;
+using Nummi.Core.Util;
 using IBar = Alpaca.Markets.IBar;
 
 namespace Nummi.Core.Domain.Crypto.Client; 
@@ -12,9 +14,9 @@ public static class AlpacaMapper {
             symbol: snapshot.Symbol,
             quote: snapshot.Quote?.ToDomain(),
             trade: snapshot.Trade?.ToDomain(),
-            minuteBar: snapshot.MinuteBar?.ToDomain(),
-            currentDailyBar: snapshot.CurrentDailyBar?.ToDomain(),
-            previousDailyBar: snapshot.PreviousDailyBar?.ToDomain()
+            minuteBar: snapshot.MinuteBar?.ToDomain(Period.Minute),
+            currentDailyBar: snapshot.CurrentDailyBar?.ToDomain(Period.Minute),
+            previousDailyBar: snapshot.PreviousDailyBar?.ToDomain(Period.Minute)
         );
     }
     
@@ -33,17 +35,16 @@ public static class AlpacaMapper {
         );
     }
 
-    public static Bar ToDomain(this IBar bar) {
+    public static Bar ToDomain(this IBar bar, Period period) {
         return new Bar(
             symbol: bar.Symbol,
-            timeUtc: bar.TimeUtc,
+            openTimeUnixMs: bar.TimeUtc.ToUnixTimeMs(),
+            periodMs: period.UnixMs,
             open: bar.Open,
             high: bar.High,
             low: bar.Low,
             close: bar.Close,
-            volume: bar.Volume,
-            vwap: bar.Vwap,
-            tradeCount: bar.TradeCount
+            volume: bar.Volume
         );
     }
 

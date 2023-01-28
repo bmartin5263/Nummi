@@ -19,7 +19,7 @@ public class Price {
 
     public Price(string symbol, decimal value, DateTime? time = null) {
         Symbol = symbol;
-        Time = time ?? DateTime.UtcNow.Floor(new TimeSpan(0, 1, 0));
+        Time = time ?? DateTime.UtcNow.Truncate(TimeSpan.FromMilliseconds(1));
         Value = value;
     }
 
