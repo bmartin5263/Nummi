@@ -8,9 +8,9 @@ namespace Nummi.Api.Controllers;
 [ApiController]
 public class MarketDataController : ControllerBase {
     
-    private BinanceClient BinanceClient { get; }
+    private BinanceClientAdapter BinanceClient { get; }
 
-    public MarketDataController(BinanceClient binanceClient) {
+    public MarketDataController(BinanceClientAdapter binanceClient) {
         BinanceClient = binanceClient;
     }
     //

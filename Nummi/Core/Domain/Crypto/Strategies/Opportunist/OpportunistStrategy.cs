@@ -31,14 +31,14 @@ public class OpportunistStrategy : Strategy, IParameterizedStrategy<OpportunistP
         Message($"Initializing (nowUtc={now.ToString().Yellow()} now={now.ToLocalTime().ToString().Yellow()})");
         var bars = ctx.DataClient.GetBars(
             symbols: Symbols, 
-            dateRange: new DateRange(now - TimeSpan.FromSeconds(10), now + TimeSpan.FromSeconds(5)), 
+            dateRange: new DateRange(now - TimeSpan.FromSeconds(2000), now), 
             Period.Second
         );
         
         foreach (var symbol in Symbols) {
             var symbolBars = bars[symbol];
-            DateTime minDate = symbolBars.Min(t => t.OpenTimeUtc);
-            DateTime maxDate = symbolBars.Max(t => t.OpenTimeUtc);
+            DateTime minDate = symbolBars[0].OpenTimeUtc;
+            DateTime maxDate = symbolBars[^1].OpenTimeUtc;
             Message($"{symbol.Red()}: {minDate.ToLocalTime().ToString().Yellow()} - {maxDate.ToLocalTime().ToString().Yellow()}");
         }
     }

@@ -11,10 +11,10 @@ public class CryptoDataClientDbProxy : ICryptoDataClient {
     
     private static readonly Logger Log = LogManager.GetCurrentClassLogger();
 
-    private BinanceClient BinanceClient { get; }
+    private BinanceClientAdapter BinanceClient { get; }
     private AppDb AppDb { get; }
 
-    public CryptoDataClientDbProxy(BinanceClient binanceClient, AppDb appDb) {
+    public CryptoDataClientDbProxy(BinanceClientAdapter binanceClient, AppDb appDb) {
         BinanceClient = binanceClient;
         AppDb = appDb;
     }
@@ -53,7 +53,7 @@ public class CryptoDataClientDbProxy : ICryptoDataClient {
         }
         
         if (dbRowsAdded > 0) {
-            Log.Info($"Inserted {dbRowsAdded.ToString().Green()} MinuteBars into DB");
+            Log.Info($"Inserted {dbRowsAdded.ToString().Green()} Bars into DB");
             AppDb.SaveChanges();
         }
         
@@ -76,19 +76,22 @@ public class CryptoDataClientDbProxy : ICryptoDataClient {
         var preloadedBars = new Dictionary<string, DbBars>();
         foreach (var symbol in symbols) {
             var bars = AppDb.HistoricalBars
-                .Where(b => b.Symbol == symbol
-                            && b.PeriodMs == periodUnixMs
-                            && b.OpenTimeUnixMs >= startUnixMs
-                            && b.OpenTimeUnixMs <= endUnixMs
+                .Where(b => 
+                    b.Symbol == symbol
+                    && b.PeriodMs == periodUnixMs
+                    && b.OpenTimeUnixMs >= startUnixMs
+                    && b.OpenTimeUnixMs <= endUnixMs
                 )
                 .OrderBy(b => b.OpenTimeUnixMs)
                 .ToList();
 
             if (bars.Count == 0) {
+                // No bars preloaded, missing range is the entire input range
                 preloadedBars[symbol] = new DbBars(new List<Bar>(), dateRange);
                 continue;
             }
 
+            // Check both ends to see if any part of the range is missing
             long newStart = startUnixMs;
             foreach (var bar in bars) {
                 if (bar.OpenTimeUnixMs == newStart) {
@@ -99,7 +102,8 @@ public class CryptoDataClientDbProxy : ICryptoDataClient {
                 }
             }
 
-            if (newStart >= endUnixMs) {
+            if (newStart > endUnixMs) {
+                // Got the entire range, no additional API calls needed
                 preloadedBars[symbol] = new DbBars(bars);
                 continue;
             }
@@ -115,6 +119,7 @@ public class CryptoDataClientDbProxy : ICryptoDataClient {
                 }
             }
             
+            // Got some of the range
             preloadedBars[symbol] = new DbBars(bars, new DateRange(newStart.ToUtcDateTime(), newEnd.ToUtcDateTime()));
         }
 
@@ -126,8 +131,8 @@ class DbBars {
     public List<Bar> Bars { get; }
     public DateRange? MissingRange { get; }
 
-    public DbBars(List<Bar> bars, DateRange? missingRange = null) {
-        Bars = bars;
+    public DbBars(List<Bar>? bars = null, DateRange? missingRange = null) {
+        Bars = bars ?? new List<Bar>();
         MissingRange = missingRange;
     }
 }

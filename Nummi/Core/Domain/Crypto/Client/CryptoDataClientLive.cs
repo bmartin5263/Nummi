@@ -9,9 +9,9 @@ public class CryptoDataClientLive : ICryptoDataClient {
     
     private static readonly Logger Log = LogManager.GetCurrentClassLogger();
 
-    private BinanceClient BinanceClient { get; }
+    private BinanceClientAdapter BinanceClient { get; }
 
-    public CryptoDataClientLive(BinanceClient binanceClient) {
+    public CryptoDataClientLive(BinanceClientAdapter binanceClient) {
         BinanceClient = binanceClient;
     }
 

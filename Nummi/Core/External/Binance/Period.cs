@@ -36,7 +36,7 @@ public class Period {
     public BarCalls CalculateBarCalls(DateRange dateRange, double maxBarsPerCall) {
         var totalBars = BarCountExtractor(dateRange);
         Chunk(totalBars, maxBarsPerCall, out uint chunks, out uint remainder);
-        return new BarCalls(dateRange, chunks, remainder);
+        return new BarCalls(dateRange, chunks, remainder + 1);
     }
     
     private void Chunk(long value, double maxPerChunk, out uint chunks, out uint remainder) {

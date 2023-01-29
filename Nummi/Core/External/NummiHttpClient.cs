@@ -1,8 +1,8 @@
 using System.Net;
 using System.Text;
-using System.Text.Json;
 using System.Web;
 using NLog;
+using Nummi.Core.Exceptions;
 using Nummi.Core.Util;
 
 namespace Nummi.Core.External; 
@@ -11,7 +11,7 @@ public class NummiHttpClient {
     
     private HttpClient Client { get; }
     private string BaseUrl { get; }
-    private Dictionary<HttpStatusCode, Action<HttpResponseReader>> DefaultStatusCodeActions { get; } = new();
+    private Dictionary<HttpStatusCode, Action<HttpResponse>> DefaultStatusCodeActions { get; } = new();
     private List<string> DefaultLogHeaders { get; } = new();
 
     public NummiHttpClient(HttpClient httpClient, string baseUrl) {
@@ -19,7 +19,7 @@ public class NummiHttpClient {
         BaseUrl = baseUrl;
     }
 
-    public NummiHttpClient OnStatusCode(HttpStatusCode code, Action<HttpResponseReader> action) {
+    public NummiHttpClient OnStatusCode(HttpStatusCode code, Action<HttpResponse> action) {
         DefaultStatusCodeActions[code] = action;
         return this;
     }
@@ -63,7 +63,7 @@ public class HttpRequestBuilder {
     private string Suffix { get; }
     private HttpMethod Method { get; }
     private object? Body { get; }
-    private IDictionary<HttpStatusCode, Action<HttpResponseReader>> DefaultStatusCodeActions { get; }
+    private IDictionary<HttpStatusCode, Action<HttpResponse>> DefaultStatusCodeActions { get; }
     private IList<string> DefaultLogHeaders { get; }
     private IList<string>? PathArgs { get; set; }
     private IDictionary<string, string>? Parameters { get; set; }
@@ -74,7 +74,7 @@ public class HttpRequestBuilder {
         string baseUrl, 
         string suffix, 
         object? body, 
-        IDictionary<HttpStatusCode, Action<HttpResponseReader>> defaultStatusCodeActions, 
+        IDictionary<HttpStatusCode, Action<HttpResponse>> defaultStatusCodeActions, 
         IList<string> defaultLogHeaders
     ) {
         Client = client;
@@ -105,7 +105,7 @@ public class HttpRequestBuilder {
         return this;
     }
 
-    public HttpResponseReader Execute() {
+    public HttpResponse Execute() {
         HttpContent? content = CreateContent();
         string uri = BuildUri();
 
@@ -120,7 +120,12 @@ public class HttpRequestBuilder {
         }).Result;
         var tock = DateTime.Now;
 
-        return new HttpResponseReader(response, tock - tick, DefaultStatusCodeActions, DefaultLogHeaders);
+        var statusCode = response.StatusCode;
+        var headers = response.Headers;
+        var time = tock - tick;
+        string body = response.Content.ReadAsStringAsync().Result;
+
+        return new HttpResponse(statusCode, headers, time, body, DefaultStatusCodeActions, DefaultLogHeaders);
     }
 
     private HttpContent? CreateContent() {
@@ -152,13 +157,19 @@ public class HttpRequestBuilder {
             if (inOpenBracket) {
                 if (c == '}') {
                     if (pathArgIndex >= (PathArgs?.Count ?? 0)) {
-                        throw new ArgumentException($"Suffix '{Suffix}' does not have enough Path argument placeholders for {PathArgs}");
+                        throw new InvalidArgumentException(
+                            $"Suffix '{Suffix}' does not have enough Path argument placeholders for {PathArgs}",
+                            HttpStatusCode.InternalServerError
+                        );
                     }
                     uri.Append(PathArgs![pathArgIndex++]);
                     inOpenBracket = false;
                 }
                 else {
-                    throw new ArgumentException($"Suffix '{Suffix}' has an invalid format");
+                    throw new InvalidArgumentException(
+                        $"Suffix '{Suffix}' has an invalid format",
+                        HttpStatusCode.InternalServerError
+                    );
                 }
             }
             else {
@@ -191,137 +202,5 @@ public class HttpRequestBuilder {
     private void AppendParameter(ref StringBuilder uri, ref KeyValuePair<string, string> entry, char delimiter) {
         uri.Append(delimiter);
         uri.Append(entry.Key).Append('=').Append(HttpUtility.UrlEncode(entry.Value).Replace("%2c", ","));
-    }
-}
-
-public class HttpResponseReader {
-    private static readonly Logger Log = LogManager.GetCurrentClassLogger();
-    
-    private HttpResponseMessage Response { get; }
-    private TimeSpan Time { get; }
-    private IDictionary<HttpStatusCode, Action<HttpResponseReader>> DefaultStatusCodeActions { get; }
-    private IList<string> DefaultLogHeaders { get; }
-    private string Json { get; }
-
-    public HttpResponseReader(
-        HttpResponseMessage response,
-        TimeSpan time,
-        IDictionary<HttpStatusCode, Action<HttpResponseReader>> defaultStatusCodeActions, 
-        IList<string> defaultLogHeaders
-    ) {
-        Response = response;
-        Time = time;
-        DefaultStatusCodeActions = defaultStatusCodeActions;
-        DefaultLogHeaders = defaultLogHeaders;
-        Json = Response.Content.ReadAsStringAsync().Result;
-        if (Response.IsSuccessStatusCode) {
-            Log.Info("Code: ".Yellow() + Response.StatusCode.ToString().Green());
-            Log.Info("Time: ".Yellow() + Time.ToString().Cyan());
-            if (DefaultLogHeaders.Count > 0) {
-                LogHeaders(DefaultLogHeaders.ToArray());
-            }
-        }
-        else {
-            if (((int)Response.StatusCode >= 500) && ((int)Response.StatusCode <= 599)) {
-                Log.Info("Code: ".Yellow() + Response.StatusCode.ToString().Red());
-            }
-            else {
-                Log.Info("Code: ".Yellow() + Response.StatusCode.ToString().Purple());
-            }
-            Log.Info("Headers: ".Yellow() + Response.Headers.ToJoinedString().Cyan());
-            Log.Info("Body: ".Yellow() + Json.Purple());
-        }
-
-        if (DefaultStatusCodeActions.TryGetValue(Response.StatusCode, out Action<HttpResponseReader>? handler)) {
-            handler(this);
-        }
-    }
-
-    public HttpResponseReader LogAllHeaders() {
-        Log.Info("Headers: ".Yellow() + Response.Headers.ToJoinedString().Cyan());
-        return this;
-    }
-
-    public HttpResponseReader LogHeaders(params string[] keys) {
-        var keySet = new HashSet<string>(keys.Select(v => v.ToUpper()));
-
-        var str = Response.Headers
-            .Where(v => keySet.Contains(v.Key.ToUpper()))
-            .ToJoinedString();
-
-        Log.Info("Headers: ".Yellow() + str.Cyan());
-
-        return this;
-    }
-
-    public HttpResponseReader OnStatusCode(HttpStatusCode code, Action<HttpResponseReader> action) {
-        if (Response.StatusCode != code) {
-            return this;
-        }
-        
-        if (DefaultStatusCodeActions.TryGetValue(code, out Action<HttpResponseReader>? value)) {
-            value(this);
-        }
-        else {
-            action(this);
-        }
-
-        return this;
-    }
-
-    public HttpResponseReader OnStatusCodes(HttpStatusCode[] codes, Action<HttpResponseReader> action) {
-        if (!codes.Contains(Response.StatusCode)) {
-            return this;
-        }
-        
-        if (DefaultStatusCodeActions.TryGetValue(Response.StatusCode, out Action<HttpResponseReader>? value)) {
-            value(this);
-        }
-        else {
-            action(this);
-        }
-
-        return this;
-    }
-
-    public HttpResponseReader OnStatusCode(int code, Action<HttpResponseReader> action) {
-        return OnStatusCode((HttpStatusCode) code, action);
-    }
-    
-    public HttpResponseReader ReadHeader(string key, out IEnumerable<string>? values) {
-        Response.Headers.TryGetValues(key, out values);
-        return this;
-    }
-    
-    public HttpResponseReader ReadFirstHeader(string key, out string? value) {
-        Response.Headers.TryGetValues(key, out IEnumerable<string>? values);
-        value = values?.FirstOrDefault();
-        return this;
-    }
-    
-    public HttpResponseReader ReadFirstHeader(string key, out string value, string orElse) {
-        Response.Headers.TryGetValues(key, out IEnumerable<string>? values);
-        value = values?.FirstOrDefault(orElse) ?? orElse;
-        return this;
-    }
-    
-    public HttpResponseReader ReadFirstHeader<T>(string key, out T? value, Func<string, T> mapper) {
-        ReadFirstHeader(key, out string? strValue);
-        value = strValue != null ? mapper(strValue) : default;
-        return this;
-    }
-    
-    public HttpResponseReader ReadFirstHeader<T>(string key, out T value, T orElse, Func<string, T> mapper) {
-        ReadFirstHeader(key, out string? strValue);
-        value = strValue != null ? mapper(strValue) : orElse;
-        return this;
-    }
-
-    public T ReadJson<T>() {
-        return Serializer.FromJson<T>(Json)!;
-    }
-
-    public JsonElement ReadJsonElement() {
-        return Serializer.ToJsonElement(Json);
     }
 }
