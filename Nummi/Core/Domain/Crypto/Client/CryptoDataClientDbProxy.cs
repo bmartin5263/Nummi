@@ -33,6 +33,9 @@ public class CryptoDataClientDbProxy : ICryptoDataClient {
             }
             else {
                 missingRanges[symbol] = bars.MissingRange!.Value;
+                var resultList = new List<Bar>();
+                resultList.AddRange(bars.Bars);
+                result[symbol] = resultList;
             }
         }
 
@@ -43,14 +46,8 @@ public class CryptoDataClientDbProxy : ICryptoDataClient {
         IDictionary<string, List<Bar>> clientBars = BinanceClient.GetBars(missingRanges, period);
         
         var allBars = clientBars.SelectMany(v => v.Value);
-        var dbRowsAdded = 0;
-        foreach (var minuteBar in allBars) {
-            if (BarRepository.FindById(minuteBar.Symbol, minuteBar.OpenTimeUnixMs, minuteBar.PeriodMs) == null) {
-                BarRepository.Add(minuteBar);
-                ++dbRowsAdded;
-            }
-        }
-        
+        var dbRowsAdded = BarRepository.AddRange(allBars);
+
         if (dbRowsAdded > 0) {
             Log.Info($"Inserted {dbRowsAdded.ToString().Green()} Bars into DB");
             BarRepository.Save();

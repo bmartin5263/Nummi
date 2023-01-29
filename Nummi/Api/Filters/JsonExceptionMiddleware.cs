@@ -5,16 +5,9 @@ using Nummi.Core.Util;
 
 namespace Nummi.Api.Filters; 
 
-public class JsonExceptionMiddleware
-{
-    private IWebHostEnvironment Environment { get; set; }
-
-    public JsonExceptionMiddleware(IWebHostEnvironment environment) {
-        Environment = environment;
-    }
-
-    public async Task Invoke(HttpContext context)
-    {
+public class JsonExceptionMiddleware {
+    
+    public async Task Invoke(HttpContext context) {
         context.Response.StatusCode = (int) HttpStatusCode.InternalServerError;
 
         var ex = context.Features.Get<IExceptionHandlerFeature>()?.Error;
@@ -26,8 +19,7 @@ public class JsonExceptionMiddleware
                 break;
         }
 
-        var error = new 
-        {
+        var error = new {
             code = context.Response.StatusCode,
             type = ex.GetType().Name,
             message = ex.Message,
@@ -36,10 +28,8 @@ public class JsonExceptionMiddleware
 
         context.Response.ContentType = "application/json";
 
-        using (var writer = new StreamWriter(context.Response.Body))
-        {
-            Serializer.ToJsonAsync(writer.BaseStream, error);
-            await writer.FlushAsync().ConfigureAwait(false);
-        }
+        await using var writer = new StreamWriter(context.Response.Body);
+        Serializer.ToJsonAsync(writer.BaseStream, error);
+        await writer.FlushAsync().ConfigureAwait(false);
     }
 }

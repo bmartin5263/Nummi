@@ -33,6 +33,20 @@ public class BarRepositoryMock : IBarRepository {
         Database[key] = bar;
     }
 
+    public int AddRange(IEnumerable<Bar> bars) {
+        int added = 0;
+        foreach (var bar in bars) {
+            try {
+                Add(bar);
+                ++added;
+            }
+            catch (InvalidArgumentException) {
+            }
+        }
+
+        return added;
+    }
+
     public void Add(IDictionary<string, List<Bar>> barDict) {
         foreach (List<Bar> barList in barDict.Values) {
             foreach (Bar bar in barList) {

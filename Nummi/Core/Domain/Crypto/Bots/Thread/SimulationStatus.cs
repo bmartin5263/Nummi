@@ -1,7 +1,7 @@
 namespace Nummi.Core.Domain.Crypto.Bots.Thread; 
 
 public enum SimulationStatus {
-    Waiting,
+    Submitted,
     Started,
     Failed,
     Finished

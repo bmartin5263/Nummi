@@ -30,6 +30,11 @@ public class BarRepository : IBarRepository {
         AppDb.HistoricalBars.Add(bar);
     }
 
+
+    public int AddRange(IEnumerable<Bar> bars) {
+        return AppDb.HistoricalBars.AddRangeIfNotExists(bars);
+    }
+
     public void Save() {
         AppDb.SaveChanges();
     }

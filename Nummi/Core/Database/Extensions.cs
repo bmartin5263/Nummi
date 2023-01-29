@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using Nummi.Core.Domain.Crypto.Data;
 using Nummi.Core.Exceptions;
 using Nummi.Core.Util;
 
@@ -98,4 +99,24 @@ public static class Extensions {
         return propertyBuilder;
     }
     
+    public static int AddRangeIfNotExists(this DbSet<Bar> dbSet, IEnumerable<Bar> entities) {
+        var allEntities = entities.ToList();
+        var symbols = allEntities.Select(e => e.Symbol);
+        var openTimes = allEntities.Select(e => e.OpenTimeUnixMs);
+        var periods = allEntities.Select(e => e.PeriodMs);
+        
+        var rawSelection = from entity in dbSet
+            where symbols.Contains(entity.Symbol) && openTimes.Contains(entity.OpenTimeUnixMs) && periods.Contains(entity.PeriodMs)
+            select entity;
+
+        var refined = from entity in rawSelection.AsEnumerable()
+            join pair in allEntities on new { entity.Symbol, entity.OpenTimeUnixMs, entity.PeriodMs }
+                                     equals new { pair.Symbol, pair.OpenTimeUnixMs, pair.PeriodMs}
+            select entity;
+
+        var entitiesToAdd = allEntities.Except(refined).ToList();
+        dbSet.AddRange(entitiesToAdd);
+
+        return entitiesToAdd.Count;
+    }
 }

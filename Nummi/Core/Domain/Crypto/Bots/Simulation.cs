@@ -33,12 +33,12 @@ public class Simulation {
     
     public Simulation() {
         Id = Ksuid.Generate().ToString();
-        Status = SimulationStatus.Waiting;
+        Status = SimulationStatus.Submitted;
     }
 
     public void Start() {
-        if (Status != SimulationStatus.Waiting) {
-            throw new InvalidStateException($"Can only start Simulations that are in {nameof(SimulationStatus.Waiting)} status");
+        if (Status != SimulationStatus.Submitted) {
+            throw new InvalidStateException($"Can only start Simulations that are in {nameof(SimulationStatus.Submitted)} status");
         }
 
         Status = SimulationStatus.Started;

@@ -101,7 +101,7 @@ else
 
 app.UseExceptionHandler(new ExceptionHandlerOptions 
 {
-    ExceptionHandler = new JsonExceptionMiddleware(app.Environment).Invoke
+    ExceptionHandler = new JsonExceptionMiddleware().Invoke
 });
 
 app.UseHttpsRedirection();

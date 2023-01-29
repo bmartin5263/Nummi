@@ -95,16 +95,16 @@ public class BinanceClientAdapter {
         }
         
         var response = Client.GetKlines(symbol, startTime, endTime, period, limit);
-        LastRequestAt = now;
         UsedWeight += 1;
         
-        if (UsedWeight != response.UsedWeight1M) {
+        if (UsedWeight != response.UsedWeight1M && !CheckIfWeightLimitShouldReset(now)) {
             throw new InvalidStateException($"Weight limit not same {UsedWeight}, {response.UsedWeight1M}");
         }
         if (UsedWeight > 1000) {
             throw new InvalidStateException("Weight limit exceeded unexpectedly. Must investigate");
         }
 
+        LastRequestAt = now;
         return response.Content;
     }
 
@@ -121,10 +121,13 @@ public class BinanceClientAdapter {
         Initialized = true;
     }
 
-    private void CheckIfWeightLimitShouldReset(DateTime now) {
+    private bool CheckIfWeightLimitShouldReset(DateTime now) {
         if (LastRequestAt.Minute != now.Minute || LastRequestAt + TimeSpan.FromMinutes(1) <= now) {
             UsedWeight = 0;
+            return true;
         }
+
+        return false;
     }
 
     private void WaitUntilLimitResets(DateTime now) {
