@@ -1,5 +1,4 @@
 using NLog;
-using Nummi.Core.Database;
 using Nummi.Core.Domain.Common;
 using Nummi.Core.Domain.Crypto.Data;
 using Nummi.Core.External.Binance;
@@ -12,11 +11,11 @@ public class CryptoDataClientDbProxy : ICryptoDataClient {
     private static readonly Logger Log = LogManager.GetCurrentClassLogger();
 
     private BinanceClientAdapter BinanceClient { get; }
-    private AppDb AppDb { get; }
+    private IBarRepository BarRepository { get; }
 
-    public CryptoDataClientDbProxy(BinanceClientAdapter binanceClient, AppDb appDb) {
+    public CryptoDataClientDbProxy(BinanceClientAdapter binanceClient, IBarRepository barRepository) {
         BinanceClient = binanceClient;
-        AppDb = appDb;
+        BarRepository = barRepository;
     }
 
     public IDictionary<string, List<Bar>> GetBars(ISet<string> symbols, DateRange dateRange, Period period) {
@@ -46,15 +45,15 @@ public class CryptoDataClientDbProxy : ICryptoDataClient {
         var allBars = clientBars.SelectMany(v => v.Value);
         var dbRowsAdded = 0;
         foreach (var minuteBar in allBars) {
-            if (AppDb.HistoricalBars.Find(minuteBar.Symbol, minuteBar.OpenTimeUnixMs, minuteBar.PeriodMs) == null) {
-                AppDb.HistoricalBars.Add(minuteBar);
+            if (BarRepository.FindById(minuteBar.Symbol, minuteBar.OpenTimeUnixMs, minuteBar.PeriodMs) == null) {
+                BarRepository.Add(minuteBar);
                 ++dbRowsAdded;
             }
         }
         
         if (dbRowsAdded > 0) {
             Log.Info($"Inserted {dbRowsAdded.ToString().Green()} Bars into DB");
-            AppDb.SaveChanges();
+            BarRepository.Save();
         }
         
         foreach ((string symbol, List<Bar> bars) in clientBars) {
@@ -75,15 +74,7 @@ public class CryptoDataClientDbProxy : ICryptoDataClient {
         
         var preloadedBars = new Dictionary<string, DbBars>();
         foreach (var symbol in symbols) {
-            var bars = AppDb.HistoricalBars
-                .Where(b => 
-                    b.Symbol == symbol
-                    && b.PeriodMs == periodUnixMs
-                    && b.OpenTimeUnixMs >= startUnixMs
-                    && b.OpenTimeUnixMs <= endUnixMs
-                )
-                .OrderBy(b => b.OpenTimeUnixMs)
-                .ToList();
+            var bars = BarRepository.FindByIdRange(symbol, startUnixMs, endUnixMs, periodUnixMs);
 
             if (bars.Count == 0) {
                 // No bars preloaded, missing range is the entire input range

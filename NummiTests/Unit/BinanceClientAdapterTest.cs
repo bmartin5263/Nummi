@@ -2,8 +2,9 @@ using Nummi.Core.Domain.Common;
 using Nummi.Core.Domain.Crypto.Data;
 using Nummi.Core.External.Binance;
 using Nummi.Core.Util;
+using NummiTests.Mocks;
 
-namespace NummiTests.Integration; 
+namespace NummiTests.Unit; 
 
 public class BinanceClientAdapterTest {
 

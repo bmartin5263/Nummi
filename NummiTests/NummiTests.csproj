@@ -21,8 +21,4 @@
       <ProjectReference Include="..\Nummi\Nummi.csproj" />
     </ItemGroup>
 
-    <ItemGroup>
-      <Folder Include="Unit" />
-    </ItemGroup>
-
 </Project>

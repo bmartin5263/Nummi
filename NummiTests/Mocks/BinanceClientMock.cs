@@ -2,9 +2,10 @@ using System.Net;
 using NLog;
 using Nummi.Core.Domain.Crypto.Data;
 using Nummi.Core.Exceptions;
+using Nummi.Core.External.Binance;
 using Nummi.Core.Util;
 
-namespace Nummi.Core.External.Binance;
+namespace NummiTests.Mocks;
 
 public class BinanceClientMock : IBinanceClient {
     
