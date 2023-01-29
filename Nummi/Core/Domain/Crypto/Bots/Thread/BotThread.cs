@@ -105,7 +105,7 @@ public class BotThread {
         }
 
         if (bot.Mode == TradingMode.Simulated) {
-            Message($"{bot.Name.Yellow()} is a Simulation Bot which cannot execute in realtime trading");
+            Message($"{bot.Name.Yellow()} is a Simulation Bot which cannot execute in real-time trading");
             return DefaultSleepTime;
         }
 
@@ -169,18 +169,18 @@ public class BotThread {
             using var scope = Self.ServiceProvider.CreateScope();
             using var appDb = scope.ServiceProvider.GetService<AppDb>()!;
             
-            var result = appDb.SimulationResults.GetById(resultId, 
-                onMissing: () => new EntityNotFoundException("Could not find StrategyResult"));
-            result.Status = SimulationStatus.Running;
-
+            var simulation = appDb.Simulations.GetById(resultId, 
+                onMissing: () => new EntityNotFoundException("Could not find StrategyResult")
+            );
+            simulation.Start();
             appDb.SaveChanges();
 
             try {
-                DoSimulateBot(parameters, result, appDb, scope);
+                DoSimulateBot(parameters, simulation, appDb, scope);
             }
             catch (Exception e) {
                 Log.Error($"{"Error!!".Red()} Simulation failed. {e}");
-                result.Status = SimulationStatus.Failed;
+                simulation.Finish(e);
             }
             
             appDb.SaveChanges();
@@ -188,7 +188,7 @@ public class BotThread {
 
         private void DoSimulateBot(
             SimulationParameters parameters, 
-            SimulationResult result, 
+            Simulation simulation, 
             AppDb appDb, 
             IServiceScope scope
         ) {
@@ -208,9 +208,7 @@ public class BotThread {
             );
 
             var logs = bot.RunSimulation(context, parameters);
-            
-            result.AddLogs(logs);
-            result.Status = SimulationStatus.Finished;
+            simulation.Finish(logs);
         }
     }
 }

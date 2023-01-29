@@ -1,5 +1,5 @@
 namespace Nummi.Api.Model; 
 
-public class SimulationResultDto {
+public class SimulationDto {
     public List<StrategyLogDto>? Logs { get; set; }
 }

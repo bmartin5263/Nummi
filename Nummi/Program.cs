@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using Nummi.Api.Filters;
 using Nummi.Core.Database;
+using Nummi.Core.Database.Repositories;
 using Nummi.Core.Domain.Crypto.Bots;
 using Nummi.Core.Domain.Crypto.Bots.Thread;
 using Nummi.Core.Domain.Crypto.Client;
@@ -64,6 +65,7 @@ builder.Services.AddSingleton<BinanceClientAdapter>();
 builder.Services.AddScoped<CryptoDataClientLive>();
 builder.Services.AddScoped<CryptoDataClientDbProxy>();
 builder.Services.AddScoped<BlogService>();
+builder.Services.AddScoped<IBarRepository, BarRepository>();
 // builder.Services.AddSingleton<IHostedService, BotExecutor2>(_ => new BotExecutor2(new StockBot("Alpha")));
 builder.Services.AddSingleton<BotExecutionManager>(provider => new BotExecutionManager(provider, 1));
 builder.Services.AddSingleton<IHostedService, BotExecutionManager>(

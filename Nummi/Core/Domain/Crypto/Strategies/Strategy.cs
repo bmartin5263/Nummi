@@ -14,7 +14,7 @@ public abstract class Strategy {
 
     // Unique id for this strategy
     public string Id { get; } = Ksuid.Generate().ToString();
-    
+
     // How often should this strategy check for possible trades
     public TimeSpan Frequency { get; }
     
@@ -34,8 +34,8 @@ public abstract class Strategy {
     }
 
     public StrategyLog Initialize(TradingEnvironment env) {
-        var logBuilder = new StrategyLogBuilder(this, env.Mode, StrategyAction.Initializing);
-        var context = CreateContext(env, logBuilder);
+        StrategyLogBuilder logBuilder = new(this, env.Mode, StrategyAction.Initializing);
+        StrategyContext context = CreateContext(env, logBuilder);
         
         try {
             Initialize(context);
@@ -63,6 +63,14 @@ public abstract class Strategy {
         }
         
         return logBuilder.Build();
+    }
+
+    public bool ShouldInitialize() {
+        if (LastExecutedAt == null) {
+            return true;
+        }
+        var elapsedSinceLastExecution = DateTime.UtcNow - LastExecutedAt;
+        return elapsedSinceLastExecution > Frequency * 2;
     }
 
     private StrategyContext CreateContext(TradingEnvironment env, StrategyLogBuilder logBuilder) {

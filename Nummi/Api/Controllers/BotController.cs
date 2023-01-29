@@ -114,13 +114,13 @@ public class BotController : ControllerBase {
     }
     
     /// <summary>
-    /// Get the result of a simulation run. May not be complete if the simulation hasn't finished
+    /// Get details of a simulation run. May not be complete if the simulation hasn't finished
     /// </summary>
     [Route("simulation/{simulationId}")]
     [HttpPost]
-    public SimulationResultDto GetSimulationResult(
+    public SimulationDto GetSimulation(
         string simulationId
     ) {
-        return BotService.GetSimulationResult(simulationId).ToDto();
+        return BotService.GetSimulation(simulationId).ToDto();
     }
 }

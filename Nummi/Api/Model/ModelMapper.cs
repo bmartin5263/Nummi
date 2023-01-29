@@ -88,8 +88,8 @@ public static class ModelMapper {
         return dto;
     }
 
-    public static SimulationResultDto ToDto(this SimulationResult result) {
-        var dto = new SimulationResultDto {
+    public static SimulationDto ToDto(this Simulation result) {
+        var dto = new SimulationDto {
             Logs = result.Logs.Select(v => v.ToDto()).ToList()
         };
         return dto;

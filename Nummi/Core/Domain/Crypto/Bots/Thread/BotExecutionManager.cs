@@ -61,12 +61,12 @@ public class BotExecutionManager : BackgroundService {
         );
     }
 
-    public void RunBotSimulation(Bot bot, SimulationParameters parameters, SimulationResult result) {
+    public void RunBotSimulation(Bot bot, SimulationParameters parameters, Simulation simulation) {
         var thread = Threads
             .FirstOrDefault(t => t.BotId == bot.Id)
             .OrElseThrow(() => new InvalidArgumentException($"{bot.Name} is not active"));
 
-        thread.AddCommand(new SimulateBotCommand(parameters, result.Id));
+        thread.AddCommand(new SimulateBotCommand(parameters, simulation.Id));
     }
 
     public bool IsBotActive(Bot bot) {

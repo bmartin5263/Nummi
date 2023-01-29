@@ -326,22 +326,35 @@ namespace Nummi.Core.Database.Migrations
                     b.ToTable("Bot");
                 });
 
-            modelBuilder.Entity("Nummi.Core.Domain.Crypto.Bots.SimulationResult", b =>
+            modelBuilder.Entity("Nummi.Core.Domain.Crypto.Bots.Simulation", b =>
                 {
                     b.Property<string>("Id")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("EndTime")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Error")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Logs")
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<DateTime?>("StartTime")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<TimeSpan?>("TotalTime")
+                        .HasColumnType("TEXT")
+                        .HasColumnName("TotalTime");
+
                     b.HasKey("Id");
 
-                    b.ToTable("SimulationResult");
+                    b.ToTable("Simulation");
                 });
 
             modelBuilder.Entity("Nummi.Core.Domain.Crypto.Bots.Thread.BotThreadEntity", b =>
@@ -384,7 +397,8 @@ namespace Nummi.Core.Database.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<DateTime>("OpenTimeUtc")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("TEXT")
+                        .HasColumnName("OpenTimeUtc");
 
                     b.Property<decimal>("Volume")
                         .HasColumnType("TEXT");

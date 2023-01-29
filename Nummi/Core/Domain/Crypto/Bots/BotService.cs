@@ -1,10 +1,10 @@
+using System.Diagnostics;
 using System.Net;
 using Microsoft.EntityFrameworkCore;
 using Nummi.Core.Database;
 using Nummi.Core.Domain.Crypto.Bots.Thread;
 using Nummi.Core.Exceptions;
 using Nummi.Core.Util;
-using static Nummi.Core.Util.Assertions;
 
 namespace Nummi.Core.Domain.Crypto.Bots; 
 
@@ -23,7 +23,7 @@ public class BotService {
     public Bot CreateBot(CreateBotRequest request) {
         var bot = new Bot(request.Name, request.Funds ?? 0, request.Mode);
         AppDb.Bots.Add(bot);
-        Assert(AppDb.SaveChanges() == 1);
+        Debug.Assert(AppDb.SaveChanges() == 1);
         return bot;
     }
 
@@ -75,18 +75,18 @@ public class BotService {
 
     public string RunBotSimulation(string botId, SimulationParameters parameters) {
         var bot = GetBotById(botId);
-        var result = new SimulationResult();
+        var result = new Simulation();
         ExecutionManager.RunBotSimulation(bot, parameters, result);
 
-        AppDb.SimulationResults.Add(result);
+        AppDb.Simulations.Add(result);
         AppDb.SaveChanges();
         
         return result.Id;
     }
 
-    public SimulationResult GetSimulationResult(string simulationId) {
-        return AppDb.SimulationResults
+    public Simulation GetSimulation(string simulationId) {
+        return AppDb.Simulations
             .Find(simulationId)
-            .OrElseThrow(() => new EntityNotFoundException(typeof(SimulationResult), simulationId, HttpStatusCode.BadRequest));
+            .OrElseThrow(() => new EntityNotFoundException(typeof(Simulation), simulationId, HttpStatusCode.BadRequest));
     }
 }

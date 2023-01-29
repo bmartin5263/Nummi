@@ -10,24 +10,14 @@ public class Bar : IBar, IComparable<Bar> {
 
     public string Symbol { get; init; }
 
-    private readonly long _openTimeUnixMs;
-    public long OpenTimeUnixMs {
-        get => _openTimeUnixMs;
-        init {
-            _openTimeUnixMs = value;
-            _openTimeUtc = value.ToUtcDateTime();
-        }
-    }
+    public long OpenTimeUnixMs { get; init; }
     
     public long PeriodMs { get; init; }
     
-    private readonly DateTime _openTimeUtc;
+    [Column(nameof(OpenTimeUtc))]
     public DateTime OpenTimeUtc {
-        get => _openTimeUtc;
-        init {
-            _openTimeUtc = value;
-            _openTimeUnixMs = value.ToUnixTimeMs();
-        }
+        get => OpenTimeUnixMs.ToUtcDateTime();
+        private set {  }
     }
 
     public decimal Open { get; init; }

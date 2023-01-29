@@ -31,7 +31,7 @@ public class OpportunistStrategy : Strategy, IParameterizedStrategy<OpportunistP
         Message($"Initializing (nowUtc={now.ToString().Yellow()} now={now.ToLocalTime().ToString().Yellow()})");
         var bars = ctx.DataClient.GetBars(
             symbols: Symbols, 
-            dateRange: new DateRange(now - TimeSpan.FromSeconds(2000), now), 
+            dateRange: new DateRange(now - TimeSpan.FromMinutes(59), now), 
             Period.Second
         );
         

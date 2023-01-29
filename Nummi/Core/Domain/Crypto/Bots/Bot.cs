@@ -90,13 +90,13 @@ public class Bot {
         );
 
         StrategyLog log;
-        if (ShouldInitializeStrategy(out TimeSpan? elapsed)) {
-            Message($"{"Initializing".Blue()} Trading Strategy after not executing for {elapsed!.Value.ToString().Yellow()}");
-            log = Strategy!.Initialize(env);
+        if (Strategy!.ShouldInitialize()) {
+            Message($"{"Initializing".Blue()} Trading Strategy");
+            log = Strategy.Initialize(env);
             SaveLog(log);
         }
         
-        log = Strategy!.CheckForTrades(env);
+        log = Strategy.CheckForTrades(env);
         SaveLog(log);
     }
 
@@ -152,15 +152,7 @@ public class Bot {
         sleep = null;
         return false;
     }
-    
-    private bool ShouldInitializeStrategy(out TimeSpan? elapsed) {
-        elapsed = TimeSpan.Zero;
-        return true;
-        var startTime = DateTime.UtcNow;
-        elapsed = startTime - Strategy!.LastExecutedAt;
-        return elapsed != null && elapsed >= Strategy.Frequency * 2;
-    }
-    
+
     private void SaveLog(StrategyLog log) {
         Strategy!.Logs.Add(log);
         LastStrategyLog = log;
