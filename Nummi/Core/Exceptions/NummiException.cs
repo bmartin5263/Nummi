@@ -1,12 +1,9 @@
-using System.Net;
-
 namespace Nummi.Core.Exceptions; 
 
-public class NummiException : Exception {
-    
-    public HttpStatusCode StatusCode { get; private init; }
-    
-    public NummiException(string message, HttpStatusCode code = HttpStatusCode.InternalServerError) : base(message) {
-        StatusCode = code;
+public abstract class NummiException : Exception {
+    protected NummiException(string message) : base(message) {
+    }
+
+    protected NummiException(string message, Exception causedBy) : base(message, causedBy) {
     }
 }

@@ -1,5 +1,4 @@
 using System.Diagnostics;
-using System.Net;
 using Microsoft.EntityFrameworkCore;
 using Nummi.Core.Database;
 using Nummi.Core.Domain.Crypto.Bots.Thread;
@@ -28,20 +27,19 @@ public class BotService {
     }
 
     public BotThreadDetail ActivateBot(string id) {
-        var bot = GetBotById(id);
+        var bot = GetBotById(id).OrElseThrow(() => new EntityNotFoundException<Bot>(id));
         return ExecutionManager.AssignBot(bot);
     }
     
     public BotThreadDetail DeactivateBot(string id) {
-        var bot = GetBotById(id);
+        var bot = GetBotById(id).OrElseThrow(() => new EntityNotFoundException<Bot>(id));
         return ExecutionManager.RemoveBot(bot);
     }
 
-    public Bot GetBotById(string id) {
+    public Bot? GetBotById(string id) {
         return AppDb.Bots
             .Include(b => b.Strategy)
-            .FirstOrDefault(b => b.Id == id)
-            .OrElseThrow(() => new EntityNotFoundException(typeof(Bot), id, HttpStatusCode.BadRequest));
+            .FirstOrDefault(b => b.Id == id);
     }
 
     public void DeleteBotById(string id) {
@@ -60,21 +58,21 @@ public class BotService {
     }
 
     public Bot SetBotStrategy(string botId, string strategyId) {
-        var bot = GetBotById(botId);
-        var strategy = AppDb.Strategies.GetById(strategyId, HttpStatusCode.BadRequest);
+        var bot = GetBotById(botId).OrElseThrow(() => new EntityNotFoundException<Bot>(botId));
+        var strategy = AppDb.Strategies.GetById(strategyId);
         bot.Strategy = strategy;
         AppDb.SaveChanges();
-        return GetBotById(botId);
+        return bot;
     }
 
     public void ClearErrorState(string botId) {
-        var bot = GetBotById(botId);
+        var bot = GetBotById(botId).OrElseThrow(() => new EntityNotFoundException<Bot>(botId));
         bot.ClearErrorState();
         AppDb.SaveChanges();
     }
 
     public string RunBotSimulation(string botId, SimulationParameters parameters) {
-        var bot = GetBotById(botId);
+        var bot = GetBotById(botId).OrElseThrow(() => new EntityNotFoundException<Bot>(botId));
         var result = new Simulation();
         ExecutionManager.RunBotSimulation(bot, parameters, result);
 
@@ -87,6 +85,6 @@ public class BotService {
     public Simulation GetSimulation(string simulationId) {
         return AppDb.Simulations
             .Find(simulationId)
-            .OrElseThrow(() => new EntityNotFoundException(typeof(Simulation), simulationId, HttpStatusCode.BadRequest));
+            .OrElseThrow(() => new EntityNotFoundException<Simulation>(simulationId));
     }
 }

@@ -34,7 +34,7 @@ public class BinanceClient : IBinanceClient {
         }
 
         if (limit is < 0 or > 1000) {
-            throw new InvalidArgumentException("Limit must be between 0 and 1000");
+            throw new InvalidUserArgumentException("Limit must be between 0 and 1000");
         }
         
         var response = Client.Get("/klines")

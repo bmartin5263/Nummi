@@ -29,7 +29,7 @@ public class BotExecutionManager : BackgroundService {
         BotThread? availableThread = null;
         foreach (var thread in Threads) {
             if (thread.BotId == bot.Id) {
-                throw new InvalidArgumentException($"{bot.Name} is already active");
+                throw new InvalidUserArgumentException($"{bot.Name} is already active");
             }
             if (thread.BotId == null) {
                 availableThread = thread;
@@ -51,7 +51,7 @@ public class BotExecutionManager : BackgroundService {
     public BotThreadDetail RemoveBot(Bot bot) {
         var thread = Threads
             .FirstOrDefault(t => t.BotId == bot.Id)
-            .OrElseThrow(() => new InvalidArgumentException($"{bot.Name} is not active"));
+            .OrElseThrow(() => new InvalidUserArgumentException($"{bot.Name} is not active"));
 
         thread.AddCommand(new RemoveBotCommand());
         
@@ -64,7 +64,7 @@ public class BotExecutionManager : BackgroundService {
     public void RunBotSimulation(Bot bot, SimulationParameters parameters, Simulation simulation) {
         var thread = Threads
             .FirstOrDefault(t => t.BotId == bot.Id)
-            .OrElseThrow(() => new InvalidArgumentException($"{bot.Name} is not active"));
+            .OrElseThrow(() => new InvalidUserArgumentException($"{bot.Name} is not active"));
 
         thread.AddCommand(new SimulateBotCommand(parameters, simulation.Id));
     }
@@ -75,7 +75,7 @@ public class BotExecutionManager : BackgroundService {
 
     public BotThread GetThread(uint id) {
         if (id >= NumThreads) {
-            throw new InvalidArgumentException($"No thread with id {id}");
+            throw new InvalidUserArgumentException($"No thread with id {id}");
         }
         return Threads[id];
     }

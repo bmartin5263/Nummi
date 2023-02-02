@@ -27,7 +27,7 @@ public class BarRepositoryMock : IBarRepository {
     public void Add(Bar bar) {
         var key = new BarKey(bar.Symbol, bar.OpenTimeUnixMs, bar.PeriodMs);
         if (Database.ContainsKey(key)) {
-            throw new InvalidArgumentException($"Bar already exists {bar}");
+            throw new InvalidUserArgumentException($"Bar already exists {bar}");
         }
 
         Database[key] = bar;
@@ -40,7 +40,7 @@ public class BarRepositoryMock : IBarRepository {
                 Add(bar);
                 ++added;
             }
-            catch (InvalidArgumentException) {
+            catch (InvalidUserArgumentException) {
             }
         }
 
@@ -52,7 +52,7 @@ public class BarRepositoryMock : IBarRepository {
             foreach (Bar bar in barList) {
                 var key = new BarKey(bar.Symbol, bar.OpenTimeUnixMs, bar.PeriodMs);
                 if (Database.ContainsKey(key)) {
-                    throw new InvalidArgumentException($"Bar already exists {bar}");
+                    throw new InvalidUserArgumentException($"Bar already exists {bar}");
                 }
                 Database[key] = bar;
             }

@@ -1,4 +1,3 @@
-using System.Net;
 using Nummi.Core.Exceptions;
 
 namespace Nummi.Core.Domain.Common; 
@@ -10,10 +9,10 @@ public struct DateRange {
 
     public DateRange(DateTime start, DateTime end) {
         if (start > end) {
-            throw new InvalidArgumentException($"'start' ({start}) cannot be after 'end' ({end})", HttpStatusCode.InternalServerError);
+            throw new InvalidSystemArgumentException($"'start' ({start}) cannot be after 'end' ({end})");
         }
         if (start.Kind != end.Kind) {
-            throw new InvalidArgumentException($"'start' kind ({start.Kind}) != 'end' kind ({end.Kind})", HttpStatusCode.InternalServerError);
+            throw new InvalidSystemArgumentException($"'start' kind ({start.Kind}) != 'end' kind ({end.Kind})");
         }
         Start = start;
         End = end;

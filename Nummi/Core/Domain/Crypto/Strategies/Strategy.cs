@@ -33,9 +33,9 @@ public abstract class Strategy {
         Frequency = frequency;
     }
 
-    public StrategyLog Initialize(TradingEnvironment env) {
-        StrategyLogBuilder logBuilder = new(this, env.Mode, StrategyAction.Initializing);
-        StrategyContext context = CreateContext(env, logBuilder);
+    public StrategyLog Initialize(TradingContext ctx) {
+        var logBuilder = new StrategyLogBuilder(this, ctx.Mode, StrategyAction.Initializing);
+        var context = new StrategyContext(ctx, logBuilder);
         
         try {
             Initialize(context);
@@ -49,9 +49,9 @@ public abstract class Strategy {
         return logBuilder.Build();
     }
 
-    public StrategyLog CheckForTrades(TradingEnvironment env) {
-        var logBuilder = new StrategyLogBuilder(this, env.Mode, StrategyAction.Trading);
-        var context = CreateContext(env, logBuilder);
+    public StrategyLog CheckForTrades(TradingContext ctx) {
+        var logBuilder = new StrategyLogBuilder(this, ctx.Mode, StrategyAction.Trading);
+        var context = new StrategyContext(ctx, logBuilder);
         
         try {
             CheckForTrades(context);
@@ -71,13 +71,6 @@ public abstract class Strategy {
         }
         var elapsedSinceLastExecution = DateTime.UtcNow - LastExecutedAt;
         return elapsedSinceLastExecution > Frequency * 2;
-    }
-
-    private StrategyContext CreateContext(TradingEnvironment env, StrategyLogBuilder logBuilder) {
-        return new StrategyContext(
-            environment: env,
-            logBuilder: logBuilder
-        );
     }
 
     protected void Message(string msg) {

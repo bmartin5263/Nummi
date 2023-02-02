@@ -19,7 +19,7 @@ public class ClockMock : IClock {
 
     public ClockMock(DateTime time) {
         if (time.Kind != DateTimeKind.Utc) {
-            throw new InvalidArgumentException("Clock mock must use UTC");
+            throw new InvalidUserArgumentException("Clock mock must use UTC");
         }
         NowUtc = time;
     }

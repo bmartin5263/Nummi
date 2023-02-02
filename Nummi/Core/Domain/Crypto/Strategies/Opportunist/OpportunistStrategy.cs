@@ -24,7 +24,7 @@ public class OpportunistStrategy : Strategy, IParameterizedStrategy<OpportunistP
 
     protected override void Initialize(StrategyContext ctx) {
         if (Symbols == null) {
-            throw new InvalidArgumentException("Symbols cannot be null");
+            throw new InvalidUserArgumentException("Symbols cannot be null");
         }
 
         var now = ctx.Clock.NowUtc;
@@ -45,7 +45,7 @@ public class OpportunistStrategy : Strategy, IParameterizedStrategy<OpportunistP
     
     protected override void CheckForTrades(StrategyContext ctx) {
         if (Symbols == null) {
-            throw new InvalidArgumentException("Symbols cannot be null");
+            throw new InvalidUserArgumentException("Symbols cannot be null");
         }
         Message($"Checking For Trades: {ctx.Clock.Now.ToString().Yellow()} / {ctx.Clock.NowUtc.ToString().Yellow()}");
     }

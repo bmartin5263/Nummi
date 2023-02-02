@@ -8,7 +8,6 @@ using Nummi.Core.Database;
 using Nummi.Core.Database.Repositories;
 using Nummi.Core.Domain.Crypto.Bots;
 using Nummi.Core.Domain.Crypto.Bots.Thread;
-using Nummi.Core.Domain.Crypto.Client;
 using Nummi.Core.Domain.Crypto.Data;
 using Nummi.Core.Domain.Crypto.Ordering;
 using Nummi.Core.Domain.Crypto.Strategies;
@@ -53,24 +52,29 @@ builder.Services.AddControllersWithViews()
         options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
     });
 builder.Services.AddRazorPages();
-builder.Services.AddScoped<OrderService>();
-builder.Services.AddScoped<BotService>();
-builder.Services.AddScoped<StrategyService>();
-builder.Services.AddSingleton<MarketDataService>();
-builder.Services.AddSingleton<IStockClient, StockClientAlpaca>();
-builder.Services.AddSingleton<IAlpacaClient, AlpacaClientPaper>();
+
+// External Clients
+builder.Services.AddSingleton<AlpacaClientLive>();
+builder.Services.AddSingleton<AlpacaClientPaper>();
 builder.Services.AddSingleton<CoinbaseClient>();
 builder.Services.AddSingleton<IBinanceClient, BinanceClient>();
 builder.Services.AddSingleton<BinanceClientAdapter>();
+
+// Services
+builder.Services.AddScoped<OrderService>();
+builder.Services.AddScoped<BotService>();
+builder.Services.AddScoped<StrategyService>();
 builder.Services.AddScoped<CryptoDataClientLive>();
 builder.Services.AddScoped<CryptoDataClientDbProxy>();
 builder.Services.AddScoped<BlogService>();
+builder.Services.AddScoped<TradingContextFactory>();
 builder.Services.AddScoped<IBarRepository, BarRepository>();
-// builder.Services.AddSingleton<IHostedService, BotExecutor2>(_ => new BotExecutor2(new StockBot("Alpha")));
+
+// Bot Execution Threads
 builder.Services.AddSingleton<BotExecutionManager>(provider => new BotExecutionManager(provider, 1));
 builder.Services.AddSingleton<IHostedService, BotExecutionManager>(
     serviceProvider => serviceProvider.GetService<BotExecutionManager>()!);
-// builder.Services.AddSingleton<IHostedService, BotExecutor>(_ => new BotExecutor("BotExecutor2"));
+
 builder.Services.AddSwaggerGen(options =>
 {
     options.SwaggerDoc("v1", new OpenApiInfo

@@ -1,58 +1,26 @@
-using Alpaca.Markets;
-using Nummi.Core.Database;
 using Nummi.Core.Domain.Crypto.Client;
+using Nummi.Core.Domain.Crypto.Strategies;
+using Nummi.Core.External.Alpaca;
 
 namespace Nummi.Core.Domain.Crypto.Ordering;
 
 public class OrderService {
 
-    private readonly AppDb appDb;
-    private readonly IStockClient stockClient;
+    private AlpacaClientPaper PaperClient { get; }
+    private AlpacaClientLive LiveClient { get; }
 
-    public OrderService(AppDb appDb, IStockClient stockClient) {
-        this.appDb = appDb;
-        this.stockClient = stockClient;
+    public OrderService(AlpacaClientPaper paperClient, AlpacaClientLive liveClient) {
+        PaperClient = paperClient;
+        LiveClient = liveClient;
     }
 
-    public async Task<Order> PlaceOrderAsync(PlaceOrderRq request) {
-        var order = await stockClient.PlaceOrderAsync(request);
-        return order;
+    public async Task<Order> PlaceOrderAsync(TradingMode mode, PlaceOrderRq request) {
+        switch (mode) {
+            case TradingMode.Paper:
+                return await new CryptoTradingClientRealtime(PaperClient).PlaceOrderAsync(request);
+            default:
+                throw new ArgumentOutOfRangeException(nameof(mode), mode, null);
+        }
     }
 
-    private static Order CreateTestOrder(string symbol) {
-        return new Order(
-            Guid.NewGuid(),
-            "ClientOrderId",
-            DateTime.Now,
-            DateTime.Now,
-            DateTime.Now,
-            DateTime.Now,
-            DateTime.Now,
-            DateTime.Now,
-            DateTime.Now,
-            DateTime.Now,
-            Guid.NewGuid(),
-            symbol,
-            AssetClass.UsEquity,
-            1.0m,
-            1.2m,
-            1.3m,
-            10,
-            5,
-            OrderType.Market,
-            OrderClass.Simple,
-            OrderSide.Buy,
-            TimeInForce.Day,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            OrderStatus.Filled,
-            null,
-            null
-        );
-    }
-    
 }

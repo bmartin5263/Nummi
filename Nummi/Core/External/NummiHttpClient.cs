@@ -157,19 +157,13 @@ public class HttpRequestBuilder {
             if (inOpenBracket) {
                 if (c == '}') {
                     if (pathArgIndex >= (PathArgs?.Count ?? 0)) {
-                        throw new InvalidArgumentException(
-                            $"Suffix '{Suffix}' does not have enough Path argument placeholders for {PathArgs}",
-                            HttpStatusCode.InternalServerError
-                        );
+                        throw new InvalidSystemArgumentException($"Suffix '{Suffix}' does not have enough Path argument placeholders for {PathArgs}");
                     }
                     uri.Append(PathArgs![pathArgIndex++]);
                     inOpenBracket = false;
                 }
                 else {
-                    throw new InvalidArgumentException(
-                        $"Suffix '{Suffix}' has an invalid format",
-                        HttpStatusCode.InternalServerError
-                    );
+                    throw new InvalidSystemArgumentException($"Suffix '{Suffix}' has an invalid format");
                 }
             }
             else {

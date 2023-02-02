@@ -1,10 +1,8 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics.CodeAnalysis;
-using System.Net;
 using KSUID;
 using Microsoft.EntityFrameworkCore;
 using NLog;
-using Nummi.Core.Domain.Crypto.Client;
 using Nummi.Core.Domain.Crypto.Strategies;
 using Nummi.Core.Exceptions;
 using Nummi.Core.Util;
@@ -81,13 +79,7 @@ public class Bot {
     }
 
     private void DoRunRealtime(BotContext context) {
-        var env = new TradingEnvironment(
-            mode: Mode,
-            dataClient: context.GetScoped<CryptoDataClientLive>(),
-            allowance: Funds,
-            appDb: context.AppDb,
-            clock: new ClockLive()
-        );
+        var env = context.TradingContextFactory.Create(Mode, Funds, new ClockLive());
 
         StrategyLog log;
         if (Strategy!.ShouldInitialize()) {
@@ -102,7 +94,7 @@ public class Bot {
 
     public List<StrategyLog> RunSimulation(BotContext context, SimulationParameters simulation) {
         if (Strategy == null) {
-            throw new InvalidStateException("Cannot run simulation without a Strategy", HttpStatusCode.BadRequest);
+            throw new InvalidStateException("Cannot run simulation without a Strategy");
         }
         
         // Force the input to be in local time
@@ -113,13 +105,7 @@ public class Bot {
         var logs = new List<StrategyLog>();
 
         var clock = new ClockMock(startTime);
-        var env = new TradingEnvironment(
-            mode: TradingMode.Simulated,
-            dataClient: context.GetScoped<CryptoDataClientDbProxy>(),
-            allowance: Funds,
-            appDb: context.AppDb,
-            clock: clock
-        );
+        var env = context.TradingContextFactory.Create(Mode, Funds, clock);
         
         Message($"{"Starting Simulation".Yellow()} (start={simulation.StartTime}, startUTC={startTime}, end={simulation.EndTime}, endUTC={endTime}, duration={duration}, clock.nowUTC={clock.NowUtc}, clock.now={clock.Now})");
 

@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Nummi.Core.Domain.Crypto.Data;
+using Nummi.Core.External.Alpaca;
 using Nummi.Core.External.Binance;
 
 namespace Nummi.Api.Controllers; 
@@ -9,17 +10,12 @@ namespace Nummi.Api.Controllers;
 public class MarketDataController : ControllerBase {
     
     private BinanceClientAdapter BinanceClient { get; }
+    private IAlpacaClient AlpacaClient { get; }
 
-    public MarketDataController(BinanceClientAdapter binanceClient) {
+    public MarketDataController(BinanceClientAdapter binanceClient, IAlpacaClient alpacaClient) {
         BinanceClient = binanceClient;
+        AlpacaClient = alpacaClient;
     }
-    //
-    // [Route("price")]
-    // [HttpGet]
-    // public IEnumerable<Price> GetPrice([FromQuery] HashSet<string> symbols) {
-    //     var response = BinanceClient.GetSpotPrice(symbols, DateTime.UtcNow);
-    //     return response;
-    // }
 
     [Route("bars")]
     [HttpGet]
@@ -38,13 +34,5 @@ public class MarketDataController : ControllerBase {
         var response = BinanceClient.GetExchangeInfo();
         return response;
     }
-
-    // [Route("/all")]
-    // [HttpGet]
-    // public IEnumerable<HistoricalPrice> GetPrice() {
-    //     var BinanceClient = new BinanceClientAdapter();
-    //     var response = BinanceClient.GetSpotPrice();
-    //     return response;
-    // }
 
 }

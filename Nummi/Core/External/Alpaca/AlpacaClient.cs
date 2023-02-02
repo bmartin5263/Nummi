@@ -1,4 +1,5 @@
 using Alpaca.Markets;
+using Nummi.Core.Exceptions;
 
 namespace Nummi.Core.External.Alpaca; 
 

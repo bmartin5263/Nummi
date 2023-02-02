@@ -1,4 +1,3 @@
-using System.Net;
 using System.Text.Json.Nodes;
 using Microsoft.EntityFrameworkCore;
 using Nummi.Core.Database;
@@ -23,7 +22,7 @@ public class StrategyService {
     }
 
     public Strategy UpdateStrategyParameters(string id, JsonNode parameterObject) {
-        var strategy = AppDb.Strategies.GetById(id, HttpStatusCode.BadRequest);
+        var strategy = AppDb.Strategies.GetById(id);
         StrategyFactory.InjectParameterObject(strategy, parameterObject);
         AppDb.SaveChanges();
         return strategy;
@@ -34,13 +33,13 @@ public class StrategyService {
     }
     
     public Strategy GetStrategyById(string id) {
-        return AppDb.Strategies.GetById(id, HttpStatusCode.BadRequest);
+        return AppDb.Strategies.GetById(id);
     }
     
     public StrategyLog GetLogById(string id) {
         return AppDb.StrategyLogs
             .Include(l => l.Strategy)
             .FirstOrDefault(l => l.Id == id)
-            .OrElseThrow(() => new EntityNotFoundException(typeof(StrategyLog), id, HttpStatusCode.BadRequest));
+            .OrElseThrow(() => new EntityNotFoundException<StrategyLog>(id));
     }
 }

@@ -2,6 +2,8 @@ using Microsoft.AspNetCore.Mvc;
 using Nummi.Api.Model;
 using Nummi.Core.Domain.Crypto.Bots;
 using Nummi.Core.Domain.Crypto.Bots.Thread;
+using Nummi.Core.Exceptions;
+using Nummi.Core.Util;
 
 namespace Nummi.Api.Controllers; 
 
@@ -34,6 +36,7 @@ public class BotController : ControllerBase {
     public BotDto GetBotById(string botId) {
         return BotService
             .GetBotById(botId)
+            .OrElseThrow(() => new EntityNotFoundException<Bot>(botId))
             .ToDto();
     }
 

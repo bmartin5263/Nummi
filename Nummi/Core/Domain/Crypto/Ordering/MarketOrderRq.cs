@@ -1,23 +1,32 @@
-using Alpaca.Markets;
+using System.ComponentModel.DataAnnotations;
+using JetBrains.Annotations;
 
 namespace Nummi.Core.Domain.Crypto.Ordering; 
 
 public class MarketOrderRq {
-    public string Symbol { get; } = default!;                 // AAPL
-    public decimal Shares { get; } = default!;        // # of shares / $ amount
-    public OrderSide Side { get; } = default!;                // Buy / Sell
-    public TimeInForce Duration { get; } = default!;          // Day/GTC(Good til' Cancelled)/OPG(at open)/IOC/FOK/CLS
-
-    public MarketOrderRq() { }
-
-    public MarketOrderRq(string symbol, decimal shares, OrderSide side, TimeInForce duration) {
-        Symbol = symbol;
-        Shares = shares;
-        Side = side;
-        Duration = duration;
-    }
+    
+    [Required]
+    [UsedImplicitly]
+    public required string Symbol { get; init; }                 // AAPL
+    
+    [UsedImplicitly]
+    public required CryptoOrderQuantity Quantity { get; init; }       // # of shares / $ amount
+    
+    [Required]
+    [UsedImplicitly]
+    public required OrderSide Side { get; init; }                // Buy / Sell
+    
+    [Required]
+    [UsedImplicitly]
+    public required TimeInForce Duration { get; init; }          // Day/GTC(Good til' Cancelled)/OPG(at open)/IOC/FOK/CLS
 
     public PlaceOrderRq ToPlaceOrderRq() {
-        return new PlaceOrderRq(Symbol, OrderQuantity.Fractional(Shares), Side, OrderType.Market, Duration);
+        return new PlaceOrderRq {
+            Symbol = Symbol, 
+            Quantity = Quantity,
+            Side = Side, 
+            Type = OrderType.Market, 
+            Duration = Duration
+        };
     }
 }

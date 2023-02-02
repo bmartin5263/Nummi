@@ -1,4 +1,5 @@
 using Nummi.Core.Database;
+using Nummi.Core.Domain.Crypto.Strategies;
 using Nummi.Core.Exceptions;
 using Nummi.Core.Util;
 
@@ -9,7 +10,8 @@ public class BotContext {
     private IServiceProvider ServiceProvider { get; }
     private IServiceScope Scope { get; }
     public AppDb AppDb { get; }
-    
+    public TradingContextFactory TradingContextFactory => Scope.ServiceProvider.GetService<TradingContextFactory>()!;
+
     public BotContext(IServiceProvider serviceProvider, IServiceScope scope, AppDb appDb) {
         ServiceProvider = serviceProvider;
         Scope = scope;

@@ -114,7 +114,7 @@ public class BinanceClientTest {
     
     [Test]
     public void GetKlines_SecondPeriod_OverUnderLimit_ShouldThrow() {
-        Assert.Throws<InvalidArgumentException>(() => {
+        Assert.Throws<InvalidUserArgumentException>(() => {
             subject.GetKlines(
                 symbol: "BTCUSD",
                 startTime: DateTime.UtcNow,
@@ -124,7 +124,7 @@ public class BinanceClientTest {
             );
         });
         
-        Assert.Throws<InvalidArgumentException>(() => {
+        Assert.Throws<InvalidUserArgumentException>(() => {
             subject.GetKlines(
                 symbol: "BTCUSD",
                 startTime: DateTime.UtcNow,

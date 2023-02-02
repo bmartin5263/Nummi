@@ -1,5 +1,4 @@
 using System.Linq.Expressions;
-using System.Net;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -12,8 +11,8 @@ namespace Nummi.Core.Database;
 
 public static class Extensions {
     
-    public static T GetById<T>(this DbSet<T> set, object id, HttpStatusCode code) where T : class {
-        return GetById(set, id, () => throw new EntityNotFoundException(typeof(T), id, code));
+    public static T GetById<T>(this DbSet<T> set, object id) where T : class {
+        return GetById(set, id, () => throw new EntityNotFoundException<T>(id));
     }
 
     public static T GetById<T>(this DbSet<T> set, object id, Func<Exception> onMissing) where T : class {
@@ -24,8 +23,8 @@ public static class Extensions {
         return obj;
     }
 
-    public static T GetById<T>(this IQueryable<T> set, object id, Func<T, object> idProperty, HttpStatusCode code) where T : class {
-        return GetById(set, id, idProperty, () => throw new EntityNotFoundException(typeof(T), id, code));
+    public static T GetById<T>(this IQueryable<T> set, object id, Func<T, object> idProperty) where T : class {
+        return GetById(set, id, idProperty, () => throw new EntityNotFoundException<T>(id));
     }
 
     public static T GetById<T>(this IQueryable<T> set, object id, Func<T, object> idProperty, Func<Exception> onMissing) where T : class {

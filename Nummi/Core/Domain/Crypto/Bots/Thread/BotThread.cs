@@ -148,7 +148,7 @@ public class BotThread {
             
             using var scope = Self.ServiceProvider.CreateScope();
             using var appDb = scope.ServiceProvider.GetService<AppDb>()!;
-            var bot = appDb.Bots.GetById(botId, () => new EntityNotFoundException("Bot no longer exists"));
+            var bot = appDb.Bots.Find(botId).OrElseThrow(() => new EntityMissingException<Bot>(botId));
 
             var botThreadEntity = Self.GetBotThreadEntity(appDb);
             botThreadEntity.Bot = bot;
@@ -169,9 +169,9 @@ public class BotThread {
             using var scope = Self.ServiceProvider.CreateScope();
             using var appDb = scope.ServiceProvider.GetService<AppDb>()!;
             
-            var simulation = appDb.Simulations.GetById(resultId, 
-                onMissing: () => new EntityNotFoundException("Could not find StrategyResult")
-            );
+            var simulation = appDb.Simulations.Find(resultId)
+                .OrElseThrow(() => new EntityNotFoundException<Simulation>("Could not find StrategyResult"));
+            
             simulation.Start();
             appDb.SaveChanges();
 
@@ -193,13 +193,13 @@ public class BotThread {
             IServiceScope scope
         ) {
             if (Self.BotId == null) {
-                throw new InvalidArgumentException($"Thread {Self.Id} does not have a Bot to simulate");
+                throw new InvalidUserArgumentException($"Thread {Self.Id} does not have a Bot to simulate");
             }
 
             var bot = appDb.Bots
                 .Include(b => b.Strategy)
                 .FirstOrDefault(b => b.Id == Self.BotId)
-                .ThrowIfNull(() => new EntityNotFoundException("Bot no longer exists"));
+                .ThrowIfNull(() => new EntityMissingException<Bot>(Self.BotId));
 
             var context = new BotContext(
                 serviceProvider: Self.ServiceProvider,

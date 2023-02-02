@@ -1,4 +1,3 @@
-using System.Net;
 using Microsoft.EntityFrameworkCore;
 using Nummi.Core.Database;
 
@@ -16,22 +15,22 @@ public class BlogService {
         var blog = new Blog(name);
         AppDb.Blogs.Add(blog);
         AppDb.SaveChanges();
-        return AppDb.Blogs.GetById(blog.Id, HttpStatusCode.BadRequest);
+        return AppDb.Blogs.GetById(blog.Id);
     }
 
     public Post CreatePost(string content) {
         var post = new Post(content);
         AppDb.Posts.Add(post);
         AppDb.SaveChanges();
-        return AppDb.Posts.GetById(post.Id, HttpStatusCode.BadRequest);
+        return AppDb.Posts.GetById(post.Id);
     }
 
 
     public Post UpdatePost(string id, int num) {
-        var post = AppDb.Posts.GetById(id, HttpStatusCode.BadRequest);
+        var post = AppDb.Posts.GetById(id);
         post.Meta.FavoriteNumber = num;
         AppDb.SaveChanges();
-        return AppDb.Posts.GetById(post.Id, HttpStatusCode.BadRequest);
+        return AppDb.Posts.GetById(post.Id);
     }
 
     public Blog GetBlogById(string id) {
@@ -55,17 +54,17 @@ public class BlogService {
     }
 
     public Post GetPostById(string id) {
-        var post = AppDb.Posts.GetById(id, HttpStatusCode.BadRequest);
+        var post = AppDb.Posts.GetById(id);
         return post;
     }
 
     public Blog AssociateBlogWithPost(string blogId, string postId) {
-        var blog = AppDb.Blogs.GetById(blogId, HttpStatusCode.BadRequest);
-        var post = AppDb.Posts.GetById(postId, HttpStatusCode.BadRequest);
+        var blog = AppDb.Blogs.GetById(blogId);
+        var post = AppDb.Posts.GetById(postId);
 
         blog.Post = post;
         
         AppDb.SaveChanges();
-        return AppDb.Blogs.GetById(blogId, HttpStatusCode.InternalServerError);
+        return AppDb.Blogs.GetById(blogId);
     }
 }

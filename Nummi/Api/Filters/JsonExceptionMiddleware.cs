@@ -2,6 +2,7 @@ using System.Net;
 using Microsoft.AspNetCore.Diagnostics;
 using Nummi.Core.Exceptions;
 using Nummi.Core.Util;
+using SystemException = System.SystemException;
 
 namespace Nummi.Api.Filters; 
 
@@ -14,8 +15,11 @@ public class JsonExceptionMiddleware {
         switch (ex) {
             case null:
                 return;
-            case NummiException exception:
-                context.Response.StatusCode = (int) exception.StatusCode;
+            case UserException:
+                context.Response.StatusCode = (int) HttpStatusCode.BadRequest;
+                break;
+            case SystemException:
+                context.Response.StatusCode = (int) HttpStatusCode.InternalServerError;
                 break;
         }
 

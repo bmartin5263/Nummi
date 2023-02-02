@@ -26,10 +26,10 @@ public class BinanceClientMock : IBinanceClient {
     public BinanceResponse<IList<Bar>> GetKlines(string symbol, DateTime startTime, DateTime endTime, Period period, int limit) {
         GetKlinesCalls.Add(new GetKlinesCall(symbol, startTime, endTime, period, limit));
         if (limit is < 0 or > 1000) {
-            throw new InvalidArgumentException("Invalid limit");
+            throw new InvalidUserArgumentException("Invalid limit");
         }
         if (startTime > endTime) {
-            throw new InvalidArgumentException("Invalid date range");
+            throw new InvalidUserArgumentException("Invalid date range");
         }
         
         CheckResetUsedWeight();

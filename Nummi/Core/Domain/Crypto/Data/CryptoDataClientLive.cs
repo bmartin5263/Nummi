@@ -1,9 +1,8 @@
 using NLog;
 using Nummi.Core.Domain.Common;
-using Nummi.Core.Domain.Crypto.Data;
 using Nummi.Core.External.Binance;
 
-namespace Nummi.Core.Domain.Crypto.Client; 
+namespace Nummi.Core.Domain.Crypto.Data; 
 
 public class CryptoDataClientLive : ICryptoDataClient {
     

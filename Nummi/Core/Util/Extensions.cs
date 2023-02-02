@@ -32,7 +32,7 @@ public static class Extensions {
     // https://stackoverflow.com/questions/1004698/how-to-truncate-milliseconds-off-of-a-net-datetime
     public static DateTime Truncate(this DateTime dateTime, TimeSpan timeSpan) {
         if (timeSpan == TimeSpan.Zero) {
-            throw new InvalidArgumentException("Timespan cannot be Zero for Truncate");
+            throw new InvalidUserArgumentException("Timespan cannot be Zero for Truncate");
         }
         if (dateTime == DateTime.MinValue || dateTime == DateTime.MaxValue) {
             return dateTime; // do not modify "guard" values
