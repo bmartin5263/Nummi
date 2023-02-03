@@ -1,3 +1,5 @@
+using Nummi.Core.Domain.Crypto.Strategies.Log;
+
 namespace Nummi.Core.Domain.Crypto.Strategies; 
 
 public class StrategyResult {

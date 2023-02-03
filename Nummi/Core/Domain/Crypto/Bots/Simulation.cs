@@ -4,6 +4,7 @@ using KSUID;
 using Microsoft.EntityFrameworkCore;
 using Nummi.Core.Domain.Crypto.Bots.Thread;
 using Nummi.Core.Domain.Crypto.Strategies;
+using Nummi.Core.Domain.Crypto.Strategies.Log;
 using Nummi.Core.Exceptions;
 
 namespace Nummi.Core.Domain.Crypto.Bots; 
@@ -13,6 +14,8 @@ namespace Nummi.Core.Domain.Crypto.Bots;
 public class Simulation {
     
     public string Id { get; }
+    
+    public Strategy Strategy { get; }
     
     public SimulationStatus Status { get; private set; }
     
@@ -30,10 +33,13 @@ public class Simulation {
     }
 
     public List<StrategyLog> Logs { get; private set; } = new();
-    
-    public Simulation() {
+
+    private Simulation(): this(null!) { }
+
+    public Simulation(Strategy strategy) {
         Id = Ksuid.Generate().ToString();
         Status = SimulationStatus.Submitted;
+        Strategy = strategy;
     }
 
     public void Start() {

@@ -11,7 +11,7 @@ public class CryptoTradingClientRealtime : ICryptoTradingClient {
         Client = client;
     }
 
-    public async Task<Order> PlaceOrderAsync(PlaceOrderRq request) {
+    public async Task<Order> PlaceOrderAsync(OrderRequest request) {
         var result = await Client.PostOrderAsync(request.ToAlpaca());
         return result.ToDomain();
     }

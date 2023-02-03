@@ -126,7 +126,7 @@ public static class AlpacaMapper {
         );
     }
 
-    public static NewOrderRequest ToAlpaca(this PlaceOrderRq request) {
+    public static NewOrderRequest ToAlpaca(this OrderRequest request) {
         return new NewOrderRequest(
             request.Symbol,
             request.Quantity.ToAlpaca(),

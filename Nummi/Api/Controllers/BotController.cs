@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Nummi.Api.Model;
 using Nummi.Core.Domain.Crypto.Bots;
 using Nummi.Core.Domain.Crypto.Bots.Thread;
+using Nummi.Core.Domain.Crypto.Strategies.Log;
 using Nummi.Core.Exceptions;
 using Nummi.Core.Util;
 
@@ -36,7 +37,7 @@ public class BotController : ControllerBase {
     public BotDto GetBotById(string botId) {
         return BotService
             .GetBotById(botId)
-            .OrElseThrow(() => new EntityNotFoundException<Bot>(botId))
+            .OrElseThrow(() => EntityNotFoundException<Bot>.IdNotFound(botId))
             .ToDto();
     }
 
@@ -102,6 +103,28 @@ public class BotController : ControllerBase {
         string botId
     ) {
         return BotService.DeactivateBot(botId);
+    }
+    
+    /// <summary>
+    /// Manually run one cycle of a Trading Strategy, meant for testing and debugging
+    /// </summary>
+    [Route("{botId}/run-strategy")]
+    [HttpPost]
+    public StrategyLog RunStrategy(
+        string botId
+    ) {
+        return BotService.RunStrategy(botId);
+    }
+    
+    /// <summary>
+    /// Manually initialize a Trading Strategy, meant for testing and debugging
+    /// </summary>
+    [Route("{botId}/initialize-strategy")]
+    [HttpPost]
+    public StrategyLog InitializeStrategy(
+        string botId
+    ) {
+        return BotService.InitializeStrategy(botId);
     }
     
     /// <summary>

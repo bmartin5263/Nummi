@@ -1,9 +1,9 @@
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Diagnostics.CodeAnalysis;
 using KSUID;
 using Microsoft.EntityFrameworkCore;
 using NLog;
 using Nummi.Core.Domain.Crypto.Strategies;
+using Nummi.Core.Domain.Crypto.Strategies.Log;
 using Nummi.Core.Exceptions;
 using Nummi.Core.Util;
 
@@ -13,7 +13,6 @@ namespace Nummi.Core.Domain.Crypto.Bots;
 // since it requires being "woken up" on a regular schedule
 [Table("Bot")]
 [PrimaryKey("Id")]
-[SuppressMessage("ReSharper", "ClassWithVirtualMembersNeverInherited.Global")]
 public class Bot {
     
     private static readonly Logger Log = LogManager.GetCurrentClassLogger();
@@ -35,6 +34,8 @@ public class Bot {
 
     public TradingMode Mode { get; private set; }
 
+    public ISet<Simulation> Simulations { get; } = new HashSet<Simulation>();
+
     public bool IsSimulationBot => Mode == TradingMode.Simulated;
 
     public Bot(string name, decimal funds, TradingMode mode) {
@@ -47,49 +48,55 @@ public class Bot {
         Funds += amount;
     }
 
-    public TimeSpan RunRealtime(BotContext botContext) {
+    public void AddSimulation(Simulation simulation) {
+        Simulations.Add(simulation);
+    }
+
+    public StrategyLog RunRealtime(BotContext botContext) {
         if (Mode == TradingMode.Simulated) {
             throw new InvalidStateException("Cannot run realtime strategies as a simulation bot");
         }
-        
-        if (Strategy == null) {
-            Message("No strategy assigned");
-            return TimeSpan.FromSeconds(5);
-        }
-        if (InErrorState) {
-            Message("Cannot run strategy while in error state");
-            return TimeSpan.FromSeconds(5);
-        }
-        if (IsNotYetTimeToExecute(out TimeSpan? sleep)) {
-            Message($"Not yet time to run strategy");
-            return sleep!.Value;
-        }
 
+        StrategyLog log;
         try {
             Message($"Running Trading Strategy");
-            DoRunRealtime(botContext);
+            log = DoRunRealtime(botContext);
+            return log;
         }
         catch (StrategyException e) {
             Message($"Strategy threw an exception. LogId: {e.Log.Id.Red()}");
-            SaveLog(e.Log);
+            log = e.Log;
             InErrorState = true;
         }
 
-        return Strategy.Frequency;
+        SaveLog(log);
+        return log;
     }
 
-    private void DoRunRealtime(BotContext context) {
-        var env = context.TradingContextFactory.Create(Mode, Funds, new ClockLive());
+    public StrategyLog InitializeStrategy(TradingContextFactory contextFactory) {
+        var ctx = contextFactory.Create(Mode, Funds, new ClockLive());
+        return InitializeStrategy(ctx);
+    }
+
+    public StrategyLog InitializeStrategy(ITradingContext ctx) {
+        Message($"{"Initializing".Blue()} Trading Strategy");
+        var log = Strategy!.Initialize(ctx);
+        SaveLog(log);
+        return log;
+    }
+
+    private StrategyLog DoRunRealtime(BotContext context) {
+        var ctx = context.TradingContextFactory.Create(Mode, Funds, new ClockLive());
 
         StrategyLog log;
         if (Strategy!.ShouldInitialize()) {
             Message($"{"Initializing".Blue()} Trading Strategy");
-            log = Strategy.Initialize(env);
+            log = Strategy.Initialize(ctx);
             SaveLog(log);
         }
         
-        log = Strategy.CheckForTrades(env);
-        SaveLog(log);
+        log = Strategy.CheckForTrades(ctx);
+        return log;
     }
 
     public List<StrategyLog> RunSimulation(BotContext context, SimulationParameters simulation) {
@@ -97,7 +104,7 @@ public class Bot {
             throw new InvalidStateException("Cannot run simulation without a Strategy");
         }
         
-        // Force the input to be in local time
+        // Convert the input to UTC time
         var startTime = simulation.StartTime.ToUniversalTime();
         var endTime = simulation.EndTime.ToUniversalTime();
         var duration = endTime - startTime;
@@ -105,14 +112,14 @@ public class Bot {
         var logs = new List<StrategyLog>();
 
         var clock = new ClockMock(startTime);
-        var env = context.TradingContextFactory.Create(Mode, Funds, clock);
+        var ctx = context.TradingContextFactory.Create(Mode, Funds, clock);
         
         Message($"{"Starting Simulation".Yellow()} (start={simulation.StartTime}, startUTC={startTime}, end={simulation.EndTime}, endUTC={endTime}, duration={duration}, clock.nowUTC={clock.NowUtc}, clock.now={clock.Now})");
 
-        StrategyLog log = Strategy!.Initialize(env);
+        StrategyLog log = Strategy!.Initialize(ctx);
         logs.Add(log);
         while (clock.NowUtc < endTime) {
-            log = Strategy!.CheckForTrades(env);
+            log = Strategy!.CheckForTrades(ctx);
             logs.Add(log);
             
             clock.ChangeTime(time => time.Add(Strategy!.Frequency));
@@ -127,16 +134,16 @@ public class Bot {
         InErrorState = false;
     }
     
-    private bool IsNotYetTimeToExecute(out TimeSpan? sleep) {
+    public bool IsTimeToExecute(out TimeSpan? sleep) {
         var now = DateTime.UtcNow;
         var lastExecutionTime = LastStrategyLog?.StartTime ?? DateTime.MinValue;
         if (lastExecutionTime + Strategy!.Frequency > now) {
             sleep = Strategy.Frequency - (now - lastExecutionTime);
-            return true;
+            return false;
         }
 
         sleep = null;
-        return false;
+        return true;
     }
 
     private void SaveLog(StrategyLog log) {

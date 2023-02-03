@@ -27,9 +27,9 @@ public class TradingContextFactory {
             case TradingMode.Simulated:
                 return new TradingContext(
                     mode: mode,
-                    dataClient: DataClientLive,
-                    tradingClient: new CryptoTradingClientRealtime(AlpacaClientPaper),
-                    allowance: funds,
+                    dataClient: DataClientDbProxy,
+                    tradingClient: new CryptoTradingClientSimulated(),
+                    funds: funds,
                     appDb: AppDb,
                     clock: clock
                 );
@@ -38,18 +38,18 @@ public class TradingContextFactory {
                     mode: mode,
                     dataClient: DataClientLive,
                     tradingClient: new CryptoTradingClientRealtime(AlpacaClientPaper),
-                    allowance: funds,
+                    funds: funds,
                     appDb: AppDb,
-                    clock: new ClockLive()
+                    clock: clock
                 );
             case TradingMode.Live:
                 return new TradingContext(
                     mode: mode,
                     dataClient: DataClientLive,
                     tradingClient: new CryptoTradingClientRealtime(AlpacaClientLive),
-                    allowance: funds,
+                    funds: funds,
                     appDb: AppDb,
-                    clock: new ClockLive()
+                    clock: clock
                 );
             default:
                 throw new InvalidUserArgumentException(nameof(mode));

@@ -11,7 +11,7 @@ public class LimitOrderRq {
     public required CryptoOrderQuantity Quantity { get; init; }
     
     [Required]
-    public required decimal Price { get; init; }
+    public required decimal LimitPrice { get; init; }
     
     [Required]
     public required OrderSide Side { get; init; }
@@ -19,14 +19,14 @@ public class LimitOrderRq {
     [Required]
     public required TimeInForce Duration { get; init; }
 
-    public PlaceOrderRq ToPlaceOrderRq() {
-        return new PlaceOrderRq {
+    public OrderRequest ToOrderRequest() {
+        return new OrderRequest {
             Symbol = Symbol, 
             Quantity = Quantity,
             Side = Side, 
             Type = OrderType.Limit, 
             Duration = Duration,
-            LimitPrice = Price
+            LimitPrice = LimitPrice
         };
     }
 }

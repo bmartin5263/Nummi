@@ -2,6 +2,7 @@ using System.Text.Json.Serialization;
 using KSUID;
 using Microsoft.EntityFrameworkCore;
 using NLog;
+using Nummi.Core.Domain.Crypto.Strategies.Log;
 using Nummi.Core.Util;
 
 namespace Nummi.Core.Domain.Crypto.Strategies; 
@@ -27,15 +28,15 @@ public abstract class Strategy {
     // How many times this trading strategy threw an exception
     public int TimesFailed => Logs.Count(l => l.Error != null);
 
-    public virtual IList<StrategyLog> Logs { get; private set; } = new List<StrategyLog>();
+    public IList<StrategyLog> Logs { get; private set; } = new List<StrategyLog>();
 
     protected Strategy(TimeSpan frequency) {
         Frequency = frequency;
     }
 
-    public StrategyLog Initialize(TradingContext ctx) {
+    public StrategyLog Initialize(ITradingContext ctx) {
         var logBuilder = new StrategyLogBuilder(this, ctx.Mode, StrategyAction.Initializing);
-        var context = new StrategyContext(ctx, logBuilder);
+        var context = new TradingContextAudited(ctx, logBuilder);
         
         try {
             Initialize(context);
@@ -51,7 +52,7 @@ public abstract class Strategy {
 
     public StrategyLog CheckForTrades(TradingContext ctx) {
         var logBuilder = new StrategyLogBuilder(this, ctx.Mode, StrategyAction.Trading);
-        var context = new StrategyContext(ctx, logBuilder);
+        var context = new TradingContextAudited(ctx, logBuilder);
         
         try {
             CheckForTrades(context);
@@ -77,7 +78,7 @@ public abstract class Strategy {
         Log.Info($"[{"Type".Purple()}:{GetType().Name.Cyan()}] - {msg}");
     }
 
-    protected abstract void Initialize(StrategyContext context);
-    protected abstract void CheckForTrades(StrategyContext context);
+    protected abstract void Initialize(TradingContextAudited context);
+    protected abstract void CheckForTrades(TradingContextAudited context);
     
 }

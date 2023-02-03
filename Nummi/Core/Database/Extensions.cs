@@ -12,7 +12,7 @@ namespace Nummi.Core.Database;
 public static class Extensions {
     
     public static T GetById<T>(this DbSet<T> set, object id) where T : class {
-        return GetById(set, id, () => throw new EntityNotFoundException<T>(id));
+        return GetById(set, id, () => throw EntityNotFoundException<T>.IdNotFound(id));
     }
 
     public static T GetById<T>(this DbSet<T> set, object id, Func<Exception> onMissing) where T : class {
@@ -24,7 +24,7 @@ public static class Extensions {
     }
 
     public static T GetById<T>(this IQueryable<T> set, object id, Func<T, object> idProperty) where T : class {
-        return GetById(set, id, idProperty, () => throw new EntityNotFoundException<T>(id));
+        return GetById(set, id, idProperty, () => EntityNotFoundException<T>.IdNotFound(id));
     }
 
     public static T GetById<T>(this IQueryable<T> set, object id, Func<T, object> idProperty, Func<Exception> onMissing) where T : class {
@@ -64,12 +64,10 @@ public static class Extensions {
             .HasForeignKey<E>(foreignKey);
     }
     
-    public static void OneToMany<E, R>(
-        this ModelBuilder builder, 
-        string foreignKey, 
+    public static void ManyToOne<E, R>(this ModelBuilder builder,
+        string foreignKey,
         Expression<Func<E, R?>> hasOne,
-        Expression<Func<R, IEnumerable<E>?>>? withMany
-    ) where E : class where R : class {
+        Expression<Func<R, IEnumerable<E>?>>? withMany) where E : class where R : class {
         builder.Entity<E>()
             .HasOne(hasOne)
             .WithMany(withMany)
@@ -77,13 +75,36 @@ public static class Extensions {
             .OnDelete(DeleteBehavior.SetNull);
     }
     
-    public static void RegisterJsonProperty<E, P>(this ModelBuilder builder, Expression<Func<E, P>> propertyExpression) where E : class where P : class? {
+    public static void OneToMany<O, M>(this ModelBuilder builder,
+        string foreignKey,
+        Expression<Func<O, IEnumerable<M>?>>? hasMany,
+        Expression<Func<M, O?>> withOne
+    ) where O : class where M : class {
+        builder.Entity<O>()
+            .HasMany(hasMany)
+            .WithOne(withOne)
+            .HasForeignKey(foreignKey)
+            .OnDelete(DeleteBehavior.SetNull);
+    }
+    
+    public static void OneToMany<O, M>(this ModelBuilder builder,
+        string foreignKey,
+        Expression<Func<O, IEnumerable<M>?>>? hasMany
+    ) where O : class where M : class {
+        builder.Entity<O>()
+            .HasMany(hasMany)
+            .WithOne()
+            .HasForeignKey(foreignKey)
+            .OnDelete(DeleteBehavior.SetNull);
+    }
+    
+    public static void RegisterJsonProperty<E, P>(this ModelBuilder builder, Expression<Func<E, P>> propertyExpression) where E : class {
         builder.Entity<E>()
             .Property(propertyExpression)
             .HasJsonConversion();
     }
     
-    public static PropertyBuilder<T> HasJsonConversion<T>(this PropertyBuilder<T> propertyBuilder) where T : class? {
+    public static PropertyBuilder<T> HasJsonConversion<T>(this PropertyBuilder<T> propertyBuilder) {
         ValueComparer<T?> comparer = new ValueComparer<T?>
         (
             (l, r) => Serializer.ToJson(l) == Serializer.ToJson(r),

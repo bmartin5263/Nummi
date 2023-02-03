@@ -331,6 +331,9 @@ namespace Nummi.Core.Database.Migrations
                     b.Property<string>("Id")
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("BotId")
+                        .HasColumnType("TEXT");
+
                     b.Property<DateTime?>("EndTime")
                         .HasColumnType("TEXT");
 
@@ -348,11 +351,20 @@ namespace Nummi.Core.Database.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("StrategyId")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
                     b.Property<TimeSpan?>("TotalTime")
                         .HasColumnType("TEXT")
                         .HasColumnName("TotalTime");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("BotId");
+
+                    b.HasIndex("StrategyId")
+                        .IsUnique();
 
                     b.ToTable("Simulation");
                 });
@@ -424,19 +436,54 @@ namespace Nummi.Core.Database.Migrations
                     b.ToTable("HistoricalPrice");
                 });
 
-            modelBuilder.Entity("Nummi.Core.Domain.Crypto.Strategies.Strategy", b =>
+            modelBuilder.Entity("Nummi.Core.Domain.Crypto.Strategies.Log.OrderLog", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("Duration")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Error")
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("FundsAfter")
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("FundsBefore")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Quantity")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Side")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("StrategyLogId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("SubmittedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Symbol")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
                     b.HasKey("Id");
 
-                    b.ToTable("Strategy", (string)null);
+                    b.HasIndex("StrategyLogId");
 
-                    b.UseTptMappingStrategy();
+                    b.ToTable("StrategyOrderLog");
                 });
 
-            modelBuilder.Entity("Nummi.Core.Domain.Crypto.Strategies.StrategyLog", b =>
+            modelBuilder.Entity("Nummi.Core.Domain.Crypto.Strategies.Log.StrategyLog", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("TEXT");
@@ -444,6 +491,9 @@ namespace Nummi.Core.Database.Migrations
                     b.Property<string>("Action")
                         .IsRequired()
                         .HasColumnType("TEXT");
+
+                    b.Property<int>("ApiCalls")
+                        .HasColumnType("INTEGER");
 
                     b.Property<DateTime>("EndTime")
                         .HasColumnType("TEXT");
@@ -462,6 +512,9 @@ namespace Nummi.Core.Database.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<TimeSpan>("TotalApiCallTime")
+                        .HasColumnType("TEXT");
+
                     b.Property<TimeSpan>("TotalTime")
                         .HasColumnType("TEXT")
                         .HasColumnName("TotalTime");
@@ -471,6 +524,18 @@ namespace Nummi.Core.Database.Migrations
                     b.HasIndex("StrategyId");
 
                     b.ToTable("StrategyLog");
+                });
+
+            modelBuilder.Entity("Nummi.Core.Domain.Crypto.Strategies.Strategy", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Strategy", (string)null);
+
+                    b.UseTptMappingStrategy();
                 });
 
             modelBuilder.Entity("Nummi.Core.Domain.Test.Blog", b =>
@@ -638,7 +703,7 @@ namespace Nummi.Core.Database.Migrations
 
             modelBuilder.Entity("Nummi.Core.Domain.Crypto.Bots.Bot", b =>
                 {
-                    b.HasOne("Nummi.Core.Domain.Crypto.Strategies.StrategyLog", "LastStrategyLog")
+                    b.HasOne("Nummi.Core.Domain.Crypto.Strategies.Log.StrategyLog", "LastStrategyLog")
                         .WithOne()
                         .HasForeignKey("Nummi.Core.Domain.Crypto.Bots.Bot", "LastStrategyLogId");
 
@@ -647,6 +712,22 @@ namespace Nummi.Core.Database.Migrations
                         .HasForeignKey("Nummi.Core.Domain.Crypto.Bots.Bot", "StrategyId");
 
                     b.Navigation("LastStrategyLog");
+
+                    b.Navigation("Strategy");
+                });
+
+            modelBuilder.Entity("Nummi.Core.Domain.Crypto.Bots.Simulation", b =>
+                {
+                    b.HasOne("Nummi.Core.Domain.Crypto.Bots.Bot", null)
+                        .WithMany("Simulations")
+                        .HasForeignKey("BotId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("Nummi.Core.Domain.Crypto.Strategies.Strategy", "Strategy")
+                        .WithOne()
+                        .HasForeignKey("Nummi.Core.Domain.Crypto.Bots.Simulation", "StrategyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Strategy");
                 });
@@ -660,7 +741,15 @@ namespace Nummi.Core.Database.Migrations
                     b.Navigation("Bot");
                 });
 
-            modelBuilder.Entity("Nummi.Core.Domain.Crypto.Strategies.StrategyLog", b =>
+            modelBuilder.Entity("Nummi.Core.Domain.Crypto.Strategies.Log.OrderLog", b =>
+                {
+                    b.HasOne("Nummi.Core.Domain.Crypto.Strategies.Log.StrategyLog", null)
+                        .WithMany("Orders")
+                        .HasForeignKey("StrategyLogId")
+                        .OnDelete(DeleteBehavior.SetNull);
+                });
+
+            modelBuilder.Entity("Nummi.Core.Domain.Crypto.Strategies.Log.StrategyLog", b =>
                 {
                     b.HasOne("Nummi.Core.Domain.Crypto.Strategies.Strategy", "Strategy")
                         .WithMany("Logs")
@@ -687,6 +776,16 @@ namespace Nummi.Core.Database.Migrations
                         .HasForeignKey("Nummi.Core.Domain.Crypto.Strategies.Opportunist.OpportunistStrategy", "Id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("Nummi.Core.Domain.Crypto.Bots.Bot", b =>
+                {
+                    b.Navigation("Simulations");
+                });
+
+            modelBuilder.Entity("Nummi.Core.Domain.Crypto.Strategies.Log.StrategyLog", b =>
+                {
+                    b.Navigation("Orders");
                 });
 
             modelBuilder.Entity("Nummi.Core.Domain.Crypto.Strategies.Strategy", b =>

@@ -1,23 +1,21 @@
-using Nummi.Core.Domain.Crypto.Client;
 using Nummi.Core.Domain.Crypto.Strategies;
-using Nummi.Core.External.Alpaca;
+using Nummi.Core.Util;
 
 namespace Nummi.Core.Domain.Crypto.Ordering;
 
 public class OrderService {
 
-    private AlpacaClientPaper PaperClient { get; }
-    private AlpacaClientLive LiveClient { get; }
+    private TradingContextFactory TradingContextFactory { get; }
 
-    public OrderService(AlpacaClientPaper paperClient, AlpacaClientLive liveClient) {
-        PaperClient = paperClient;
-        LiveClient = liveClient;
+    public OrderService(TradingContextFactory tradingContextFactory) {
+        TradingContextFactory = tradingContextFactory;
     }
 
-    public async Task<Order> PlaceOrderAsync(TradingMode mode, PlaceOrderRq request) {
+    public Order PlaceOrder(TradingMode mode, OrderRequest request) {
         switch (mode) {
             case TradingMode.Paper:
-                return await new CryptoTradingClientRealtime(PaperClient).PlaceOrderAsync(request);
+                var context = TradingContextFactory.Create(mode, 10m, new ClockLive());
+                return context.PlaceOrder(request);
             default:
                 throw new ArgumentOutOfRangeException(nameof(mode), mode, null);
         }

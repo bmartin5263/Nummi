@@ -2,6 +2,7 @@ using System.Collections.Immutable;
 using Nummi.Core.Domain.Crypto.Bots;
 using Nummi.Core.Domain.Crypto.Data;
 using Nummi.Core.Domain.Crypto.Strategies;
+using Nummi.Core.Domain.Crypto.Strategies.Log;
 using Nummi.Core.Domain.Test;
 
 namespace Nummi.Api.Model; 

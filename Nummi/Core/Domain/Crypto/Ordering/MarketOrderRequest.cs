@@ -3,7 +3,7 @@ using JetBrains.Annotations;
 
 namespace Nummi.Core.Domain.Crypto.Ordering; 
 
-public class MarketOrderRq {
+public class MarketOrderRequest {
     
     [Required]
     [UsedImplicitly]
@@ -20,8 +20,8 @@ public class MarketOrderRq {
     [UsedImplicitly]
     public required TimeInForce Duration { get; init; }          // Day/GTC(Good til' Cancelled)/OPG(at open)/IOC/FOK/CLS
 
-    public PlaceOrderRq ToPlaceOrderRq() {
-        return new PlaceOrderRq {
+    public OrderRequest ToOrderRequest() {
+        return new OrderRequest {
             Symbol = Symbol, 
             Quantity = Quantity,
             Side = Side, 

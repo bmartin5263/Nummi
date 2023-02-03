@@ -7,7 +7,9 @@ using Microsoft.Extensions.Options;
 using Nummi.Core.Domain.Crypto.Bots;
 using Nummi.Core.Domain.Crypto.Bots.Thread;
 using Nummi.Core.Domain.Crypto.Data;
+using Nummi.Core.Domain.Crypto.Ordering;
 using Nummi.Core.Domain.Crypto.Strategies;
+using Nummi.Core.Domain.Crypto.Strategies.Log;
 using Nummi.Core.Domain.Crypto.Strategies.Opportunist;
 using Nummi.Core.Domain.Test;
 using Nummi.Core.Domain.User;
@@ -23,6 +25,7 @@ public class AppDb : ApiAuthorizationDbContext<User> {
     public DbSet<Bar> HistoricalBars { get; set; } = default!;
     public DbSet<BotThreadEntity> BotThreads { get; set; } = default!;
     public DbSet<Simulation> Simulations { get; set; } = default!;
+    public DbSet<OrderLog> OrderLogs { get; set; } = default!;
     
     public DbSet<Blog> Blogs { get; set; } = default!;
     public DbSet<Post> Posts { get; set; } = default!;
@@ -43,11 +46,16 @@ public class AppDb : ApiAuthorizationDbContext<User> {
         modelBuilder.OneToOne<Bot, Strategy>("StrategyId", b => b.Strategy);
         modelBuilder.OneToOne<Bot, StrategyLog>("LastStrategyLogId", b => b.LastStrategyLog);
         modelBuilder.OneToOne<BotThreadEntity, Bot>("BotId", b => b.Bot);
-        modelBuilder.OneToMany<StrategyLog, Strategy>("StrategyId", l => l.Strategy, s => s.Logs);
+        modelBuilder.OneToOne<Simulation, Strategy>("StrategyId", s => s.Strategy);
         
+        modelBuilder.ManyToOne<StrategyLog, Strategy>("StrategyId", l => l.Strategy, s => s.Logs);
+        modelBuilder.OneToMany<Bot, Simulation>("BotId", b => b.Simulations);
+        modelBuilder.OneToMany<StrategyLog, OrderLog>("StrategyLogId", b => b.Orders);
+
         modelBuilder.RegisterJsonProperty<Post, Metadata>(p => p.Meta);
         modelBuilder.RegisterJsonProperty<OpportunistStrategy, ISet<string>?>(p => p.Symbols);
         modelBuilder.RegisterJsonProperty<Simulation, List<StrategyLog>>(p => p.Logs);
+        modelBuilder.RegisterJsonProperty<OrderLog, CryptoOrderQuantity>(p => p.Quantity);
     }
     
     protected override void ConfigureConventions(ModelConfigurationBuilder builder) {
@@ -56,5 +64,8 @@ public class AppDb : ApiAuthorizationDbContext<User> {
         builder.ConvertProperties<TradingMode, EnumToStringConverter<TradingMode>>();
         builder.ConvertProperties<StrategyAction, EnumToStringConverter<StrategyAction>>();
         builder.ConvertProperties<SimulationStatus, EnumToStringConverter<SimulationStatus>>();
+        builder.ConvertProperties<OrderSide, EnumToStringConverter<OrderSide>>();
+        builder.ConvertProperties<OrderType, EnumToStringConverter<OrderType>>();
+        builder.ConvertProperties<TimeInForce, EnumToStringConverter<TimeInForce>>();
     }
 }

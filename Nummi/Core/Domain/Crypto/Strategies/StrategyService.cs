@@ -1,6 +1,7 @@
 using System.Text.Json.Nodes;
 using Microsoft.EntityFrameworkCore;
 using Nummi.Core.Database;
+using Nummi.Core.Domain.Crypto.Strategies.Log;
 using Nummi.Core.Exceptions;
 using Nummi.Core.Util;
 
@@ -40,6 +41,6 @@ public class StrategyService {
         return AppDb.StrategyLogs
             .Include(l => l.Strategy)
             .FirstOrDefault(l => l.Id == id)
-            .OrElseThrow(() => new EntityNotFoundException<StrategyLog>(id));
+            .OrElseThrow(() => EntityNotFoundException<StrategyLog>.IdNotFound(id));
     }
 }

@@ -22,14 +22,14 @@ public class OpportunistStrategy : Strategy, IParameterizedStrategy<OpportunistP
         Symbols = parameters.Symbols;
     }
 
-    protected override void Initialize(StrategyContext ctx) {
+    protected override void Initialize(TradingContextAudited ctx) {
         if (Symbols == null) {
             throw new InvalidUserArgumentException("Symbols cannot be null");
         }
 
         var now = ctx.Clock.NowUtc;
         Message($"Initializing (nowUtc={now.ToString().Yellow()} now={now.ToLocalTime().ToString().Yellow()})");
-        var bars = ctx.DataClient.GetBars(
+        var bars = ctx.GetBars(
             symbols: Symbols, 
             dateRange: new DateRange(now - TimeSpan.FromMinutes(60), now), 
             Period.Second
@@ -43,7 +43,7 @@ public class OpportunistStrategy : Strategy, IParameterizedStrategy<OpportunistP
         }
     }
     
-    protected override void CheckForTrades(StrategyContext ctx) {
+    protected override void CheckForTrades(TradingContextAudited ctx) {
         if (Symbols == null) {
             throw new InvalidUserArgumentException("Symbols cannot be null");
         }

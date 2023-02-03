@@ -21,9 +21,9 @@ public class TradingController : ControllerBase {
     /// </summary>
     [HttpPost]
     [Route("order")]
-    public async Task<Order> PlaceOrder([FromBody] PlaceOrderRq placeOrderRq, [FromQuery] TradingMode mode = TradingMode.Paper) {
-        var order = orderService.PlaceOrderAsync(mode, placeOrderRq);
-        return await order;
+    public Order PlaceOrder([FromBody] OrderRequest orderRequest, [FromQuery] TradingMode mode = TradingMode.Paper) {
+        var order = orderService.PlaceOrder(mode, orderRequest);
+        return order;
     }
 
     /// <summary>
@@ -31,9 +31,9 @@ public class TradingController : ControllerBase {
     /// </summary>
     [HttpPost]
     [Route("order/market")]
-    public async Task<Order> PlaceOrder([FromBody] MarketOrderRq marketOrderRq, [FromQuery] TradingMode mode = TradingMode.Paper) {
-        var order = orderService.PlaceOrderAsync(mode, marketOrderRq.ToPlaceOrderRq());
-        return await order;
+    public Order PlaceOrder([FromBody] MarketOrderRequest marketOrderRequest, [FromQuery] TradingMode mode = TradingMode.Paper) {
+        var order = orderService.PlaceOrder(mode, marketOrderRequest.ToOrderRequest());
+        return order;
     }
 
     /// <summary>
@@ -41,9 +41,9 @@ public class TradingController : ControllerBase {
     /// </summary>
     [HttpPost]
     [Route("order/limit")]
-    public async Task<Order> PlaceOrder([FromBody] LimitOrderRq limitOrderRq, [FromQuery] TradingMode mode = TradingMode.Paper) {
-        var order = orderService.PlaceOrderAsync(mode, limitOrderRq.ToPlaceOrderRq());
-        return await order;
+    public Order PlaceOrder([FromBody] LimitOrderRq limitOrderRq, [FromQuery] TradingMode mode = TradingMode.Paper) {
+        var order = orderService.PlaceOrder(mode, limitOrderRq.ToOrderRequest());
+        return order;
     }
 
     [HttpGet]

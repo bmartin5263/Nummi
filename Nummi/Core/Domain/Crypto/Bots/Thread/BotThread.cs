@@ -108,11 +108,27 @@ public class BotThread {
             Message($"{bot.Name.Yellow()} is a Simulation Bot which cannot execute in real-time trading");
             return DefaultSleepTime;
         }
+        
+        if (bot.Strategy == null) {
+            Message("No strategy assigned");
+            return DefaultSleepTime;
+        }
+        
+        if (bot.InErrorState) {
+            Message("Cannot run strategy while in error state");
+            return DefaultSleepTime;
+        }
+        
+        if (!bot.IsTimeToExecute(out TimeSpan? sleep)) {
+            Message($"Not yet time to run strategy");
+            return sleep!.Value;
+        }
 
         Message($"Waking {bot.Name.Yellow()}");
         try {
             var env = new BotContext(ServiceProvider, scope, appDb);
-            return bot.RunRealtime(env);
+            bot.RunRealtime(env);
+            return bot.Strategy.Frequency;
         }
         catch (Exception e) {
             Message($"{"ERROR!!".Red()} Bot [{bot.Name.Yellow()}] threw an Exception during execution: {e}");
@@ -170,7 +186,7 @@ public class BotThread {
             using var appDb = scope.ServiceProvider.GetService<AppDb>()!;
             
             var simulation = appDb.Simulations.Find(resultId)
-                .OrElseThrow(() => new EntityNotFoundException<Simulation>("Could not find StrategyResult"));
+                .OrElseThrow(() => new EntityMissingException<Simulation>("Could not find StrategyResult"));
             
             simulation.Start();
             appDb.SaveChanges();

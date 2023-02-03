@@ -5,7 +5,7 @@ using KSUID;
 using Microsoft.EntityFrameworkCore;
 using Nummi.Core.Util;
 
-namespace Nummi.Core.Domain.Crypto.Strategies; 
+namespace Nummi.Core.Domain.Crypto.Strategies.Log; 
 
 [PrimaryKey(nameof(Id))]
 [Table(nameof(StrategyLog))]
@@ -15,37 +15,32 @@ public class StrategyLog {
     public string Id { get; } = Ksuid.Generate().ToString();
 
     [JsonIgnore]
-    public Strategy Strategy { get; private set; } = default!;
+    public Strategy Strategy { get; init; } = default!;
     
     [JsonConverter(typeof(JsonStringEnumConverter))]
-    public TradingMode Mode { get; private set; }
+    public required TradingMode Mode { get; init; }
     
     [JsonConverter(typeof(JsonStringEnumConverter))]
-    public StrategyAction Action { get; private set; }
+    public required StrategyAction Action { get; init; }
 
-    public DateTime StartTime { get; private set; }
+    public required DateTime StartTime { get; init; }
     
-    public DateTime EndTime { get; private set; }
+    public required DateTime EndTime { get; init; }
 
     [Column(nameof(TotalTime))]
     [SuppressMessage("ReSharper", "ValueParameterNotUsed", Justification = "Needed for Get-only properties")]
     public TimeSpan TotalTime {
         get => EndTime - StartTime;
-        private set { }
+        private init { }
     }
+    
+    public required int ApiCalls { get; init; }
+    
+    public required TimeSpan TotalApiCallTime { get; init; }
 
-    public string? Error { get; private set; }
+    public string? Error { get; init; }
 
-    [SuppressMessage("ReSharper", "UnusedMember.Local", Justification = "Used during Json conversion")]
-    private StrategyLog() {}
-
-    public StrategyLog(Strategy strategy, TradingMode mode, StrategyAction action, DateTime startTime, DateTime endTime, string? error = null) {
-        Strategy = strategy;
-        Mode = mode;
-        StartTime = startTime;
-        EndTime = endTime;
-        Error = error;
-    }
+    public IList<OrderLog> Orders { get; } = new List<OrderLog>();
 
     public override string ToString() {
         return this.ToFormattedString();
