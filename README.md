@@ -3,6 +3,8 @@
 
 Nummi is a work-in-progress cryptocurrency trading bot framework built using ASP .NET Core. 
 
+![DomainOverview](https://raw.githubusercontent.com/bmartin5263/Nummi/master/Documentation/DomainOverview.png)
+
 ## Project Structure
 | Directory      | Purpose |
 | ----------- | ----------- |
