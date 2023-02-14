@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using NLog;
-using Nummi.Core.Database;
+using Nummi.Core.Database.EFCore;
 
 namespace Nummi.Core.Util; 
 
@@ -8,9 +8,9 @@ public class DbTransaction : IDisposable {
     
     private static readonly Logger Log = LogManager.GetCurrentClassLogger();
 
-    private readonly AppDb appDb;
+    private readonly EFCoreContext appDb;
     
-    public DbTransaction(AppDb appDb) {
+    public DbTransaction(EFCoreContext appDb) {
         this.appDb = appDb;
     }
 

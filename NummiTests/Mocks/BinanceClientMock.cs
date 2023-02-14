@@ -1,6 +1,6 @@
 using System.Net;
 using NLog;
-using Nummi.Core.Domain.Crypto.Data;
+using Nummi.Core.Domain.New;
 using Nummi.Core.Exceptions;
 using Nummi.Core.External.Binance;
 using Nummi.Core.Util;
@@ -23,7 +23,7 @@ public class BinanceClientMock : IBinanceClient {
     public ISet<GetKlinesCall> GetKlinesCalls { get; } = new HashSet<GetKlinesCall>();
     public ISet<GetExchangeInfoCall> GetExchangeInfoCalls { get; } = new HashSet<GetExchangeInfoCall>();
 
-    public BinanceResponse<IList<Bar>> GetKlines(string symbol, DateTime startTime, DateTime endTime, Period period, int limit) {
+    public BinanceResponse<IList<Bar>> GetKlines(string symbol, DateTimeOffset startTime, DateTimeOffset endTime, Period period, int limit) {
         GetKlinesCalls.Add(new GetKlinesCall(symbol, startTime, endTime, period, limit));
         if (limit is < 0 or > 1000) {
             throw new InvalidUserArgumentException("Invalid limit");
@@ -38,11 +38,11 @@ public class BinanceClientMock : IBinanceClient {
         LastRequestAt = Now;
 
         var bars = new List<Bar>(limit);
-        var startMs = startTime.Truncate(period.Time).ToUnixTimeMs();
-        var endMs = endTime.Truncate(period.Time).ToUnixTimeMs();
+        var startMs = startTime.Truncate(period.Time);
+        var endMs = endTime.Truncate(period.Time);
         while (startMs <= endMs && bars.Count < limit) {
-            bars.Add(new Bar(symbol, startMs, period.UnixMs, 10.0m, 10.0m, 10.0m, 10.0m, 10.0m));
-            startMs += period.UnixMs;
+            bars.Add(new Bar(symbol, startMs, period.Time, 10.0m, 10.0m, 10.0m, 10.0m, 10.0m));
+            startMs += period.Time;
         }
 
         return new BinanceResponse<IList<Bar>>(HttpStatusCode.OK, bars, UsedWeight, null);
@@ -117,11 +117,11 @@ public class WaitCall {
 // string symbol, DateTime startTime, DateTime endTime, Period period, int limit
 public class GetKlinesCall {
     public string Symbol { get; }
-    public DateTime StartTime { get; }
-    public DateTime EndTime { get; }
+    public DateTimeOffset StartTime { get; }
+    public DateTimeOffset EndTime { get; }
     public Period Period { get; }
     public int Limit { get; }
-    public GetKlinesCall(string symbol, DateTime startTime, DateTime endTime, Period period, int limit) {
+    public GetKlinesCall(string symbol, DateTimeOffset startTime, DateTimeOffset endTime, Period period, int limit) {
         Symbol = symbol;
         StartTime = startTime;
         EndTime = endTime;

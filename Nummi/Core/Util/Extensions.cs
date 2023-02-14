@@ -44,6 +44,17 @@ public static class Extensions {
         return new DateRange(dateRange.Start.Truncate(timeSpan), dateRange.End.Truncate(timeSpan));
     }
 
+    // https://stackoverflow.com/questions/1004698/how-to-truncate-milliseconds-off-of-a-net-datetime
+    public static DateTimeOffset Truncate(this DateTimeOffset dateTime, TimeSpan timeSpan) {
+        if (timeSpan == TimeSpan.Zero) {
+            throw new InvalidUserArgumentException("Timespan cannot be Zero for Truncate");
+        }
+        if (dateTime == DateTimeOffset.MinValue || dateTime == DateTimeOffset.MaxValue) {
+            return dateTime; // do not modify "guard" values
+        }
+        return dateTime.AddTicks(-(dateTime.Ticks % timeSpan.Ticks));
+    }
+
     public static R? MaxOrDefault<T, R>(this ICollection<T> source, Func<T, R> selector) {
         return source.Count == 0 ? default : source.Max(selector);
     }
@@ -56,9 +67,8 @@ public static class Extensions {
         return ((DateTimeOffset)time).ToUnixTimeMilliseconds();
     }
     
-    public static DateTime ToUtcDateTime(this long unixMs) {
-        DateTime dateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
-        dateTime = dateTime.AddMilliseconds(unixMs);
-        return dateTime;
+    public static DateTimeOffset ToUtcDateTime(this long unixMs) {
+        DateTimeOffset epoch = DateTimeOffset.UnixEpoch;
+        return epoch.AddMilliseconds(unixMs);
     }
 }

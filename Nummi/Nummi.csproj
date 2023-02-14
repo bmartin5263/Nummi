@@ -17,21 +17,26 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Alpaca.Markets" Version="6.1.7" />
+        <PackageReference Include="Alpaca.Markets" Version="6.1.8" />
         <PackageReference Include="Coinbase" Version="6.0.1" />
         <PackageReference Include="CsvHelper" Version="30.0.1" />
         <PackageReference Include="Ksuid" Version="1.0.0" />
         <PackageReference Include="MathNet.Numerics" Version="5.0.0" />
-        <PackageReference Include="Microsoft.AspNetCore.ApiAuthorization.IdentityServer" Version="7.0.0" />
-        <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="7.0.0" />
-        <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="7.0.0" />
-        <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="7.0.0" />
-        <PackageReference Include="Microsoft.AspNetCore.SpaProxy" Version="7.0.0" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="7.0.0" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="7.0.0" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="7.0.0" />
+        <PackageReference Include="Microsoft.AspNetCore.ApiAuthorization.IdentityServer" Version="7.0.2" />
+        <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="7.0.2" />
+        <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="7.0.2" />
+        <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="7.0.2" />
+        <PackageReference Include="Microsoft.AspNetCore.SpaProxy" Version="7.0.2" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="7.0.2" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="7.0.2" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="7.0.2">
+          <PrivateAssets>all</PrivateAssets>
+          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
         <PackageReference Include="NLog" Version="5.1.1" />
-        <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />
+        <PackageReference Include="Npgsql" Version="7.0.1" />
+        <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="7.0.1" />
+        <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
     </ItemGroup>
     <ItemGroup>
         <!-- Don't publish the SPA source files, but do show them in the project files list -->

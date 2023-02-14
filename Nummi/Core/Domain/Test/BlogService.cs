@@ -1,13 +1,14 @@
 using Microsoft.EntityFrameworkCore;
-using Nummi.Core.Database;
+using Nummi.Core.Database.EFCore;
+using Nummi.Core.Util;
 
 namespace Nummi.Core.Domain.Test; 
 
 public class BlogService {
     
-    private AppDb AppDb { get; }
+    private EFCoreContext AppDb { get; }
 
-    public BlogService(AppDb appDb) {
+    public BlogService(EFCoreContext appDb) {
         AppDb = appDb;
     }
 
@@ -36,7 +37,7 @@ public class BlogService {
     public Blog GetBlogById(string id) {
         var blog = AppDb.Blogs
             .Include(b => b.Post)
-            .FirstOrDefault(b => b.Id == id);
+            .FirstOrDefault(b => b.Id == id.ToKsuid());
         
         return blog!;
     }
@@ -45,7 +46,7 @@ public class BlogService {
     public Blog UpdateBlogPostText(string blogId, string text) {
         var blog = AppDb.Blogs
             .Include(b => b.Post)
-            .FirstOrDefault(b => b.Id == blogId);
+            .FirstOrDefault(b => b.Id == blogId.ToKsuid());
 
         blog!.Post!.Content = text;
         AppDb.SaveChanges();

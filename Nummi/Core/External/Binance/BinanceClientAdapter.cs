@@ -1,6 +1,6 @@
 using NLog;
 using Nummi.Core.Domain.Common;
-using Nummi.Core.Domain.Crypto.Data;
+using Nummi.Core.Domain.New;
 using Nummi.Core.Exceptions;
 
 namespace Nummi.Core.External.Binance; 
@@ -12,7 +12,7 @@ public class BinanceClientAdapter {
     private IBinanceClient Client { get; }
     private bool Initialized { get; set; }
     private int WeightLimit { get; set; }
-    private DateTime LastRequestAt { get; set; } = DateTime.MinValue;
+    private DateTimeOffset LastRequestAt { get; set; } = DateTimeOffset.MinValue;
     private int UsedWeight { get; set; }
 
     protected BinanceClientAdapter() {
@@ -34,18 +34,18 @@ public class BinanceClientAdapter {
         return response.Content;
     }
 
-    public IDictionary<string, Bar> GetBar(ISet<string> symbols, DateTime time, Period period) {
+    public virtual IDictionary<string, Bar> GetBar(ISet<string> symbols, DateTimeOffset time, Period period) {
         return GetBars(symbols, new DateRange(time, time), period)
             .ToDictionary(kvp => kvp.Key, kvp => kvp.Value[0]);
     }
 
-    public IDictionary<string, List<Bar>> GetBars(ISet<string> symbols, DateRange dateRange, Period period) {
+    public virtual IDictionary<string, List<Bar>> GetBars(ISet<string> symbols, DateRange dateRange, Period period) {
         var dict = symbols.ToDictionary(s => s, _ => dateRange);
         return GetBars(dict, period);
     }
 
-    public IDictionary<string, List<Bar>> GetBars(IDictionary<string, DateRange> symbols, Period period) {
-        DateTime now = DateTime.UtcNow;
+    public virtual IDictionary<string, List<Bar>> GetBars(IDictionary<string, DateRange> symbols, Period period) {
+        DateTimeOffset now = DateTimeOffset.UtcNow;
         CheckIfWeightLimitShouldReset(now);
         
         if (!Initialized) {
@@ -66,7 +66,7 @@ public class BinanceClientAdapter {
             var allBars = new List<Bar>();
 
             int remainder = (int) callDetails.Remainder;
-            DateTime runningStartTime = callDetails.DateRange.Start;
+            DateTimeOffset runningStartTime = callDetails.DateRange.Start;
             for (int i = 0; i < callDetails.Chunks; ++i) {
                 var bars = GetKlines(now, symbol, runningStartTime, callDetails.DateRange.End, period, Client.GetKlinesMaxLimit);
                 if (bars.Count != Client.GetKlinesMaxLimit) {
@@ -82,14 +82,14 @@ public class BinanceClientAdapter {
             }
             allBars.AddRange(remainingBars);
 
-            allBars.Sort((x, y) => x.OpenTimeUnixMs.CompareTo(y.OpenTimeUnixMs));
+            allBars.Sort((x, y) => x.OpenTime.CompareTo(y.OpenTime));
             result[symbol] = allBars;
         }
         
         return result;
     }
 
-    private IList<Bar> GetKlines(DateTime now, string symbol, DateTime startTime, DateTime endTime, Period period, int limit) {
+    private IList<Bar> GetKlines(DateTimeOffset now, string symbol, DateTimeOffset startTime, DateTimeOffset endTime, Period period, int limit) {
         if (UsedWeight == 1000) {
             WaitUntilLimitResets(now);
         }
@@ -121,7 +121,7 @@ public class BinanceClientAdapter {
         Initialized = true;
     }
 
-    private bool CheckIfWeightLimitShouldReset(DateTime now) {
+    private bool CheckIfWeightLimitShouldReset(DateTimeOffset now) {
         if (LastRequestAt.Minute != now.Minute || LastRequestAt + TimeSpan.FromMinutes(1) <= now) {
             UsedWeight = 0;
             return true;
@@ -130,7 +130,7 @@ public class BinanceClientAdapter {
         return false;
     }
 
-    private void WaitUntilLimitResets(DateTime now) {
+    private void WaitUntilLimitResets(DateTimeOffset now) {
         var waitTime = TimeSpan.FromMinutes(1);
         Client.Wait(waitTime);
         UsedWeight = 0;

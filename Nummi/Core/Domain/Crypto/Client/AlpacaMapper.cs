@@ -1,13 +1,12 @@
 using Alpaca.Markets;
 using Nummi.Core.Domain.Crypto.Data;
-using Nummi.Core.Domain.Crypto.Ordering;
+using Nummi.Core.Domain.New;
 using Nummi.Core.Exceptions;
 using Nummi.Core.External.Binance;
-using Nummi.Core.Util;
 using IBar = Alpaca.Markets.IBar;
-using OrderSide = Nummi.Core.Domain.Crypto.Ordering.OrderSide;
-using OrderType = Nummi.Core.Domain.Crypto.Ordering.OrderType;
-using TimeInForce = Nummi.Core.Domain.Crypto.Ordering.TimeInForce;
+using OrderSide = Nummi.Core.Domain.New.OrderSide;
+using OrderType = Nummi.Core.Domain.New.OrderType;
+using TimeInForce = Nummi.Core.Domain.New.TimeInForce;
 
 namespace Nummi.Core.Domain.Crypto.Client; 
 
@@ -102,8 +101,8 @@ public static class AlpacaMapper {
     public static Bar ToDomain(this IBar bar, Period period) {
         return new Bar(
             symbol: bar.Symbol,
-            openTimeUnixMs: bar.TimeUtc.ToUnixTimeMs(),
-            periodMs: period.UnixMs,
+            openTime: bar.TimeUtc,
+            period: period.Time,
             open: bar.Open,
             high: bar.High,
             low: bar.Low,

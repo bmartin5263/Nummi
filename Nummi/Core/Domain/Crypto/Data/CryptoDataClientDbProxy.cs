@@ -1,5 +1,7 @@
 using NLog;
+using Nummi.Core.Database.Common;
 using Nummi.Core.Domain.Common;
+using Nummi.Core.Domain.New;
 using Nummi.Core.External.Binance;
 using Nummi.Core.Util;
 
@@ -64,13 +66,13 @@ public class CryptoDataClientDbProxy : ICryptoDataClient {
     }
 
     private IDictionary<string, DbBars> GetBarsFromDb(ISet<string> symbols, DateRange dateRange, Period period) {
-        long periodUnixMs = period.UnixMs;
-        long startUnixMs = dateRange.Start.ToUnixTimeMs();
-        long endUnixMs = dateRange.End.ToUnixTimeMs();
+        TimeSpan periodTime = period.Time;
+        DateTimeOffset start = dateRange.Start;
+        DateTimeOffset end = dateRange.End;
         
         var preloadedBars = new Dictionary<string, DbBars>();
         foreach (var symbol in symbols) {
-            var bars = BarRepository.FindByIdRange(symbol, startUnixMs, endUnixMs, periodUnixMs);
+            var bars = BarRepository.FindByIdRange(symbol, start, end, periodTime);
 
             if (bars.Count == 0) {
                 // No bars preloaded, missing range is the entire input range
@@ -79,27 +81,27 @@ public class CryptoDataClientDbProxy : ICryptoDataClient {
             }
 
             // Check both ends to see if any part of the range is missing
-            long newStart = startUnixMs;
+            DateTimeOffset newStart = start;
             foreach (var bar in bars) {
-                if (bar.OpenTimeUnixMs == newStart) {
-                    newStart += periodUnixMs;
+                if (bar.OpenTime == newStart) {
+                    newStart += periodTime;
                 }
                 else {
                     break;
                 }
             }
 
-            if (newStart > endUnixMs) {
+            if (newStart > end) {
                 // Got the entire range, no additional API calls needed
                 preloadedBars[symbol] = new DbBars(bars);
                 continue;
             }
 
-            long newEnd = endUnixMs;
+            DateTimeOffset newEnd = end;
             for (int i = bars.Count - 1; i >= 0; --i) {
                 var bar = bars[i];
-                if (bar.OpenTimeUnixMs == newEnd) {
-                    newEnd -= periodUnixMs;
+                if (bar.OpenTime == newEnd) {
+                    newEnd -= periodTime;
                 }
                 else {
                     break;
@@ -107,7 +109,7 @@ public class CryptoDataClientDbProxy : ICryptoDataClient {
             }
             
             // Got some of the range
-            preloadedBars[symbol] = new DbBars(bars, new DateRange(newStart.ToUtcDateTime(), newEnd.ToUtcDateTime()));
+            preloadedBars[symbol] = new DbBars(bars, new DateRange(newStart, newEnd));
         }
 
         return preloadedBars;

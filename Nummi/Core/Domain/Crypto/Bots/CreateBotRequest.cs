@@ -11,4 +11,6 @@ public class CreateBotRequest {
     public TradingMode Mode { get; set; }
     
     public decimal? Funds { get; set; }
+    
+    public string? StrategyId { get; set; }
 }

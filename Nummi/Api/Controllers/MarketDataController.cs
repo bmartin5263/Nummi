@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
-using Nummi.Core.Domain.Crypto.Data;
+using Nummi.Core.Domain.New;
 using Nummi.Core.External.Alpaca;
 using Nummi.Core.External.Binance;
 

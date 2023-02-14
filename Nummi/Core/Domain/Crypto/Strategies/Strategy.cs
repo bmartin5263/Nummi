@@ -2,7 +2,8 @@ using System.Text.Json.Serialization;
 using KSUID;
 using Microsoft.EntityFrameworkCore;
 using NLog;
-using Nummi.Core.Domain.Crypto.Strategies.Log;
+using Nummi.Core.Domain.Crypto.Bots;
+using Nummi.Core.Domain.Crypto.Log;
 using Nummi.Core.Util;
 
 namespace Nummi.Core.Domain.Crypto.Strategies; 
@@ -18,24 +19,20 @@ public abstract class Strategy {
 
     // How often should this strategy check for possible trades
     public TimeSpan Frequency { get; }
-    
-    // How many times this trading strategy checked for trades
-    public int TimesExecuted => Logs.Count;
-    
-    // When was the last time this strategy ran?
-    public DateTime? LastExecutedAt => Logs.MaxOrDefault(l => l.StartTime);
-    
-    // How many times this trading strategy threw an exception
-    public int TimesFailed => Logs.Count(l => l.Error != null);
 
-    public IList<StrategyLog> Logs { get; private set; } = new List<StrategyLog>();
+    // When was the last time this strategy ran?
+    public DateTime? LastExecutedAt => LastLog?.StartTime;
+
+    public StrategyLog? LastLog { get; set; }
+    
+    public ISet<Simulation> Simulations { get; } = new HashSet<Simulation>();
 
     protected Strategy(TimeSpan frequency) {
         Frequency = frequency;
     }
 
     public StrategyLog Initialize(ITradingContext ctx) {
-        var logBuilder = new StrategyLogBuilder(this, ctx.Mode, StrategyAction.Initializing);
+        var logBuilder = new StrategyLogBuilder(this, ctx.Mode, StrategyAction.Initializing, ctx.BotId);
         var context = new TradingContextAudited(ctx, logBuilder);
         
         try {
@@ -50,8 +47,8 @@ public abstract class Strategy {
         return logBuilder.Build();
     }
 
-    public StrategyLog CheckForTrades(TradingContext ctx) {
-        var logBuilder = new StrategyLogBuilder(this, ctx.Mode, StrategyAction.Trading);
+    public StrategyLog CheckForTrades(ITradingContext ctx) {
+        var logBuilder = new StrategyLogBuilder(this, ctx.Mode, StrategyAction.Trading, ctx.BotId);
         var context = new TradingContextAudited(ctx, logBuilder);
         
         try {
@@ -72,6 +69,10 @@ public abstract class Strategy {
         }
         var elapsedSinceLastExecution = DateTime.UtcNow - LastExecutedAt;
         return elapsedSinceLastExecution > Frequency * 2;
+    }
+    
+    public void AddSimulation(Simulation simulation) {
+        Simulations.Add(simulation);
     }
 
     protected void Message(string msg) {

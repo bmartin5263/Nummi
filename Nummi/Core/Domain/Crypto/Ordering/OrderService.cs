@@ -1,24 +1,29 @@
-using Nummi.Core.Domain.Crypto.Strategies;
-using Nummi.Core.Util;
-
-namespace Nummi.Core.Domain.Crypto.Ordering;
-
-public class OrderService {
-
-    private TradingContextFactory TradingContextFactory { get; }
-
-    public OrderService(TradingContextFactory tradingContextFactory) {
-        TradingContextFactory = tradingContextFactory;
-    }
-
-    public Order PlaceOrder(TradingMode mode, OrderRequest request) {
-        switch (mode) {
-            case TradingMode.Paper:
-                var context = TradingContextFactory.Create(mode, 10m, new ClockLive());
-                return context.PlaceOrder(request);
-            default:
-                throw new ArgumentOutOfRangeException(nameof(mode), mode, null);
-        }
-    }
-
-}
+// using Nummi.Core.Domain.Crypto.Bots;
+// using Nummi.Core.Domain.Crypto.Strategies;
+// using Nummi.Core.Exceptions;
+// using Nummi.Core.Util;
+//
+// namespace Nummi.Core.Domain.Crypto.Ordering;
+//
+// public class OrderService {
+//
+//     private TradingContextFactory TradingContextFactory { get; }
+//     private BotService BotService { get; }
+//
+//     public OrderService(TradingContextFactory tradingContextFactory, BotService botService) {
+//         TradingContextFactory = tradingContextFactory;
+//         BotService = botService;
+//     }
+//
+//     public Order PlaceOrder(string botId, OrderRequest request) {
+//         var bot = BotService.GetBotById(botId).OrElseThrow(() => EntityNotFoundException<Bot>.IdNotFound(botId));
+//         switch (bot.Mode) {
+//             // case TradingMode.Paper:
+//             //     var context = TradingContextFactory.CreateRealtime(bot);
+//             //     return context.PlaceOrder(request);
+//             default:
+//                 throw new ArgumentOutOfRangeException(nameof(bot.Mode), bot.Mode, null);
+//         }
+//     }
+//
+// }

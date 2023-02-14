@@ -1,4 +1,4 @@
-using Nummi.Core.Domain.Crypto.Strategies;
+using Nummi.Core.Domain.New;
 
 namespace Nummi.Api.Model; 
 
@@ -8,6 +8,5 @@ public class BotDto {
     public TradingMode Mode { get; set; }
     public bool? InErrorState { get; set; }
     public decimal? Funds { get; set; }
-    public StrategyLogDto? LastStrategyLog { get; set; }
     public StrategyDto? Strategy { get; set; }
 }

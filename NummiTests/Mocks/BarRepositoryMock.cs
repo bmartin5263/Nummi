@@ -1,4 +1,5 @@
-using Nummi.Core.Domain.Crypto.Data;
+using Nummi.Core.Database.Common;
+using Nummi.Core.Domain.New;
 using Nummi.Core.Exceptions;
 
 namespace NummiTests.Mocks; 
@@ -7,25 +8,25 @@ public class BarRepositoryMock : IBarRepository {
 
     public Dictionary<BarKey, Bar> Database { get; } = new();
 
-    public Bar? FindById(string symbol, long openTimeUnixMs, long periodUnixMs) {
-        var key = new BarKey(symbol, openTimeUnixMs, periodUnixMs);
+    public Bar? FindById(string symbol, DateTimeOffset openTime, TimeSpan period) {
+        var key = new BarKey(symbol, openTime, period);
         return Database.GetValueOrDefault(key);
     }
 
-    public List<Bar> FindByIdRange(string symbol, long startOpenTimeUnixMs, long endOpenTimeUnixMs, long periodUnixMs) {
+    public List<Bar> FindByIdRange(string symbol, DateTimeOffset startOpenTimeUtc, DateTimeOffset endOpenTimeUtc, TimeSpan period) {
         return Database
             .Where(e =>
                 e.Key.Symbol == symbol
-                && e.Key.PeriodUnixMs == periodUnixMs
-                && e.Key.OpenTimeUnixMs >= startOpenTimeUnixMs
-                && e.Key.OpenTimeUnixMs <= endOpenTimeUnixMs
+                && e.Key.Period == period
+                && e.Key.OpenTimeUtc >= startOpenTimeUtc
+                && e.Key.OpenTimeUtc <= endOpenTimeUtc
             )
             .Select(e => e.Value)
             .ToList();
     }
 
     public void Add(Bar bar) {
-        var key = new BarKey(bar.Symbol, bar.OpenTimeUnixMs, bar.PeriodMs);
+        var key = new BarKey(bar.Symbol, bar.OpenTime, bar.Period);
         if (Database.ContainsKey(key)) {
             throw new InvalidUserArgumentException($"Bar already exists {bar}");
         }
@@ -50,7 +51,7 @@ public class BarRepositoryMock : IBarRepository {
     public void Add(IDictionary<string, List<Bar>> barDict) {
         foreach (List<Bar> barList in barDict.Values) {
             foreach (Bar bar in barList) {
-                var key = new BarKey(bar.Symbol, bar.OpenTimeUnixMs, bar.PeriodMs);
+                var key = new BarKey(bar.Symbol, bar.OpenTime, bar.Period);
                 if (Database.ContainsKey(key)) {
                     throw new InvalidUserArgumentException($"Bar already exists {bar}");
                 }
@@ -66,16 +67,16 @@ public class BarRepositoryMock : IBarRepository {
 
 public class BarKey {
     public string Symbol { get; }
-    public long OpenTimeUnixMs { get; }
-    public long PeriodUnixMs { get; }
-    public BarKey(string symbol, long openTimeUnixMs, long periodUnixMs) {
+    public DateTimeOffset OpenTimeUtc { get; }
+    public TimeSpan Period { get; }
+    public BarKey(string symbol, DateTimeOffset openTime, TimeSpan period) {
         Symbol = symbol;
-        OpenTimeUnixMs = openTimeUnixMs;
-        PeriodUnixMs = periodUnixMs;
+        OpenTimeUtc = openTime;
+        Period = period;
     }
 
     protected bool Equals(BarKey other) {
-        return Symbol == other.Symbol && OpenTimeUnixMs == other.OpenTimeUnixMs && PeriodUnixMs == other.PeriodUnixMs;
+        return Symbol == other.Symbol && OpenTimeUtc == other.OpenTimeUtc && Period == other.Period;
     }
 
     public override bool Equals(object? obj) {
@@ -86,6 +87,6 @@ public class BarKey {
     }
 
     public override int GetHashCode() {
-        return HashCode.Combine(Symbol, OpenTimeUnixMs, PeriodUnixMs);
+        return HashCode.Combine(Symbol, OpenTimeUtc, Period);
     }
 }

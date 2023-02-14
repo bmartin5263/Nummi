@@ -1,4 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
+using Nummi.Core.Domain.New;
 
 namespace Nummi.Core.Domain.Crypto.Data; 
 

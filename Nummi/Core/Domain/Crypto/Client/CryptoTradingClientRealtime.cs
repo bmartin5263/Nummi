@@ -1,4 +1,4 @@
-using Nummi.Core.Domain.Crypto.Ordering;
+using Nummi.Core.Domain.New;
 using Nummi.Core.External.Alpaca;
 
 namespace Nummi.Core.Domain.Crypto.Client; 

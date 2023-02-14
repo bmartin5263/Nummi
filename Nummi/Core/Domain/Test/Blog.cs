@@ -6,14 +6,14 @@ namespace Nummi.Core.Domain.Test;
 
 [PrimaryKey("Id")]
 public class Blog {
-    public string Id { get; }
+    public Ksuid Id { get; }
     public string Name { get; set; }
     
     [ForeignKey("PostId")]
     public Post? Post { get; set; }
 
     public Blog(string name) {
-        Id = Ksuid.Generate().ToString();
+        Id = Ksuid.Generate();
         Name = name;
     }
 }

@@ -4,39 +4,34 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using Nummi.Api.Filters;
-using Nummi.Core.Database;
-using Nummi.Core.Database.Repositories;
-using Nummi.Core.Domain.Crypto.Bots;
+using Nummi.Core.Database.Common;
+using Nummi.Core.Database.EFCore;
 using Nummi.Core.Domain.Crypto.Bots.Thread;
 using Nummi.Core.Domain.Crypto.Data;
-using Nummi.Core.Domain.Crypto.Ordering;
 using Nummi.Core.Domain.Crypto.Strategies;
+using Nummi.Core.Domain.New.Commands;
 using Nummi.Core.Domain.Test;
 using Nummi.Core.Domain.User;
 using Nummi.Core.External.Alpaca;
 using Nummi.Core.External.Binance;
 using Nummi.Core.External.Coinbase;
 
-const string CONNECTION_STRING = "DefaultConnection";   // see appsettings.json
-
 void ConfigureDatabase(WebApplicationBuilder builder)
 {
-    var dbConnectionString = builder.Configuration.GetConnectionString(CONNECTION_STRING) 
-                             ?? throw new InvalidOperationException($"Connection string '{CONNECTION_STRING}' not found.");
-    
-    builder.Services.AddDbContext<AppDb>(options => options.UseSqlite(dbConnectionString));
+    builder.Services.AddDbContext<EFCoreContext>(options =>
+        options.UseNpgsql("Host=localhost;Port=5432;Database=nummi;Username=brandon;Password=password"));
     builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 }
 
 void ConfigureIdentities(WebApplicationBuilder builder)
 {
-    builder.Services.AddDefaultIdentity<User>(options => 
+    builder.Services.AddDefaultIdentity<NummiUser>(options => 
             options.SignIn.RequireConfirmedAccount = true
         )
-        .AddEntityFrameworkStores<AppDb>();
+        .AddEntityFrameworkStores<EFCoreContext>();
 
     builder.Services.AddIdentityServer()
-        .AddApiAuthorization<User, AppDb>();
+        .AddApiAuthorization<NummiUser, EFCoreContext>();
 
     builder.Services.AddAuthentication()
         .AddIdentityServerJwt();
@@ -61,14 +56,27 @@ builder.Services.AddSingleton<IBinanceClient, BinanceClient>();
 builder.Services.AddSingleton<BinanceClientAdapter>();
 
 // Services
-builder.Services.AddScoped<OrderService>();
-builder.Services.AddScoped<BotService>();
-builder.Services.AddScoped<StrategyService>();
 builder.Services.AddScoped<CryptoDataClientLive>();
 builder.Services.AddScoped<CryptoDataClientDbProxy>();
 builder.Services.AddScoped<BlogService>();
 builder.Services.AddScoped<TradingContextFactory>();
+
+// Commands
+builder.Services.AddScoped<ActivateBotCommand>();
+builder.Services.AddScoped<ChangeBotStrategyCommand>();
+builder.Services.AddScoped<CreateBotCommand>();
+builder.Services.AddScoped<DeactivateBotCommand>();
+builder.Services.AddScoped<SimulateStrategyCommand>();
+
+// Repositories + Database
 builder.Services.AddScoped<IBarRepository, BarRepository>();
+builder.Services.AddScoped<IBotRepository, BotRepository>();
+builder.Services.AddScoped<IBotThreadRepository, BotThreadRepository>();
+builder.Services.AddScoped<IStrategyRepository, StrategyRepository>();
+builder.Services.AddScoped<IStrategyTemplateRepository, StrategyTemplateRepository>();
+builder.Services.AddScoped<ISimulationRepository, SimulationRepository>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<ITransaction, EFCoreTransaction>();
 
 // Bot Execution Threads
 builder.Services.AddSingleton<BotExecutionManager>(provider => new BotExecutionManager(provider, 1));
@@ -112,8 +120,8 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
 app.UseAuthentication();
-app.UseIdentityServer();
 app.UseAuthorization();
+app.UseIdentityServer();
 
 app.MapControllerRoute(
     name: "default",

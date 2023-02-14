@@ -3,8 +3,8 @@ using System.Diagnostics.CodeAnalysis;
 using KSUID;
 using Microsoft.EntityFrameworkCore;
 using Nummi.Core.Domain.Crypto.Bots.Thread;
+using Nummi.Core.Domain.Crypto.Log;
 using Nummi.Core.Domain.Crypto.Strategies;
-using Nummi.Core.Domain.Crypto.Strategies.Log;
 using Nummi.Core.Exceptions;
 
 namespace Nummi.Core.Domain.Crypto.Bots; 
@@ -17,7 +17,7 @@ public class Simulation {
     
     public Strategy Strategy { get; }
     
-    public SimulationStatus Status { get; private set; }
+    public SimulationState State { get; private set; }
     
     public DateTime? StartTime { get; set; }
     
@@ -38,37 +38,37 @@ public class Simulation {
 
     public Simulation(Strategy strategy) {
         Id = Ksuid.Generate().ToString();
-        Status = SimulationStatus.Submitted;
+        State = SimulationState.Submitted;
         Strategy = strategy;
     }
 
     public void Start() {
-        if (Status != SimulationStatus.Submitted) {
-            throw new InvalidStateException($"Can only start Simulations that are in {nameof(SimulationStatus.Submitted)} status");
+        if (State != SimulationState.Submitted) {
+            throw new InvalidStateException($"Can only start Simulations that are in {nameof(SimulationState.Submitted)} status");
         }
 
-        Status = SimulationStatus.Started;
+        State = SimulationState.Started;
         StartTime = DateTime.UtcNow;
     }
 
     public void Finish(Exception error) {
-        if (Status != SimulationStatus.Started) {
-            throw new InvalidStateException($"Can only finish Simulations that are in {nameof(SimulationStatus.Started)} status");
+        if (State != SimulationState.Started) {
+            throw new InvalidStateException($"Can only finish Simulations that are in {nameof(SimulationState.Started)} status");
         }
         
         EndTime = DateTime.UtcNow;
-        Status = SimulationStatus.Failed;
+        State = SimulationState.Failed;
         Error = error.ToString();
     }
 
     public void Finish(IEnumerable<StrategyLog> logs) {
-        if (Status != SimulationStatus.Started) {
-            throw new InvalidStateException($"Can only finish Simulations that are in {nameof(SimulationStatus.Started)} status");
+        if (State != SimulationState.Started) {
+            throw new InvalidStateException($"Can only finish Simulations that are in {nameof(SimulationState.Started)} status");
         }
 
         Logs.AddRange(logs);
         EndTime = DateTime.UtcNow;
-        Status = SimulationStatus.Finished;
+        State = SimulationState.Finished;
     }
 
     public void AddLogs(IEnumerable<StrategyLog> logs) {

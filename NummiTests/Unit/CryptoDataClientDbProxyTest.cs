@@ -1,7 +1,7 @@
 using Moq;
 using Nummi.Core.Domain.Common;
-using Nummi.Core.Domain.Crypto.Client;
 using Nummi.Core.Domain.Crypto.Data;
+using Nummi.Core.Domain.New;
 using Nummi.Core.External.Binance;
 using Nummi.Core.Util;
 using NummiTests.Mocks;
@@ -132,11 +132,11 @@ public class CryptoDataClientDbProxyTest {
         var bars = new Dictionary<string, List<Bar>>();
         foreach (var (symbol, dateRange) in symbols) {
             bars[symbol] = new List<Bar>();
-            var startMs = dateRange.Start.Truncate(period.Time).ToUnixTimeMs();
-            var endMs = dateRange.End.Truncate(period.Time).ToUnixTimeMs();
+            var startMs = dateRange.Start.Truncate(period.Time);
+            var endMs = dateRange.End.Truncate(period.Time);
             while (startMs <= endMs) {
-                bars[symbol].Add(new Bar(symbol, startMs, period.UnixMs, 10.0m, 10.0m, 10.0m, 10.0m, 10.0m));
-                startMs += period.UnixMs;
+                bars[symbol].Add(new Bar(symbol, startMs, period.Time, 10.0m, 10.0m, 10.0m, 10.0m, 10.0m));
+                startMs += period.Time;
             }
         }
 

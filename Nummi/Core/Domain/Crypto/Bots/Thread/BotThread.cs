@@ -1,7 +1,7 @@
 using System.Collections.Concurrent;
-using Microsoft.EntityFrameworkCore;
 using NLog;
-using Nummi.Core.Database;
+using Nummi.Core.Database.Common;
+using Nummi.Core.Database.EFCore;
 using Nummi.Core.Domain.Crypto.Bots.Thread.Command;
 using Nummi.Core.Domain.Crypto.Strategies;
 using Nummi.Core.Exceptions;
@@ -32,25 +32,23 @@ public class BotThread {
         Controller = new BotThreadController(this);
     }
 
-    public void Initialize() {
+    private void Initialize() {
         using var scope = ServiceProvider.CreateScope();
-        using var appDb = scope.ServiceProvider.GetService<AppDb>()!;
+        using var database = scope.ServiceProvider.GetService<ITransaction>()!;
 
-        var botThread = appDb.BotThreads
-            .Include(v => v.Bot)
-            .FirstOrDefault(v => v.Id == Id);
+        var botThread = database.BotThreadRepository.FindById(Id);
         
         if (botThread == null) {
-            appDb.BotThreads.Add(new BotThreadEntity(Id));
+            database.BotThreadRepository.Add(new BotThreadEntity(Id));
         }
         else {
-            if (botThread.Bot != null) {
-                Message($"Auto Assigning Bot [{botThread.Bot.Name.Yellow()}]");
-                BotId = botThread.Bot.Id;
-            }
+            database.BotThreadRepository.LoadProperty(botThread, t => t.Bot);
+            if (botThread.Bot == null) 
+                return;
+            
+            Message($"Auto Assigning Bot [{botThread.Bot.Name.Yellow()}]");
+            BotId = botThread.Bot.Id;
         }
-
-        appDb.SaveChanges();
     }
 
     public void MainLoop() {
@@ -90,13 +88,13 @@ public class BotThread {
         }
         
         using var scope = ServiceProvider.CreateScope();
-        using var appDb = scope.ServiceProvider.GetService<AppDb>()!;
-        using var transaction = new DbTransaction(appDb);
+        // using var db = scope.ServiceProvider.GetService<Transaction>()!.EnableAutoCommit();
 
-        Bot? bot = appDb.Bots
-            .Include(b => b.Strategy)
-            .Include(b => b.LastStrategyLog)
-            .FirstOrDefault(b => b.Id == BotId);
+        Bot? bot;
+        using (var db = scope.ServiceProvider.GetService<ITransaction>()!) {
+            // bot = db.BotRepository.FindById(BotId);
+            bot = null;
+        }
         
         if (bot == null) {
             Message($"{"ERROR!!".Red()} Bot {BotId.Yellow()} no longer exists!");
@@ -126,7 +124,7 @@ public class BotThread {
 
         Message($"Waking {bot.Name.Yellow()}");
         try {
-            var env = new BotContext(ServiceProvider, scope, appDb);
+            var env = new NummiContext(ServiceProvider, scope);
             bot.RunRealtime(env);
             return bot.Strategy.Frequency;
         }
@@ -135,18 +133,34 @@ public class BotThread {
             return DefaultSleepTime;
         }
     }
+    
+    public bool IsTimeToExecute(DateTime? lastExecutedAt, TimeSpan frequency, out TimeSpan? sleep) {
+        if (lastExecutedAt == null) {
+            sleep = null;
+            return true;
+        }
+        
+        var now = DateTime.UtcNow;
+        if (lastExecutedAt + frequency > now) {
+            sleep = frequency - (now - lastExecutedAt);
+            return false;
+        }
+        
+        sleep = null;
+        return true;
+    }
 
     protected void Message(string msg) {
         Log.Info($"[{"Id".Purple()}:{Id.ToString().Cyan()}] - {msg}");
     }
 
-    private BotThreadEntity GetBotThreadEntity(AppDb appDb) {
-        var botThread = appDb.BotThreads.Find(Id);
-        if (botThread != null) {
-            return botThread;
-        }
-        botThread = new BotThreadEntity(Id);
-        appDb.BotThreads.Add(botThread);
+    private BotThreadEntity GetBotThreadEntity(EFCoreContext appDb) {
+        // var botThread = appDb.BotThreads.Find(Id);
+        // if (botThread != null) {
+        //     return botThread;
+        // }
+        var botThread = new BotThreadEntity(Id);
+        // appDb.BotThreads.Add(botThread);
         appDb.Attach(botThread);
         return botThread;
     }
@@ -163,11 +177,11 @@ public class BotThread {
             Self.BotId = botId;
             
             using var scope = Self.ServiceProvider.CreateScope();
-            using var appDb = scope.ServiceProvider.GetService<AppDb>()!;
+            using var appDb = scope.ServiceProvider.GetService<EFCoreContext>()!;
             var bot = appDb.Bots.Find(botId).OrElseThrow(() => new EntityMissingException<Bot>(botId));
 
             var botThreadEntity = Self.GetBotThreadEntity(appDb);
-            botThreadEntity.Bot = bot;
+            // botThreadEntity.Bot = bot;
             appDb.SaveChanges();
         }
 
@@ -175,56 +189,47 @@ public class BotThread {
             Self.BotId = null;
             
             using var scope = Self.ServiceProvider.CreateScope();
-            using var appDb = scope.ServiceProvider.GetService<AppDb>()!;
+            using var appDb = scope.ServiceProvider.GetService<EFCoreContext>()!;
             var botThreadEntity = Self.GetBotThreadEntity(appDb);
             botThreadEntity.Bot = null;
             appDb.SaveChanges();
         }
 
         public void SimulateBot(SimulationParameters parameters, string resultId) {
-            using var scope = Self.ServiceProvider.CreateScope();
-            using var appDb = scope.ServiceProvider.GetService<AppDb>()!;
-            
-            var simulation = appDb.Simulations.Find(resultId)
-                .OrElseThrow(() => new EntityMissingException<Simulation>("Could not find StrategyResult"));
-            
-            simulation.Start();
-            appDb.SaveChanges();
-
-            try {
-                DoSimulateBot(parameters, simulation, appDb, scope);
-            }
-            catch (Exception e) {
-                Log.Error($"{"Error!!".Red()} Simulation failed. {e}");
-                simulation.Finish(e);
-            }
-            
-            appDb.SaveChanges();
-        }
-
-        private void DoSimulateBot(
-            SimulationParameters parameters, 
-            Simulation simulation, 
-            AppDb appDb, 
-            IServiceScope scope
-        ) {
             if (Self.BotId == null) {
                 throw new InvalidUserArgumentException($"Thread {Self.Id} does not have a Bot to simulate");
             }
-
-            var bot = appDb.Bots
-                .Include(b => b.Strategy)
-                .FirstOrDefault(b => b.Id == Self.BotId)
-                .ThrowIfNull(() => new EntityMissingException<Bot>(Self.BotId));
-
-            var context = new BotContext(
+            
+            using var scope = Self.ServiceProvider.CreateScope();
+            using var db = scope.ServiceProvider.GetService<ITransaction>()!;
+            
+            // var bot = db.BotRepository.FindById(Self.BotId)
+            //     .ThrowIfNull(() => new EntityMissingException<Bot>(Self.BotId));
+            // // db.BotRepository.LoadProperty(bot, b => b.Strategy);
+            // //
+            // // if (bot.Strategy == null) {
+            // //     throw new InvalidUserArgumentException($"Bot {bot.Name} does not have a Strategy to simulate");
+            // // }
+            //
+            // var simulation = db.SimulationRepository.FindById(resultId)
+            //     .OrElseThrow(() => new EntityMissingException<Simulation>("Could not find StrategyResult"));
+            //
+            // simulation.Start();
+            db.SaveChanges();
+            
+            var context = new NummiContext(
                 serviceProvider: Self.ServiceProvider,
-                scope: scope,
-                appDb: appDb
+                scope: scope
             );
 
-            var logs = bot.RunSimulation(context, parameters);
-            simulation.Finish(logs);
+            try {
+                // var logs = bot.RunSimulation(context, parameters);
+                // simulation.Finish(logs);
+            }
+            catch (Exception e) {
+                Log.Error($"{"Error!!".Red()} Simulation failed. {e}");
+                // simulation.Finish(e);
+            }
         }
     }
 }

@@ -1,9 +1,8 @@
 using Nummi.Core.Domain.Common;
-using Nummi.Core.Domain.Crypto.Data;
-using Nummi.Core.Domain.Crypto.Ordering;
-using Nummi.Core.Domain.Crypto.Strategies.Log;
+using Nummi.Core.Domain.New;
 using Nummi.Core.External.Binance;
 using Nummi.Core.Util;
+using StrategyLogBuilder = Nummi.Core.Domain.Crypto.Log.StrategyLogBuilder;
 
 namespace Nummi.Core.Domain.Crypto.Strategies; 
 
@@ -12,8 +11,9 @@ public class TradingContextAudited : ITradingContext {
     public StrategyLogBuilder LogBuilder { get; }
 
     public IClock Clock => Delegate.Clock;
-    public decimal Funds => Delegate.Funds;
+    public decimal RemainingFunds => Delegate.RemainingFunds;
     public TradingMode Mode => Delegate.Mode;
+    public string? BotId => Delegate.BotId;
 
     public TradingContextAudited(ITradingContext delegateContext, StrategyLogBuilder logBuilder) {
         LogBuilder = logBuilder;
@@ -29,11 +29,11 @@ public class TradingContextAudited : ITradingContext {
     }
 
     public Order PlaceOrder(OrderRequest request) {
-        var fundsBefore = Funds;
+        var fundsBefore = RemainingFunds;
         var start = DateTime.Now;
         try {
             var result = Delegate.PlaceOrder(request);
-            var fundsAfter = Funds;
+            var fundsAfter = RemainingFunds;
             LogBuilder.LogOrder(request, fundsBefore, fundsAfter);
             return result;
         }

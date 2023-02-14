@@ -1,7 +1,7 @@
 using System.Net;
 using System.Text.Json;
 using NLog;
-using Nummi.Core.Domain.Crypto.Data;
+using Nummi.Core.Domain.New;
 using Nummi.Core.Exceptions;
 using Nummi.Core.Util;
 
@@ -12,35 +12,34 @@ public class BinanceClient : IBinanceClient {
     private static readonly Logger Log = LogManager.GetCurrentClassLogger();
 
     private NummiHttpClient Client { get; }
-    private DateTime BlockedUntil { get; set; }
+    private DateTimeOffset BlockedUntil { get; set; }
     public int GetKlinesWeight => 1;
     public int GetKlinesMaxLimit => 1000;
     
     public BinanceClient() {
         Log.Debug("New Binance Client");
-        BlockedUntil = DateTime.MinValue;
-        Client = new NummiHttpClient(new HttpClient(), "https://api.binance.us/api/v3");
-        Client
+        BlockedUntil = DateTimeOffset.MinValue;
+        Client = new NummiHttpClient(new HttpClient(), "https://api.binance.us/api/v3")
             .OnStatusCode(HttpStatusCode.TooManyRequests, HandleTooManyRequests)
             .OnStatusCode((HttpStatusCode) 419, HandleIpBanned)
             .LogHeaders("x-mbx-used-weight", "x-mbx-used-weight-1m", "retry-after");
     }
 
-    public BinanceResponse<IList<Bar>> GetKlines(string symbol, DateTime startTime, DateTime endTime, Period period, int limit) {
+    public BinanceResponse<IList<Bar>> GetKlines(string symbol, DateTimeOffset startTime, DateTimeOffset endTime, Period period, int limit) {
         Log.Info($"GetBars(symbol={symbol}, startTime={startTime.ToLocalTime()}, endTime={endTime.ToLocalTime()}, limit={limit})");
 
-        if (DateTime.UtcNow < BlockedUntil) {
+        if (DateTimeOffset.UtcNow < BlockedUntil) {
             throw new InvalidStateException($"Binance has blocked us until {BlockedUntil}");
         }
 
         if (limit is < 0 or > 1000) {
             throw new InvalidUserArgumentException("Limit must be between 0 and 1000");
         }
-        
+
         var response = Client.Get("/klines")
             .Parameter("symbol", symbol)
-            .Parameter("startTime", startTime.Truncate(period.Time).ToUnixTimeMs().ToString())
-            .Parameter("endTime", endTime.Truncate(period.Time).ToUnixTimeMs().ToString())
+            .Parameter("startTime", startTime.Truncate(period.Time).ToUnixTimeMilliseconds().ToString())
+            .Parameter("endTime", endTime.Truncate(period.Time).ToUnixTimeMilliseconds().ToString())
             .Parameter("interval", period.IntervalParam)
             .Parameter("limit", limit.ToString())
             .Execute()
@@ -94,8 +93,8 @@ public class BinanceClient : IBinanceClient {
         try {
             result = new Bar(
                 symbol: symbol,
-                openTimeUnixMs: jsonArray[0].GetInt64(),
-                periodMs: period.UnixMs,
+                openTime: jsonArray[0].GetInt64().ToUtcDateTime(),
+                period: period.Time,
                 open: decimal.Parse(jsonArray[1].GetString()!),
                 high: decimal.Parse(jsonArray[2].GetString()!),
                 low: decimal.Parse(jsonArray[3].GetString()!),

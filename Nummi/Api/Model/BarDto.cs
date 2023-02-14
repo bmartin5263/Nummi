@@ -6,8 +6,8 @@ namespace Nummi.Api.Model;
 [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
 public class BarDto {
     public string? Symbol { get; set; }
-    public DateTime? OpenTimeUtc { get; set; }
-    public DateTime? CloseTimeUtc { get; set; }
+    public DateTimeOffset? OpenTimeUtc { get; set; }
+    public DateTimeOffset? CloseTimeUtc { get; set; }
     public decimal? Open { get; set; }
     public decimal? High { get; set; }
     public decimal? Low { get; set; }

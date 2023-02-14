@@ -1,8 +1,5 @@
-using System.Collections.Immutable;
-using Nummi.Core.Domain.Crypto.Bots;
 using Nummi.Core.Domain.Crypto.Data;
-using Nummi.Core.Domain.Crypto.Strategies;
-using Nummi.Core.Domain.Crypto.Strategies.Log;
+using Nummi.Core.Domain.New;
 using Nummi.Core.Domain.Test;
 
 namespace Nummi.Api.Model; 
@@ -37,8 +34,8 @@ public static class ModelMapper {
     public static BarDto ToDto(this Bar bar) {
         return new BarDto {
             Symbol = bar.Symbol,
-            OpenTimeUtc = bar.OpenTimeUtc,
-            CloseTimeUtc = bar.OpenTimeUtc + TimeSpan.FromMilliseconds(bar.PeriodMs),
+            OpenTimeUtc = bar.OpenTime,
+            CloseTimeUtc = bar.OpenTime + bar.Period,
             Open = bar.Open,
             High = bar.High,
             Low = bar.Low,
@@ -68,38 +65,32 @@ public static class ModelMapper {
             Mode = bot.Mode,
             InErrorState = bot.InErrorState,
             Funds = bot.Funds,
-            LastStrategyLog = bot.LastStrategyLog?.ToDto(),
-            Strategy = bot.Strategy?.ToDto()
         };
     }
 
     public static StrategyDto ToDto(this Strategy strategy) {
         var dto = new StrategyDto {
-            Id = strategy.Id,
-            Frequency = strategy.Frequency,
-            TimesExecuted = strategy.TimesExecuted,
-            LastExecutedAt = strategy.LastExecutedAt,
-            TimesFailed = strategy.TimesFailed,
-            Logs = strategy.Logs?.Select(ToDto).ToList() ?? (IList<StrategyLogDto>) ImmutableList<StrategyLogDto>.Empty
+            Id = strategy.Id.ToString(),
+            Frequency = strategy.Frequency
         };
-        if (strategy is IParameterizedStrategy parameterizedStrategy) {
-            dto.Parameters = parameterizedStrategy.Parameters;
-        }
 
         return dto;
     }
 
     public static SimulationDto ToDto(this Simulation result) {
         var dto = new SimulationDto {
-            Logs = result.Logs.Select(v => v.ToDto()).ToList()
         };
+        return dto;
+    }
+
+    public static BotActivationDto ToDto(this BotActivation activation) {
+        var dto = new BotActivationDto { };
         return dto;
     }
 
     public static StrategyLogDto ToDto(this StrategyLog log) {
         var dto = new StrategyLogDto {
-            Id = log.Id,
-            StrategyId = log.Strategy.Id,
+            Id = log.Id.ToString(),
             Environment = log.Mode,
             StartTime = log.StartTime,
             EndTime = log.EndTime,

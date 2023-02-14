@@ -6,18 +6,24 @@ namespace Nummi.Core.External.Alpaca;
 public class AlpacaClientLive : IAlpacaClient {
 
     public IAlpacaDataClient DataClient { get; }
-        = Environments.Live.GetAlpacaDataClient(CreateKey());
-
     public IAlpacaCryptoDataClient CryptoDataClient { get; }
-        = Environments.Live.GetAlpacaCryptoDataClient(CreateKey());
-
     public IAlpacaTradingClient TradingClient { get; }
-        = Environments.Live.GetAlpacaTradingClient(CreateKey());
+    
+    public AlpacaClientLive() : 
+        this(Environment.GetEnvironmentVariable("ALPACA_LIVE_KEY_ID")!, Environment.GetEnvironmentVariable("ALPACA_LIVE_SECRET_KEY")!) {
+    }
+    
+    public AlpacaClientLive(string userId, string secret) {
+        var key = CreateKey(userId, secret);
+        DataClient = Environments.Live.GetAlpacaDataClient(key);
+        CryptoDataClient = Environments.Live.GetAlpacaCryptoDataClient(key);
+        TradingClient = Environments.Live.GetAlpacaTradingClient(key);
+    }
 
-    private static SecretKey CreateKey() {
+    private static SecretKey CreateKey(string userId, string key) {
         return new SecretKey(
-            Environment.GetEnvironmentVariable("ALPACA_LIVE_KEY_ID") ?? throw new ArgumentException("Missing ALPACA_LIVE_KEY_ID"),
-            Environment.GetEnvironmentVariable("ALPACA_LIVE_SECRET_KEY") ?? throw new ArgumentException("Missing ALPACA_LIVE_SECRET_KEY")
+            userId ?? throw new ArgumentException("Missing ALPACA_PAPER_KEY_ID"),
+            key ?? throw new ArgumentException("Missing ALPACA_PAPER_SECRET_KEY")
         );
     }
 }

@@ -1,4 +1,4 @@
-using Nummi.Core.Domain.Crypto.Strategies.Log;
+using Nummi.Core.Domain.Crypto.Log;
 
 namespace Nummi.Core.Domain.Crypto.Strategies; 
 

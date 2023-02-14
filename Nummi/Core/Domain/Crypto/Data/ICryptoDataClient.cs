@@ -1,4 +1,5 @@
 using Nummi.Core.Domain.Common;
+using Nummi.Core.Domain.New;
 using Nummi.Core.External.Binance;
 
 namespace Nummi.Core.Domain.Crypto.Data; 

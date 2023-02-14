@@ -1,5 +1,5 @@
 using Nummi.Core.Domain.Common;
-using Nummi.Core.Domain.Crypto.Data;
+using Nummi.Core.Domain.New;
 using Nummi.Core.External.Binance;
 using Nummi.Core.Util;
 using NummiTests.Mocks;
@@ -44,12 +44,12 @@ public class BinanceClientAdapterTest {
 
     [Test]
     public void GetBar_Minute_WithOneSymbol_ShouldSucceed() {
-        var now = DateTime.UtcNow;
+        var now = DateTimeOffset.UtcNow;
         var nowTruncated = now.Truncate(Period.Minute.Time);
         var result = subject!.GetBar(new HashSet<string> {"BTCUSD"}, now, Period.Minute);
         
-        Assert.That(result["BTCUSD"].OpenTimeUnixMs, Is.EqualTo(nowTruncated.ToUnixTimeMs()));
-        Assert.That(result["BTCUSD"].PeriodMs, Is.EqualTo(Period.Minute.UnixMs));
+        Assert.That(result["BTCUSD"].OpenTime, Is.EqualTo(nowTruncated));
+        Assert.That(result["BTCUSD"].Period, Is.EqualTo(Period.Minute.Time));
         
         Assert.That(binanceClient!.GetKlinesCalls, Contains.Item(new GetKlinesCall(
             "BTCUSD", now, now, Period.Minute, 1
@@ -59,16 +59,16 @@ public class BinanceClientAdapterTest {
 
     [Test]
     public void GetBar_Minute_WithThreeSymbols_ShouldSucceed() {
-        var now = DateTime.UtcNow;
+        var now = DateTimeOffset.UtcNow;
         var nowTruncated = now.Truncate(Period.Minute.Time);
         var result = subject!.GetBar(new HashSet<string> {"BTCUSD", "ETHUSD", "DOGEUSD"}, now, Period.Minute);
         
-        Assert.That(result["BTCUSD"].OpenTimeUnixMs, Is.EqualTo(nowTruncated.ToUnixTimeMs()));
-        Assert.That(result["BTCUSD"].PeriodMs, Is.EqualTo(Period.Minute.UnixMs));
-        Assert.That(result["ETHUSD"].OpenTimeUnixMs, Is.EqualTo(nowTruncated.ToUnixTimeMs()));
-        Assert.That(result["ETHUSD"].PeriodMs, Is.EqualTo(Period.Minute.UnixMs));
-        Assert.That(result["DOGEUSD"].OpenTimeUnixMs, Is.EqualTo(nowTruncated.ToUnixTimeMs()));
-        Assert.That(result["DOGEUSD"].PeriodMs, Is.EqualTo(Period.Minute.UnixMs));
+        Assert.That(result["BTCUSD"].OpenTime, Is.EqualTo(nowTruncated));
+        Assert.That(result["BTCUSD"].Period, Is.EqualTo(Period.Minute.Time));
+        Assert.That(result["ETHUSD"].OpenTime, Is.EqualTo(nowTruncated));
+        Assert.That(result["ETHUSD"].Period, Is.EqualTo(Period.Minute.Time));
+        Assert.That(result["DOGEUSD"].OpenTime, Is.EqualTo(nowTruncated));
+        Assert.That(result["DOGEUSD"].Period, Is.EqualTo(Period.Minute.Time));
         
         Assert.That(binanceClient!.GetKlinesCalls, Contains.Item(
             new GetKlinesCall("BTCUSD", now, now, Period.Minute, 1)
@@ -84,12 +84,12 @@ public class BinanceClientAdapterTest {
 
     [Test]
     public void GetBar_Second_WithOneSymbol_ShouldSucceed() {
-        var now = DateTime.UtcNow;
+        var now = DateTimeOffset.UtcNow;
         var nowTruncated = now.Truncate(Period.Second.Time);
         var result = subject!.GetBar(new HashSet<string> {"BTCUSD"}, now, Period.Second);
         
-        Assert.That(result["BTCUSD"].OpenTimeUnixMs, Is.EqualTo(nowTruncated.ToUnixTimeMs()));
-        Assert.That(result["BTCUSD"].PeriodMs, Is.EqualTo(Period.Second.UnixMs));
+        Assert.That(result["BTCUSD"].OpenTime, Is.EqualTo(nowTruncated));
+        Assert.That(result["BTCUSD"].Period, Is.EqualTo(Period.Second.Time));
         
         Assert.That(binanceClient!.GetKlinesCalls, Contains.Item(new GetKlinesCall(
             "BTCUSD", now, now, Period.Second, 1
@@ -99,16 +99,16 @@ public class BinanceClientAdapterTest {
 
     [Test]
     public void GetBar_Second_WithThreeSymbols_ShouldSucceed() {
-        var now = DateTime.UtcNow;
+        var now = DateTimeOffset.UtcNow;
         var nowTruncated = now.Truncate(Period.Second.Time);
         var result = subject!.GetBar(new HashSet<string> {"BTCUSD", "ETHUSD", "DOGEUSD"}, now, Period.Second);
         
-        Assert.That(result["BTCUSD"].OpenTimeUnixMs, Is.EqualTo(nowTruncated.ToUnixTimeMs()));
-        Assert.That(result["BTCUSD"].PeriodMs, Is.EqualTo(Period.Second.UnixMs));
-        Assert.That(result["ETHUSD"].OpenTimeUnixMs, Is.EqualTo(nowTruncated.ToUnixTimeMs()));
-        Assert.That(result["ETHUSD"].PeriodMs, Is.EqualTo(Period.Second.UnixMs));
-        Assert.That(result["DOGEUSD"].OpenTimeUnixMs, Is.EqualTo(nowTruncated.ToUnixTimeMs()));
-        Assert.That(result["DOGEUSD"].PeriodMs, Is.EqualTo(Period.Second.UnixMs));
+        Assert.That(result["BTCUSD"].OpenTime, Is.EqualTo(nowTruncated));
+        Assert.That(result["BTCUSD"].Period, Is.EqualTo(Period.Second.Time));
+        Assert.That(result["ETHUSD"].OpenTime, Is.EqualTo(nowTruncated));
+        Assert.That(result["ETHUSD"].Period, Is.EqualTo(Period.Second.Time));
+        Assert.That(result["DOGEUSD"].OpenTime, Is.EqualTo(nowTruncated));
+        Assert.That(result["DOGEUSD"].Period, Is.EqualTo(Period.Second.Time));
         
         Assert.That(binanceClient!.GetKlinesCalls, Contains.Item(
             new GetKlinesCall("BTCUSD", now, now, Period.Second, 1)
@@ -125,18 +125,17 @@ public class BinanceClientAdapterTest {
     [Test]
     public void GetBars_Minute_WithThreeSymbols_Each20MinuteRange_ShouldSucceed() {
         ISet<string> symbols = new HashSet<string> {"BTCUSD", "ETHUSD", "DOGEUSD"};
-        DateTime start = DateTime.UtcNow;
+        DateTimeOffset start = DateTimeOffset.UtcNow;
         DateRange dateRange = new DateRange(start, start + TimeSpan.FromMinutes(19));
         var result = subject!.GetBars(symbols, dateRange, Period.Minute);
         
         foreach (var symbol in symbols) {
             Assert.That(result[symbol], Has.Count.EqualTo(20));
-            DateTime runningStart = start.Truncate(Period.Minute.Time);
+            DateTimeOffset runningStart = start.Truncate(Period.Minute.Time);
             foreach (Bar bar in result[symbol]) {
                 Assert.That(bar.Symbol, Is.EqualTo(symbol));
-                Assert.That(bar.OpenTimeUtc, Is.EqualTo(runningStart));
-                Assert.That(bar.OpenTimeUnixMs, Is.EqualTo(runningStart.ToUnixTimeMs()));
-                Assert.That(bar.PeriodMs, Is.EqualTo(Period.Minute.UnixMs));
+                Assert.That(bar.OpenTime, Is.EqualTo(runningStart));
+                Assert.That(bar.Period, Is.EqualTo(Period.Minute.Time));
                 runningStart += TimeSpan.FromMinutes(1);
             }
         }
@@ -156,18 +155,17 @@ public class BinanceClientAdapterTest {
     [Test]
     public void GetBar_Second_WithThreeSymbols_Each200SecondRange_ShouldSucceed() {
         ISet<string> symbols = new HashSet<string> {"BTCUSD", "ETHUSD", "DOGEUSD"};
-        DateTime start = DateTime.UtcNow;
+        DateTimeOffset start = DateTimeOffset.UtcNow;
         DateRange dateRange = new DateRange(start, start + TimeSpan.FromSeconds(199));
         var result = subject!.GetBars(symbols, dateRange, Period.Second);
         
         foreach (var symbol in symbols) {
             Assert.That(result[symbol], Has.Count.EqualTo(200));
-            DateTime runningStart = start.Truncate(Period.Second.Time);
+            DateTimeOffset runningStart = start.Truncate(Period.Second.Time);
             foreach (Bar bar in result[symbol]) {
                 Assert.That(bar.Symbol, Is.EqualTo(symbol));
-                Assert.That(bar.OpenTimeUtc, Is.EqualTo(runningStart));
-                Assert.That(bar.OpenTimeUnixMs, Is.EqualTo(runningStart.ToUnixTimeMs()));
-                Assert.That(bar.PeriodMs, Is.EqualTo(Period.Second.UnixMs));
+                Assert.That(bar.OpenTime, Is.EqualTo(runningStart));
+                Assert.That(bar.Period, Is.EqualTo(Period.Second.Time));
                 runningStart += TimeSpan.FromSeconds(1);
             }
         }
@@ -187,18 +185,17 @@ public class BinanceClientAdapterTest {
     [Test]
     public void GetBars_Second_WithThreeSymbols_Each2000SecondRange_ShouldSucceed() {
         ISet<string> symbols = new HashSet<string> {"BTCUSD", "ETHUSD", "DOGEUSD"};
-        DateTime start = DateTime.UtcNow;
+        DateTimeOffset start = DateTimeOffset.UtcNow;
         DateRange dateRange = new DateRange(start, start + TimeSpan.FromSeconds(1999));
         var result = subject!.GetBars(symbols, dateRange, Period.Second);
         
         foreach (var symbol in symbols) {
             Assert.That(result[symbol], Has.Count.EqualTo(2000));
-            DateTime runningStart = start.Truncate(Period.Second.Time);
+            DateTimeOffset runningStart = start.Truncate(Period.Second.Time);
             foreach (Bar bar in result[symbol]) {
                 Assert.That(bar.Symbol, Is.EqualTo(symbol));
-                Assert.That(bar.OpenTimeUtc, Is.EqualTo(runningStart));
-                Assert.That(bar.OpenTimeUnixMs, Is.EqualTo(runningStart.ToUnixTimeMs()));
-                Assert.That(bar.PeriodMs, Is.EqualTo(Period.Second.UnixMs));
+                Assert.That(bar.OpenTime, Is.EqualTo(runningStart));
+                Assert.That(bar.Period, Is.EqualTo(Period.Second.Time));
                 runningStart += TimeSpan.FromSeconds(1);
             }
         }
@@ -227,18 +224,17 @@ public class BinanceClientAdapterTest {
     [Test]
     public void GetBar_Second_WithThreeSymbols_Each2700SecondRange_ShouldSucceed() {
         ISet<string> symbols = new HashSet<string> {"BTCUSD", "ETHUSD", "DOGEUSD"};
-        DateTime start = DateTime.UtcNow;
+        DateTimeOffset start = DateTimeOffset.UtcNow;
         DateRange dateRange = new DateRange(start, start + TimeSpan.FromSeconds(2699));
         var result = subject!.GetBars(symbols, dateRange, Period.Second);
         
         foreach (var symbol in symbols) {
             Assert.That(result[symbol], Has.Count.EqualTo(2700));
-            DateTime runningStart = start.Truncate(Period.Second.Time);
+            DateTimeOffset runningStart = start.Truncate(Period.Second.Time);
             foreach (Bar bar in result[symbol]) {
                 Assert.That(bar.Symbol, Is.EqualTo(symbol));
-                Assert.That(bar.OpenTimeUtc, Is.EqualTo(runningStart));
-                Assert.That(bar.OpenTimeUnixMs, Is.EqualTo(runningStart.ToUnixTimeMs()));
-                Assert.That(bar.PeriodMs, Is.EqualTo(Period.Second.UnixMs));
+                Assert.That(bar.OpenTime, Is.EqualTo(runningStart));
+                Assert.That(bar.Period, Is.EqualTo(Period.Second.Time));
                 runningStart += TimeSpan.FromSeconds(1);
             }
         }
@@ -264,18 +260,17 @@ public class BinanceClientAdapterTest {
     [Test]
     public void GetBars_Second_WithThreeSymbols_Each200000SecondRange_ShouldSucceed() {
         ISet<string> symbols = new HashSet<string> {"BTCUSD", "ETHUSD", "DOGEUSD", "LINKUSD", "SUSHIUSD"};
-        DateTime start = DateTime.UtcNow;
+        DateTimeOffset start = DateTimeOffset.UtcNow;
         DateRange dateRange = new DateRange(start, start + TimeSpan.FromSeconds(199_999));
         var result = subject!.GetBars(symbols, dateRange, Period.Second);
         
         foreach (var symbol in symbols) {
             Assert.That(result[symbol], Has.Count.EqualTo(200_000));
-            DateTime runningStart = start.Truncate(Period.Second.Time);
+            DateTimeOffset runningStart = start.Truncate(Period.Second.Time);
             foreach (Bar bar in result[symbol]) {
                 Assert.That(bar.Symbol, Is.EqualTo(symbol));
-                Assert.That(bar.OpenTimeUtc, Is.EqualTo(runningStart));
-                Assert.That(bar.OpenTimeUnixMs, Is.EqualTo(runningStart.ToUnixTimeMs()));
-                Assert.That(bar.PeriodMs, Is.EqualTo(Period.Second.UnixMs));
+                Assert.That(bar.OpenTime, Is.EqualTo(runningStart));
+                Assert.That(bar.Period, Is.EqualTo(Period.Second.Time));
                 runningStart += TimeSpan.FromSeconds(1);
             }
         }
@@ -288,18 +283,17 @@ public class BinanceClientAdapterTest {
     [Test]
     public void GetBars_Second_WithThreeSymbols_Each200001SecondRange_ShouldSucceed() {
         ISet<string> symbols = new HashSet<string> {"BTCUSD", "ETHUSD", "DOGEUSD", "LINKUSD", "SUSHIUSD"};
-        DateTime start = DateTime.UtcNow;
+        DateTimeOffset start = DateTimeOffset.UtcNow;
         DateRange dateRange = new DateRange(start, start + TimeSpan.FromSeconds(200_000));
         var result = subject!.GetBars(symbols, dateRange, Period.Second);
         
         foreach (var symbol in symbols) {
             Assert.That(result[symbol], Has.Count.EqualTo(200_001));
-            DateTime runningStart = start.Truncate(Period.Second.Time);
+            DateTimeOffset runningStart = start.Truncate(Period.Second.Time);
             foreach (Bar bar in result[symbol]) {
                 Assert.That(bar.Symbol, Is.EqualTo(symbol));
-                Assert.That(bar.OpenTimeUtc, Is.EqualTo(runningStart));
-                Assert.That(bar.OpenTimeUnixMs, Is.EqualTo(runningStart.ToUnixTimeMs()));
-                Assert.That(bar.PeriodMs, Is.EqualTo(Period.Second.UnixMs));
+                Assert.That(bar.OpenTime, Is.EqualTo(runningStart));
+                Assert.That(bar.Period, Is.EqualTo(Period.Second.Time));
                 runningStart += TimeSpan.FromSeconds(1);
             }
         }
@@ -311,7 +305,7 @@ public class BinanceClientAdapterTest {
 
     [Test]
     public void GetBars_Second_WithThreeSymbols_VariousRanges_ShouldSucceed() {
-        DateTime start = DateTime.UtcNow;
+        DateTimeOffset start = DateTimeOffset.UtcNow;
         
         Dictionary<string, DateRange> symbols = new Dictionary<string, DateRange> {
             {"BTCUSD", new DateRange(start, start + TimeSpan.FromSeconds(99))},
@@ -330,12 +324,11 @@ public class BinanceClientAdapterTest {
         foreach (var symbol in symbols.Keys) {
             Assert.That(result[symbol], Has.Count.EqualTo(expectedCounts[symbol]));
             
-            DateTime runningStart = symbols[symbol].Start.Truncate(Period.Second.Time);
+            DateTimeOffset runningStart = symbols[symbol].Start.Truncate(Period.Second.Time);
             foreach (Bar bar in result[symbol]) {
                 Assert.That(bar.Symbol, Is.EqualTo(symbol));
-                Assert.That(bar.OpenTimeUtc, Is.EqualTo(runningStart));
-                Assert.That(bar.OpenTimeUnixMs, Is.EqualTo(runningStart.ToUnixTimeMs()));
-                Assert.That(bar.PeriodMs, Is.EqualTo(Period.Second.UnixMs));
+                Assert.That(bar.OpenTime, Is.EqualTo(runningStart));
+                Assert.That(bar.Period, Is.EqualTo(Period.Second.Time));
                 runningStart += TimeSpan.FromSeconds(1);
             }
         }
@@ -356,7 +349,7 @@ public class BinanceClientAdapterTest {
 
     [Test]
     public void GetBars_Second_WithThreeSymbols_VariousRanges_MultipleCalls_ShouldSucceed() {
-        DateTime start = DateTime.UtcNow;
+        DateTimeOffset start = DateTimeOffset.UtcNow;
         
         Dictionary<string, DateRange> symbols = new Dictionary<string, DateRange> {
             {"BTCUSD", new DateRange(start, start + TimeSpan.FromSeconds(1499))},
@@ -375,12 +368,11 @@ public class BinanceClientAdapterTest {
         foreach (var symbol in symbols.Keys) {
             Assert.That(result[symbol], Has.Count.EqualTo(expectedCounts[symbol]));
             
-            DateTime runningStart = symbols[symbol].Start.Truncate(Period.Second.Time);
+            DateTimeOffset runningStart = symbols[symbol].Start.Truncate(Period.Second.Time);
             foreach (Bar bar in result[symbol]) {
                 Assert.That(bar.Symbol, Is.EqualTo(symbol));
-                Assert.That(bar.OpenTimeUtc, Is.EqualTo(runningStart));
-                Assert.That(bar.OpenTimeUnixMs, Is.EqualTo(runningStart.ToUnixTimeMs()));
-                Assert.That(bar.PeriodMs, Is.EqualTo(Period.Second.UnixMs));
+                Assert.That(bar.OpenTime, Is.EqualTo(runningStart));
+                Assert.That(bar.Period, Is.EqualTo(Period.Second.Time));
                 runningStart += TimeSpan.FromSeconds(1);
             }
         }
