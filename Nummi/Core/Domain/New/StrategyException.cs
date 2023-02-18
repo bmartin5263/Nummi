@@ -1,4 +1,4 @@
-using Nummi.Core.Domain.Crypto.Log;
+namespace Nummi.Core.Domain.New; 
 
 public class StrategyException : Exception {
     public StrategyLog Log { get; }

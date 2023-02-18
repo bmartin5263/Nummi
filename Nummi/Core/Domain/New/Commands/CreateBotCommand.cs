@@ -1,5 +1,4 @@
 using Nummi.Core.Database.Common;
-using Nummi.Core.Domain.User;
 using Nummi.Core.Exceptions;
 using Nummi.Core.Util;
 

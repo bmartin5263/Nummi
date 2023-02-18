@@ -1,7 +1,6 @@
-using KSUID;
+using Nummi.Core.Client;
 using Nummi.Core.Domain.Common;
-using Nummi.Core.Domain.Crypto.Client;
-using Nummi.Core.Domain.Crypto.Data;
+using Nummi.Core.Domain.New.Data;
 using Nummi.Core.External.Binance;
 using Nummi.Core.Util;
 

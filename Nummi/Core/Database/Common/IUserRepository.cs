@@ -1,4 +1,4 @@
-using Nummi.Core.Domain.User;
+using Nummi.Core.Domain.New;
 
 namespace Nummi.Core.Database.Common; 
 

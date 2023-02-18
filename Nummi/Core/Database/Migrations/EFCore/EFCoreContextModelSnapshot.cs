@@ -733,10 +733,16 @@ namespace Nummi.Core.Database.Migrations.EFCore
                     b.Property<int>("AccessFailedCount")
                         .HasColumnType("integer");
 
-                    b.Property<string>("AlpacaKeyId")
+                    b.Property<string>("AlpacaLiveSecret")
                         .HasColumnType("text");
 
-                    b.Property<string>("AlpacaSecret")
+                    b.Property<string>("AlpacaLiveUserId")
+                        .HasColumnType("text");
+
+                    b.Property<string>("AlpacaPaperSecret")
+                        .HasColumnType("text");
+
+                    b.Property<string>("AlpacaPaperUserId")
                         .HasColumnType("text");
 
                     b.Property<string>("ConcurrencyStamp")
@@ -830,8 +836,8 @@ namespace Nummi.Core.Database.Migrations.EFCore
                     b.HasData(
                         new
                         {
-                            Id = "2Li4VLZmsmmvSy9KFBGKf1Gmzlm",
-                            CreatedAt = new DateTimeOffset(new DateTime(2023, 2, 14, 2, 9, 51, 29, DateTimeKind.Unspecified).AddTicks(5170), new TimeSpan(0, 0, 0, 0, 0)),
+                            Id = "2LkhPqsBZQPjf0DicoxSgA6MekN",
+                            CreatedAt = new DateTimeOffset(new DateTime(2023, 2, 15, 0, 29, 26, 136, DateTimeKind.Unspecified).AddTicks(2000), new TimeSpan(0, 0, 0, 0, 0)),
                             Frequency = new TimeSpan(0, 0, 1, 0, 0),
                             Name = "Opportunist",
                             ParameterTypeName = "Nummi.Core.Domain.New.OpportunistParameters",
@@ -840,8 +846,8 @@ namespace Nummi.Core.Database.Migrations.EFCore
                         },
                         new
                         {
-                            Id = "2Li4VJDZCZCC9hhUD2bXfs3JVUR",
-                            CreatedAt = new DateTimeOffset(new DateTime(2023, 2, 13, 20, 9, 51, 29, DateTimeKind.Unspecified).AddTicks(5200), new TimeSpan(0, -6, 0, 0, 0)),
+                            Id = "2LkhPpGTOc3e6HC4ruEomsRylH9",
+                            CreatedAt = new DateTimeOffset(new DateTime(2023, 2, 14, 18, 29, 26, 136, DateTimeKind.Unspecified).AddTicks(2030), new TimeSpan(0, -6, 0, 0, 0)),
                             Frequency = new TimeSpan(0, 0, 1, 0, 0),
                             Name = "Opportunist2",
                             ParameterTypeName = "Nummi.Core.Domain.New.OpportunistParameters",

@@ -6,12 +6,11 @@ using Microsoft.OpenApi.Models;
 using Nummi.Api.Filters;
 using Nummi.Core.Database.Common;
 using Nummi.Core.Database.EFCore;
-using Nummi.Core.Domain.Crypto.Bots.Thread;
-using Nummi.Core.Domain.Crypto.Data;
-using Nummi.Core.Domain.Crypto.Strategies;
+using Nummi.Core.Domain.New;
 using Nummi.Core.Domain.New.Commands;
+using Nummi.Core.Domain.New.Data;
+using Nummi.Core.Domain.New.Queries;
 using Nummi.Core.Domain.Test;
-using Nummi.Core.Domain.User;
 using Nummi.Core.External.Alpaca;
 using Nummi.Core.External.Binance;
 using Nummi.Core.External.Coinbase;
@@ -68,10 +67,12 @@ builder.Services.AddScoped<CreateBotCommand>();
 builder.Services.AddScoped<DeactivateBotCommand>();
 builder.Services.AddScoped<SimulateStrategyCommand>();
 
+// Queries
+builder.Services.AddScoped<GetUserQuery>();
+
 // Repositories + Database
 builder.Services.AddScoped<IBarRepository, BarRepository>();
 builder.Services.AddScoped<IBotRepository, BotRepository>();
-builder.Services.AddScoped<IBotThreadRepository, BotThreadRepository>();
 builder.Services.AddScoped<IStrategyRepository, StrategyRepository>();
 builder.Services.AddScoped<IStrategyTemplateRepository, StrategyTemplateRepository>();
 builder.Services.AddScoped<ISimulationRepository, SimulationRepository>();
@@ -79,9 +80,9 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<ITransaction, EFCoreTransaction>();
 
 // Bot Execution Threads
-builder.Services.AddSingleton<BotExecutionManager>(provider => new BotExecutionManager(provider, 1));
-builder.Services.AddSingleton<IHostedService, BotExecutionManager>(
-    serviceProvider => serviceProvider.GetService<BotExecutionManager>()!);
+// builder.Services.AddSingleton<BotExecutionManager>(provider => new BotExecutionManager(provider, 1));
+// builder.Services.AddSingleton<IHostedService, BotExecutionManager>(
+//     serviceProvider => serviceProvider.GetService<BotExecutionManager>()!);
 
 builder.Services.AddSwaggerGen(options =>
 {
@@ -94,6 +95,28 @@ builder.Services.AddSwaggerGen(options =>
 
     var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
     options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
+    
+    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        In = ParameterLocation.Header,
+        Description = "Please enter token",
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http,
+        BearerFormat = "JWT",
+        Scheme = "bearer"
+    });
+    
+    options.AddSecurityRequirement(new OpenApiSecurityRequirement {
+        {
+            new OpenApiSecurityScheme {
+                Reference = new OpenApiReference {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            Array.Empty<string>()
+        }
+    });
 });
 
 var app = builder.Build();

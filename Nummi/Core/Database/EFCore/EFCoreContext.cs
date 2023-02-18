@@ -1,5 +1,4 @@
 ﻿using Duende.IdentityServer.EntityFramework.Options;
-using KSUID;
 using Microsoft.AspNetCore.ApiAuthorization.IdentityServer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
@@ -7,7 +6,6 @@ using Microsoft.Extensions.Options;
 using Nummi.Core.Domain.Common;
 using Nummi.Core.Domain.New;
 using Nummi.Core.Domain.Test;
-using Nummi.Core.Domain.User;
 
 namespace Nummi.Core.Database.EFCore;
 

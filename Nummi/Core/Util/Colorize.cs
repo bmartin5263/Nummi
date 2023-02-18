@@ -1,3 +1,5 @@
+using Nummi.Core.Domain.Common;
+
 namespace Nummi.Core.Util; 
 
 public static class Colorize {
@@ -31,6 +33,30 @@ public static class Colorize {
     }
 
     public static string Yellow(this string str) {
+        return ANSI_YELLOW + str + ANSI_RESET;
+    }
+
+    public static string Red(this Ksuid str) {
+        return ANSI_RED + str + ANSI_RESET;
+    }
+
+    public static string Green(this Ksuid str) {
+        return ANSI_GREEN + str + ANSI_RESET;
+    }
+
+    public static string Blue(this Ksuid str) {
+        return ANSI_BLUE + str + ANSI_RESET;
+    }
+
+    public static string Cyan(this Ksuid str) {
+        return ANSI_CYAN + str + ANSI_RESET;
+    }
+
+    public static string Purple(this Ksuid str) {
+        return ANSI_PURPLE + str + ANSI_RESET;
+    }
+
+    public static string Yellow(this Ksuid str) {
         return ANSI_YELLOW + str + ANSI_RESET;
     }
 

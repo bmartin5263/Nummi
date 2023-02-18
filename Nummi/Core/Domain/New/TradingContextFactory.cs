@@ -1,5 +1,5 @@
-using Nummi.Core.Domain.Crypto.Client;
-using Nummi.Core.Domain.Crypto.Data;
+using Nummi.Core.Client;
+using Nummi.Core.Domain.New.Data;
 using Nummi.Core.Exceptions;
 using Nummi.Core.External.Alpaca;
 using Nummi.Core.Util;

@@ -1,5 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
-using KSUID;
+using Nummi.Core.Domain.Common;
 using Nummi.Core.Util;
 
 namespace Nummi.Core.Domain.New; 

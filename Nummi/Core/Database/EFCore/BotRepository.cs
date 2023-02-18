@@ -1,5 +1,5 @@
-using KSUID;
 using Nummi.Core.Database.Common;
+using Nummi.Core.Domain.Common;
 using Nummi.Core.Domain.New;
 
 namespace Nummi.Core.Database.EFCore; 

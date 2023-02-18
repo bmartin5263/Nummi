@@ -12,8 +12,8 @@ public abstract class GenericRepository<ID, E> : IGenericRepository<ID, E> where
         Context = context;
     }
 
-    public virtual void Add(E entity) {
-        Context.Set<E>().Add(entity);
+    public virtual E Add(E entity) {
+        return Context.Set<E>().Add(entity).Entity;
     }
     
     public virtual void Remove(E entity) {

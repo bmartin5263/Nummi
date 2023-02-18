@@ -1,4 +1,4 @@
-using KSUID;
+using Nummi.Core.Domain.Common;
 using Nummi.Core.Domain.New;
 
 namespace Nummi.Core.Database.Common; 

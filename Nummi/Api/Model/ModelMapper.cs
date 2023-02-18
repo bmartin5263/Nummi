@@ -1,5 +1,5 @@
-using Nummi.Core.Domain.Crypto.Data;
 using Nummi.Core.Domain.New;
+using Nummi.Core.Domain.New.Data;
 using Nummi.Core.Domain.Test;
 
 namespace Nummi.Api.Model; 
@@ -111,6 +111,20 @@ public static class ModelMapper {
         return new PostDto {
             Id = post.Id.ToString(),
             Content = post.Content
+        };
+    }
+
+    public static NummiUserDto ToDto(this NummiUser user) {
+        return new NummiUserDto {
+            Id = user.Id,
+            Username = user.UserName,
+            Email = user.Email,
+            AlpacaPaperUserId = user.AlpacaPaperUserId,
+            AlpacaPaperSecret = user.AlpacaPaperSecret,
+            AlpacaLiveUserId = user.AlpacaLiveUserId,
+            AlpacaLiveSecret = user.AlpacaLiveSecret,
+            Bots = user.Bots.Select(ToDto).ToList(),
+            Simulations = user.Simulations.Select(ToDto).ToList()
         };
     }
 }

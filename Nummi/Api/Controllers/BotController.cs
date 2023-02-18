@@ -28,7 +28,6 @@ public class BotController : ControllerBase {
     [Route("")]
     [HttpPost]
     public BotDto CreateBot([FromBody] CreateBotParameters request) {
-        var u = User;
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
         return CreateBotCommand.Execute(userId, request)
             .ToDto();

@@ -1,7 +1,7 @@
 using Moq;
 using Nummi.Core.Domain.Common;
-using Nummi.Core.Domain.Crypto.Data;
 using Nummi.Core.Domain.New;
+using Nummi.Core.Domain.New.Data;
 using Nummi.Core.External.Binance;
 using Nummi.Core.Util;
 using NummiTests.Mocks;
@@ -11,19 +11,19 @@ namespace NummiTests.Unit;
 public class CryptoDataClientDbProxyTest {
 
     private Mock<BinanceClientAdapter>? binanceClientAdapter;
-    private BarRepositoryMock? barRepository;
+    private BarTestRepository? barRepository;
     private CryptoDataClientDbProxy? subject;
 
     [SetUp]
     public void SetUp() {
-        barRepository = new BarRepositoryMock();
+        barRepository = new BarTestRepository();
         binanceClientAdapter = new Mock<BinanceClientAdapter>();
         subject = new CryptoDataClientDbProxy(binanceClientAdapter.Object, barRepository);
     }
 
     [Test]
     public void GetBars_DbIsEmpty_ShouldAddAllBarsToDb() {
-        var now = DateTime.UtcNow;
+        var now = DateTimeOffset.UtcNow;
         var symbols = new HashSet<string> { "BTCUSD" };
         var dateRange = new DateRange(now, now + TimeSpan.FromMinutes(10));
         var period = Period.Minute;
@@ -41,7 +41,7 @@ public class CryptoDataClientDbProxyTest {
     [Test]
     public void GetBars_DbMissingMiddleRange_ShouldAddMissingRangeBarsToDb() {
         var period = Period.Minute;
-        var now = DateTime.UtcNow.Truncate(period.Time);
+        var now = DateTimeOffset.UtcNow.Truncate(period.Time);
         var symbols = new HashSet<string> { "BTCUSD" };
         var fullRange = new DateRange(now, now + TimeSpan.FromMinutes(10));
         var partialRange = new DateRange(now + TimeSpan.FromMinutes(2), now + TimeSpan.FromMinutes(5));
@@ -65,7 +65,7 @@ public class CryptoDataClientDbProxyTest {
     [Test]
     public void GetBars_DbMissingStartRange_ShouldAddMissingRangeBarsToDb() {
         var period = Period.Minute;
-        var now = DateTime.UtcNow.Truncate(period.Time);
+        var now = DateTimeOffset.UtcNow.Truncate(period.Time);
         var symbols = new HashSet<string> { "BTCUSD" };
         var fullRange = new DateRange(now, now + TimeSpan.FromMinutes(10));
         var partialRange = new DateRange(now + TimeSpan.FromMinutes(5), now + TimeSpan.FromMinutes(10));
@@ -88,7 +88,7 @@ public class CryptoDataClientDbProxyTest {
     [Test]
     public void GetBars_3Symbols_DbMissingStartRange_ShouldAddMissingRangeBarsToDb() {
         var period = Period.Minute;
-        var now = DateTime.UtcNow.Truncate(period.Time);
+        var now = DateTimeOffset.UtcNow.Truncate(period.Time);
         var symbols = new HashSet<string> { "BTCUSD", "ETHUSD", "DOGEUSD" };
         var fullRange = new DateRange(now, now + TimeSpan.FromMinutes(9));
         var partialBTCRange = new DateRange(now + TimeSpan.FromMinutes(5), now + TimeSpan.FromMinutes(9));
