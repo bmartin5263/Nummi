@@ -1,6 +1,6 @@
 namespace Nummi.Core.Domain.Common; 
 
-public record Ksuid(KSUID.Ksuid Value) {
+public record Ksuid(KSUID.Ksuid Value) : IComparable<Ksuid> {
     
     public virtual bool Equals(Ksuid? other) {
         if (ReferenceEquals(null, other)) return false;
@@ -29,5 +29,25 @@ public record Ksuid(KSUID.Ksuid Value) {
 
     public override string ToString() {
         return Value.ToString();
+    }
+
+    public int CompareTo(Ksuid? other) {
+        return Value.GetTimestamp().CompareTo(other!.Value.GetTimestamp());
+    }
+    
+    public static bool operator <(Ksuid id1, Ksuid id2) {
+        return id1.CompareTo(id2) < 0;
+    }
+    
+    public static bool operator >(Ksuid id1,Ksuid id2) {
+        return id1.CompareTo(id2) > 0;
+    }
+    
+    public static bool operator <=(Ksuid id1,Ksuid id2) {
+        return id1.CompareTo(id2) <= 0;
+    }
+    
+    public static bool operator >=(Ksuid id1,Ksuid id2) {
+        return id1.CompareTo(id2) >= 0;
     }
 }

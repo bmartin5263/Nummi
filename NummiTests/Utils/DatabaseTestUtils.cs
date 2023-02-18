@@ -22,10 +22,7 @@ public class GenericTestRepository<ID, T> : IGenericRepository<ID, T> where T : 
     }
 
     public T? FindById(ID id) {
-        if (Database.TryGetValue(id, out T? value)) {
-            return value;
-        }
-        return null;
+        return Database.TryGetValue(id, out T? value) ? value : null;
     }
 
     public IEnumerable<T> FindAll() {

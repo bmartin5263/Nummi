@@ -1,5 +1,5 @@
 namespace Nummi.Core.Domain.New;
-public class Bar : IComparable<Bar> {
+public class Bar : IComparable<Bar>, IEquatable<Bar> {
 
     public string Symbol { get; private init; }
     public DateTimeOffset OpenTime { get; private init; }
@@ -21,8 +21,8 @@ public class Bar : IComparable<Bar> {
         Volume = volume;
     }
     
-    protected bool Equals(Bar other) {
-        return Symbol == other.Symbol 
+    public bool Equals(Bar? other) {
+        return Symbol == other?.Symbol 
                && OpenTime == other.OpenTime
                && Period == other.Period;
     }
@@ -34,8 +34,25 @@ public class Bar : IComparable<Bar> {
     public override bool Equals(object? obj) {
         if (ReferenceEquals(null, obj)) return false;
         if (ReferenceEquals(this, obj)) return true;
-        if (obj.GetType() != this.GetType()) return false;
+        if (obj.GetType() != GetType()) return false;
         return Equals((Bar)obj);
+    }
+    
+    public static bool operator ==(Bar obj1, Bar obj2) {
+        if (ReferenceEquals(obj1, obj2)) {
+            return true;
+        }
+        if (ReferenceEquals(obj1, null)) {
+            return false;
+        }
+        if (ReferenceEquals(obj2, null)) {
+            return false;
+        }
+        return obj1.Equals(obj2);
+    }
+
+    public static bool operator !=(Bar obj1, Bar obj2) {
+        return !(obj1 == obj2);
     }
 
     public override int GetHashCode() {
