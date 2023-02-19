@@ -42,11 +42,12 @@ public class KsuidTest {
         var id3 = Ksuid.Generate();
         
         Assert.Multiple(() => {
-            Assert.That(id1.CompareTo(id1), Is.EqualTo(0));
-            Assert.That(id1 > id1, Is.False);
-            Assert.That(id1 >= id1, Is.True);
-            Assert.That(id1 < id1, Is.False);
-            Assert.That(id1 <= id1, Is.True);
+            var self = id1;
+            Assert.That(id1.CompareTo(self), Is.EqualTo(0));
+            Assert.That(id1 > self, Is.False);
+            Assert.That(id1 >= self, Is.True);
+            Assert.That(id1 < self, Is.False);
+            Assert.That(id1 <= self, Is.True);
             
             Assert.That(id1.CompareTo(id2), Is.LessThan(0));
             Assert.That(id1 > id2, Is.False);
@@ -60,17 +61,18 @@ public class KsuidTest {
             Assert.That(id1 < id3, Is.True);
             Assert.That(id1 <= id3, Is.True);
             
+            self = id2;
             Assert.That(id2.CompareTo(id1), Is.GreaterThan(0));
             Assert.That(id2 > id1, Is.True);
             Assert.That(id2 >= id1, Is.True);
             Assert.That(id2 < id1, Is.False);
             Assert.That(id2 <= id1, Is.False);
             
-            Assert.That(id2.CompareTo(id2), Is.EqualTo(0));
-            Assert.That(id2 > id2, Is.False);
-            Assert.That(id2 >= id2, Is.True);
-            Assert.That(id2 < id2, Is.False);
-            Assert.That(id2 <= id2, Is.True);
+            Assert.That(id2.CompareTo(self), Is.EqualTo(0));
+            Assert.That(id2 > self, Is.False);
+            Assert.That(id2 >= self, Is.True);
+            Assert.That(id2 < self, Is.False);
+            Assert.That(id2 <= self, Is.True);
             
             Assert.That(id2.CompareTo(id3), Is.LessThan(0));
             Assert.That(id2 > id3, Is.False);
@@ -78,6 +80,7 @@ public class KsuidTest {
             Assert.That(id2 < id3, Is.True);
             Assert.That(id2 <= id3, Is.True);
             
+            self = id3;
             Assert.That(id3.CompareTo(id1), Is.GreaterThan(0));
             Assert.That(id3 > id1, Is.True);
             Assert.That(id3 >= id1, Is.True);
@@ -90,11 +93,11 @@ public class KsuidTest {
             Assert.That(id3 < id2, Is.False);
             Assert.That(id3 <= id2, Is.False);
             
-            Assert.That(id3.CompareTo(id3), Is.EqualTo(0));
-            Assert.That(id3 > id3, Is.False);
-            Assert.That(id3 >= id3, Is.True);
-            Assert.That(id3 < id3, Is.False);
-            Assert.That(id3 <= id3, Is.True);
+            Assert.That(id3.CompareTo(self), Is.EqualTo(0));
+            Assert.That(id3 > self, Is.False);
+            Assert.That(id3 >= self, Is.True);
+            Assert.That(id3 < self, Is.False);
+            Assert.That(id3 <= self, Is.True);
         });
     }
 }

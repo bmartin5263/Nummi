@@ -12,8 +12,6 @@ namespace Nummi.Core.Database.EFCore;
 public class EFCoreContext : ApiAuthorizationDbContext<NummiUser> {
     public DbSet<Bar> HistoricalBars { get; set; } = default!;
     public DbSet<Bot> Bots { get; set; } = default!;
-    // public DbSet<BotThreadEntity> BotThreads { get; set; } = default!;
-    // public DbSet<OpportunistStrategy> OpportunistStrategies { get; set; } = default!;
     public DbSet<OrderLog> Trades { get; set; } = default!;
     public DbSet<Price> HistoricalPrices { get; set; } = default!;
     public DbSet<Simulation> Simulations { get; set; } = default!;
@@ -190,6 +188,31 @@ public class EFCoreContext : ApiAuthorizationDbContext<NummiUser> {
         }
 
         var result = await base.SaveChangesAsync(cancellationToken);
+        return result;
+    }
+    
+    public override int SaveChanges() {
+        var insertedEntries = ChangeTracker.Entries()
+            .Where(x => x.State == EntityState.Added)
+            .Select(x => x.Entity);
+
+        foreach(var insertedEntry in insertedEntries) {
+            if (insertedEntry is Audited auditableEntity) {
+                auditableEntity.CreatedAt = DateTimeOffset.UtcNow;
+            }
+        }
+
+        var modifiedEntries = this.ChangeTracker.Entries()
+            .Where(x => x.State == EntityState.Modified)
+            .Select(x => x.Entity);
+
+        foreach (var modifiedEntry in modifiedEntries) {
+            if (modifiedEntry is Audited auditableEntity) {
+                auditableEntity.UpdatedAt = DateTimeOffset.UtcNow;
+            }
+        }
+
+        var result = base.SaveChanges();
         return result;
     }
 }

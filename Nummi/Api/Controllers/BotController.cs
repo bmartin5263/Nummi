@@ -34,7 +34,7 @@ public class BotController : ControllerBase {
     }
     
     /// <summary>
-    /// Create a new Bot instance
+    /// Activate a Bot
     /// </summary>
     [Route("{botId}/activation")]
     [HttpPost]
@@ -44,7 +44,7 @@ public class BotController : ControllerBase {
     }
     
     /// <summary>
-    /// Create a new Bot instance
+    /// Deactivate a Bot
     /// </summary>
     [Route("{botId}/activation")]
     [HttpDelete]

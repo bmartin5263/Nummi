@@ -1,33 +1,34 @@
-using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Nummi.Api.Model;
 using Nummi.Core.Domain.New.Commands;
-using Nummi.Core.Util;
+using Nummi.Core.Domain.New.Queries;
 
 namespace Nummi.Api.Controllers; 
 
+[Authorize]
 [Route("api/strategy-template")]
 [ApiController]
 public class StrategyTemplateController : ControllerBase {
 
-    private CreateBotCommand CreateBotCommand { get; }
     private SimulateStrategyCommand SimulateStrategyCommand { get; }
-    private DeactivateBotCommand DeactivateBotCommand { get; }
+    private GetStrategyTemplatesQuery GetStrategyTemplatesQuery { get; }
 
-    public StrategyTemplateController(CreateBotCommand createBotCommand, SimulateStrategyCommand activateBotCommand, DeactivateBotCommand deactivateBotCommand) {
-        CreateBotCommand = createBotCommand;
+    public StrategyTemplateController(
+        SimulateStrategyCommand activateBotCommand, 
+        GetStrategyTemplatesQuery getStrategyTemplatesQuery
+    ) {
         SimulateStrategyCommand = activateBotCommand;
-        DeactivateBotCommand = deactivateBotCommand;
+        GetStrategyTemplatesQuery = getStrategyTemplatesQuery;
     }
 
     /// <summary>
-    /// Create a new Bot instance
+    /// Get all Strategy Templates
     /// </summary>
-    [Route("{strategyTemplateId}/simulate")]
-    [HttpPost]
-    public SimulationDto SimulateStrategy(string strategyTemplateId, [FromBody] SimulateStrategyParameters request) {
-        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
-        return SimulateStrategyCommand.Execute(userId, strategyTemplateId.ToKsuid(), request)
-            .ToDto();
+    [Route("")]
+    [HttpGet]
+    public IEnumerable<StrategyTemplateDto> GetStrategyTemplates() {
+        return GetStrategyTemplatesQuery.Execute()
+            .Select(v => v.ToDto());
     }
 }

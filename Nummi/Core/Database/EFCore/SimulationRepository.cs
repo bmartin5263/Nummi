@@ -5,5 +5,5 @@ using Nummi.Core.Domain.New;
 namespace Nummi.Core.Database.EFCore; 
 
 public class SimulationRepository : GenericRepository<Ksuid, Simulation>, ISimulationRepository {
-    public SimulationRepository(EFCoreContext context) : base(context) { }
+    public SimulationRepository(ITransaction context) : base(context) { }
 }

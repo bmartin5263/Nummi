@@ -69,6 +69,9 @@ builder.Services.AddScoped<SimulateStrategyCommand>();
 
 // Queries
 builder.Services.AddScoped<GetUserQuery>();
+builder.Services.AddScoped<GetStrategyTemplatesQuery>();
+builder.Services.AddScoped<GetSimulationsQuery>();
+builder.Services.AddScoped<GetOneSimulationQuery>();
 
 // Repositories + Database
 builder.Services.AddScoped<IBarRepository, BarRepository>();

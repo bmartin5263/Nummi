@@ -6,14 +6,14 @@ using Nummi.Core.Util;
 namespace Nummi.Core.Domain.New.Commands;
 
 public class DeactivateBotCommand {
-    private ITransaction Transaction { get; }
+    private IBotRepository BotRepository { get; }
     
-    public DeactivateBotCommand(ITransaction transaction) {
-        Transaction = transaction;
+    public DeactivateBotCommand(IBotRepository botRepository) {
+        BotRepository = botRepository;
     }
 
     public void Execute(Ksuid botId) {
-        var bot = Transaction.BotRepository.FindById(botId)
+        var bot = BotRepository.FindById(botId)
             .OrElseThrow(() => EntityNotFoundException<Bot>.IdNotFound(botId));
 
         if (!bot.IsActive) {
@@ -21,7 +21,7 @@ public class DeactivateBotCommand {
         }
         
         bot.Deactivate(); // Domain Event BotDeactivated
-        Transaction.SaveAndDispose();
+        BotRepository.Commit();
     }
     
 }

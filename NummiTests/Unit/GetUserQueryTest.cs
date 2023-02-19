@@ -7,23 +7,23 @@ namespace NummiTests.Unit;
 
 public class GetUserQueryTest {
 
-    private ITransaction? transaction;
-    private GetUserQuery? subject;
+    private IUserRepository userRepository = null!;
+    private GetUserQuery subject = null!;
 
     [SetUp]
     public void Setup() {
-        transaction = UnitTestUtils.CreateTestTransaction();
-        subject = new GetUserQuery(transaction.UserRepository);
+        userRepository = new TestUserRepository();
+        subject = new GetUserQuery(userRepository);
     }
 
     [Test]
     public void GetUser_ShouldReturnUserById() {
-        transaction!.UserRepository.Add(new NummiUser());
-        var user = transaction!.UserRepository.Add(new NummiUser());
-        transaction!.UserRepository.Add(new NummiUser());
+        userRepository.Add(new NummiUser());
+        var user = userRepository.Add(new NummiUser());
+        userRepository.Add(new NummiUser());
         var id = user.Id;
 
-        var result = subject!.Execute(id);
+        var result = subject.Execute(id);
         
         Assert.That(result, Is.EqualTo(user));
     }

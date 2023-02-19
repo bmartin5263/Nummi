@@ -1,6 +1,6 @@
 using JetBrains.Annotations;
-using KSUID;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using Nummi.Core.Domain.Common;
 using Nummi.Core.Util;
 
 namespace Nummi.Core.Database.EFCore;

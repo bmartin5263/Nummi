@@ -1,5 +1,5 @@
-using KSUID;
 using Microsoft.EntityFrameworkCore;
+using Nummi.Core.Domain.Common;
 
 namespace Nummi.Core.Domain.Test; 
 

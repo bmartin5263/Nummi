@@ -22,11 +22,11 @@ public class CSharpStrategy : Strategy {
         return (IStrategyImpl) Activator.CreateInstance(strategyType)!;
     }
 
-    protected override object DeserializeParameters(string parametersJson) {
+    protected override object DoDeserializeParameters(string parametersJson) {
         return ParseJson(parametersJson, ParameterTypeName!);
     }
 
-    protected override object DeserializeState(string stateJson) {
+    protected override object DoDeserializeState(string stateJson) {
         return ParseJson(stateJson, StateTypeName!);
     }
 }

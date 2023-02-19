@@ -6,31 +6,32 @@ using Nummi.Core.Util;
 namespace Nummi.Core.Domain.New.Commands;
 
 public record ActivateBotParameters {
-    public required Ksuid StrategyTemplateId { get; init; }
+    public required string StrategyTemplateId { get; init; }
     public string? JsonParameters { get; init; }
 }
 
 public class ActivateBotCommand {
-    private ITransaction Transaction { get; }
+    private IBotRepository BotRepository { get; }
+    private IStrategyTemplateRepository StrategyTemplateRepository { get; }
     
-    public ActivateBotCommand(ITransaction transaction) {
-        Transaction = transaction;
+    public ActivateBotCommand(IBotRepository botRepository, IStrategyTemplateRepository strategyTemplateRepository) {
+        BotRepository = botRepository;
+        StrategyTemplateRepository = strategyTemplateRepository;
     }
 
     public BotActivation Execute(Ksuid botId, ActivateBotParameters parameters) {
-        var bot = Transaction.BotRepository.FindById(botId)
+        var bot = BotRepository.FindById(botId)
             .OrElseThrow(() => EntityNotFoundException<Bot>.IdNotFound(botId));
 
         if (bot.IsActive) {
             return bot.CurrentActivation!;
         }
-        
-        var strategyTemplate = Transaction.StrategyTemplateRepository.FindById(parameters.StrategyTemplateId)
-            .OrElseThrow(() => EntityNotFoundException<Strategy>.IdNotFound(parameters.StrategyTemplateId));
+
+        var strategyTemplate = StrategyTemplateRepository.FindById(parameters.StrategyTemplateId.ToKsuid());
         var strategy = strategyTemplate.Instantiate(parameters.JsonParameters);
 
         var activation = bot.Activate(strategy); // Domain Event BotActivated
-        Transaction.SaveAndDispose();
+        BotRepository.Commit();
 
         return activation;
     }

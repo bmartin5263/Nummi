@@ -1,14 +1,9 @@
-using Nummi.Core.Domain.New;
-
 namespace Nummi.Api.Model; 
 
-public class StrategyLogDto {
+public class BotLogDto {
     public string? Id { get; set; }
-    public string? BotId { get; set; }
-    public string? StrategyId { get; set; }
-    public TradingMode? Environment { get; set; }
-    public DateTimeOffset? StartTime { get; set; }
-    public DateTimeOffset? EndTime { get; set; }
-    public TimeSpan? TotalTime => EndTime - StartTime;
+    public DateTime? StartTime { get; set; }
+    public DateTime? EndTime { get; set; }
+    public TimeSpan? TotalTime { get; set; }
     public string? Error { get; set; }
 }

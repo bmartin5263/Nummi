@@ -1,10 +1,12 @@
 using System.Globalization;
 using System.Reflection;
+using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 using System.Text.Json.Serialization.Metadata;
 using CsvHelper;
+using Nummi.Core.Domain.Common;
 
 namespace Nummi.Core.Util; 
 
@@ -15,7 +17,10 @@ public class Serializer {
     private static JsonSerializerOptions DEFAULT_OPTIONS => new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        TypeInfoResolver = new PrivateConstructorContractResolver()
+        TypeInfoResolver = new PrivateConstructorContractResolver(),
+        Converters = {
+            new KsuidConverter()
+        }
     };
 
     public static IEnumerable<T> FromCsv<T>(string path) {
@@ -35,6 +40,17 @@ public class Serializer {
 
     public static string ToJson<T>(T value) {
         return JsonSerializer.Serialize(value, DEFAULT_OPTIONS);
+    }
+    
+    public static string? DocumentToJson(JsonDocument? document) {
+        if (document == null) {
+            return null;
+        }
+        using var stream = new MemoryStream();
+        Utf8JsonWriter writer = new Utf8JsonWriter(stream, new JsonWriterOptions { Indented = true });
+        document.WriteTo(writer);
+        writer.Flush();
+        return Encoding.UTF8.GetString(stream.ToArray());
     }
     
     public static async void ToJsonAsync<T>(Stream writer, T value) { 
@@ -90,8 +106,18 @@ public class Serializer {
 
         public override void Write(Utf8JsonWriter writer, T value, JsonSerializerOptions options) {
             var node = (JsonObject) JsonSerializer.SerializeToNode((object)value!, options)!;
-            node.Add(TYPE_FIELD, value!.GetType().Name);
+            node.Add(TYPE_FIELD, value!.GetType().FullName);
             node.WriteTo(writer);
+        }
+    }
+
+    public class KsuidConverter : JsonConverter<Ksuid> {
+        public override Ksuid Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) {
+            return reader.GetString()!.ToKsuid();
+        }
+
+        public override void Write(Utf8JsonWriter writer, Ksuid value, JsonSerializerOptions options) {
+            writer.WriteStringValue(value.ToString());
         }
     }
 }

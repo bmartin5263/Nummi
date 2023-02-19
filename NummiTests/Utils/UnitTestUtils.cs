@@ -9,7 +9,7 @@ public static class UnitTestUtils {
             SimulationRepository = new SimulationTestRepository(),
             StrategyRepository = new StrategyTestRepository(),
             StrategyTemplateRepository = new StrategyTemplateTestRepository(),
-            UserRepository = new UserTestRepository()
+            UserRepository = new TestUserRepository()
         };
     }
     

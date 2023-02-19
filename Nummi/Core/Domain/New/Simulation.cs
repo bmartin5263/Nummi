@@ -48,6 +48,8 @@ public class Simulation : Audited {
     
     public Simulation(Strategy strategy, DateTimeOffset startDate, DateTimeOffset endDate) {
         Strategy = strategy;
+        SimulationStartDate = startDate;
+        SimulationEndDate = endDate;
     }
     
     public void Start() {

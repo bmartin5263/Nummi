@@ -75,9 +75,35 @@ public abstract class Strategy : Audited {
         strategyImpl ??= CreateImpl();
     }
 
+    private object DeserializeParameters(string parametersJson) {
+        try {
+            return DoDeserializeParameters(parametersJson);
+        }
+        catch (Exception e) {
+            throw new InvalidUserArgumentException(
+                $"Failed to instantiate Strategy {ParentTemplate.Name}. " +
+                $"Unable to deserialize parameters: '{parametersJson}'.",
+                e
+            );
+        }
+    }
+
+    private object DeserializeState(string stateJson) {
+        try {
+            return DoDeserializeState(stateJson);
+        }
+        catch (Exception e) {
+            throw new InvalidSystemArgumentException(
+                $"Failed to instantiate Strategy {ParentTemplate.Name}. " +
+                $"Unable to deserialize state object: '{stateJson}'.",
+                e
+            );
+        }
+    }
+
     protected abstract IStrategyImpl CreateImpl();
-    protected abstract object DeserializeParameters(string parametersJson);
-    protected abstract object DeserializeState(string stateJson);
+    protected abstract object DoDeserializeParameters(string parametersJson);
+    protected abstract object DoDeserializeState(string stateJson);
     
     protected object ParseJson(string json, string typeName) {
         if (json == null) {

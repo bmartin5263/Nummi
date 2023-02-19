@@ -71,29 +71,86 @@ public static class ModelMapper {
     public static StrategyDto ToDto(this Strategy strategy) {
         var dto = new StrategyDto {
             Id = strategy.Id.ToString(),
-            Frequency = strategy.Frequency
+            CreatedAt = strategy.CreatedAt,
+            DeletedAt = strategy.DeletedAt,
+            Logs = strategy.Logs.Select(l => l.ToDto()).ToList(),
+            ParametersJson = strategy.ParametersJson,
+            ParentTemplate = strategy.ParentTemplate.ToDto(),
+            StateJson = strategy.StateJson,
+            UpdatedAt = strategy.UpdatedAt
         };
-
         return dto;
     }
 
-    public static SimulationDto ToDto(this Simulation result) {
-        var dto = new SimulationDto {
+    public static SimulationDto ToDto(this Simulation simulation) {
+        return new SimulationDto {
+            Id = simulation.Id.ToString(),
+            CreatedAt = simulation.CreatedAt,
+            UpdatedAt = simulation.UpdatedAt,
+            DeletedAt = simulation.DeletedAt,
+            Error = simulation.Error,
+            FinishedAt = simulation.FinishedAt,
+            SimulationEndDate = simulation.SimulationEndDate,
+            SimulationStartDate = simulation.SimulationStartDate,
+            StartedAt = simulation.StartedAt,
+            State = simulation.State,
+            StrategyId = simulation.Strategy.Id.ToString(),
+            TotalExecutionTime = simulation.TotalExecutionTime
         };
-        return dto;
     }
 
     public static BotActivationDto ToDto(this BotActivation activation) {
-        var dto = new BotActivationDto { };
+        var dto = new BotActivationDto {
+            Id = activation.Id.ToString(),
+            CreatedAt = activation.CreatedAt,
+            DeletedAt = activation.DeletedAt,
+            UpdatedAt = activation.UpdatedAt,
+            Strategy = activation.Strategy.ToDto(),
+            Mode = activation.Mode,
+            Logs = activation.Logs.Select(v => v.ToDto()).ToList()
+        };
+        return dto;
+    }
+
+    public static BotLogDto ToDto(this BotLog botLog) {
+        var dto = new BotLogDto {
+            Id = botLog.Id.ToString(),
+            StartTime = botLog.StartTime,
+            EndTime = botLog.EndTime,
+            TotalTime = botLog.TotalTime,
+            Error = botLog.Error
+        };
         return dto;
     }
 
     public static StrategyLogDto ToDto(this StrategyLog log) {
         var dto = new StrategyLogDto {
             Id = log.Id.ToString(),
-            Environment = log.Mode,
+            BotLogId = log.BotLogId?.ToString(),
+            Mode = log.Mode,
+            Action = log.Action,
             StartTime = log.StartTime,
             EndTime = log.EndTime,
+            TotalTime = log.TotalTime,
+            ApiCalls = log.ApiCalls,
+            TotalApiCallTime = log.TotalApiCallTime,
+            Error = log.Error,
+            Orders = log.Orders.Select(v => v.ToDto()).ToList()
+        };
+        return dto;
+    }
+
+    public static OrderLogDto ToDto(this OrderLog log) {
+        var dto = new OrderLogDto {
+            Id = log.Id.ToString(),
+            SubmittedAt = log.SubmittedAt,
+            Symbol = log.Symbol,
+            Quantity = log.Quantity,
+            Side = log.Side,
+            Type = log.Type,
+            Duration = log.Duration,
+            FundsBefore = log.FundsBefore,
+            FundsAfter = log.FundsAfter,
             Error = log.Error
         };
         return dto;
@@ -125,6 +182,17 @@ public static class ModelMapper {
             AlpacaLiveSecret = user.AlpacaLiveSecret,
             Bots = user.Bots.Select(ToDto).ToList(),
             Simulations = user.Simulations.Select(ToDto).ToList()
+        };
+    }
+
+    public static StrategyTemplateDto ToDto(this StrategyTemplate template) {
+        return new StrategyTemplateDto {
+            Id = template.Id.ToString(),
+            CreatedAt = template.CreatedAt,
+            DeletedAt = template.DeletedAt,
+            Frequency = template.Frequency,
+            Name = template.Name,
+            UpdatedAt = template.UpdatedAt
         };
     }
 }

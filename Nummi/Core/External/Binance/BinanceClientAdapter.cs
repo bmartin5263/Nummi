@@ -34,17 +34,17 @@ public class BinanceClientAdapter {
         return response.Content;
     }
 
-    public IDictionary<string, Bar> GetBar(ISet<string> symbols, DateTimeOffset time, Period period) {
+    public virtual IDictionary<string, Bar> GetBar(ISet<string> symbols, DateTimeOffset time, Period period) {
         return GetBars(symbols, new DateRange(time, time), period)
             .ToDictionary(kvp => kvp.Key, kvp => kvp.Value[0]);
     }
 
-    public IDictionary<string, List<Bar>> GetBars(ISet<string> symbols, DateRange dateRange, Period period) {
+    public virtual IDictionary<string, List<Bar>> GetBars(ISet<string> symbols, DateRange dateRange, Period period) {
         var dict = symbols.ToDictionary(s => s, _ => dateRange);
         return GetBars(dict, period);
     }
 
-    public IDictionary<string, List<Bar>> GetBars(IDictionary<string, DateRange> symbols, Period period) {
+    public virtual IDictionary<string, List<Bar>> GetBars(IDictionary<string, DateRange> symbols, Period period) {
         DateTimeOffset now = DateTimeOffset.UtcNow;
         CheckIfWeightLimitShouldReset(now);
         
@@ -126,7 +126,6 @@ public class BinanceClientAdapter {
             UsedWeight = 0;
             return true;
         }
-
         return false;
     }
 

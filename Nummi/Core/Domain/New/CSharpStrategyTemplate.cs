@@ -9,6 +9,10 @@ public class CSharpStrategyTemplate : StrategyTemplate {
 
     public override bool AcceptsParameters => ParameterTypeName != null;
 
+    protected CSharpStrategyTemplate() {
+        StrategyTypeName = null!;
+    }
+
     public CSharpStrategyTemplate(
         string name, 
         string strategyTypeName, 

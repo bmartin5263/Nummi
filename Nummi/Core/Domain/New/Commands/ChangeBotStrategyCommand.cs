@@ -1,37 +1,36 @@
 using Nummi.Core.Database.Common;
-using Nummi.Core.Domain.Common;
 using Nummi.Core.Exceptions;
 using Nummi.Core.Util;
 
 namespace Nummi.Core.Domain.New.Commands;
 
 public record ChangeBotStrategyParameters {
-    public required Ksuid BotId { get; init; }
-    public required Ksuid StrategyTemplateId { get; init; }
+    public required string BotId { get; init; }
+    public required string StrategyTemplateId { get; init; }
     public string? JsonParameters { get; init; }
 }
 
 public class ChangeBotStrategyCommand {
-    private ITransaction Transaction { get; }
+    private IBotRepository BotRepository { get; }
+    private IStrategyTemplateRepository StrategyTemplateRepository { get; }
     
-    public ChangeBotStrategyCommand(ITransaction transaction) {
-        Transaction = transaction;
+    public ChangeBotStrategyCommand(IBotRepository botRepository, IStrategyTemplateRepository strategyTemplateRepository) {
+        BotRepository = botRepository;
+        StrategyTemplateRepository = strategyTemplateRepository;
     }
 
     public void Execute(ChangeBotStrategyParameters parameters) {
-        var bot = Transaction.BotRepository.FindById(parameters.BotId)
-            .OrElseThrow(() => EntityNotFoundException<Bot>.IdNotFound(parameters.BotId));
+        var bot = BotRepository.FindById(parameters.BotId.ToKsuid());
 
         if (!bot.IsActive) {
             throw new InvalidUserOperationException("Cannot change strategy of inactive bot");
         }
-        
-        var strategyTemplate = Transaction.StrategyTemplateRepository.FindById(parameters.StrategyTemplateId)
-            .OrElseThrow(() => EntityNotFoundException<Strategy>.IdNotFound(parameters.StrategyTemplateId));
+
+        var strategyTemplate = StrategyTemplateRepository.FindById(parameters.StrategyTemplateId.ToKsuid());
         var strategy = strategyTemplate.Instantiate(parameters.JsonParameters);
         
         bot.ChangeActiveStrategy(strategy);
-        Transaction.SaveAndDispose();
+        BotRepository.Commit();
     }
     
 }

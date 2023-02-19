@@ -11,20 +11,21 @@ public record CreateBotParameters {
 }
 
 public class CreateBotCommand {
-    private ITransaction Transaction { get; }
     
-    public CreateBotCommand(ITransaction transaction) {
-        Transaction = transaction;
+    private IUserRepository UserRepository { get; }
+    
+    public CreateBotCommand(IUserRepository userRepository) {
+        UserRepository = userRepository;
     }
 
     public Bot Execute(string userId, CreateBotParameters parameters) {
-        var user = Transaction.UserRepository.FindById(userId)
+        var user = UserRepository.FindById(userId)
             .OrElseThrow(() => EntityNotFoundException<NummiUser>.IdNotFound(userId));
         
         var bot = new Bot(parameters.Name, parameters.Mode, parameters.Funds ?? 0.0m);
         user.Bots.Add(bot);
         
-        Transaction.SaveAndDispose();
+        UserRepository.Commit();
         return bot;
     }
     

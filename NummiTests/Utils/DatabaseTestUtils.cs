@@ -3,6 +3,8 @@ using System.Reflection;
 using Nummi.Core.Database.Common;
 using Nummi.Core.Domain.Common;
 using Nummi.Core.Domain.New;
+using Nummi.Core.Exceptions;
+using Nummi.Core.Util;
 
 namespace NummiTests.Utils; 
 
@@ -21,8 +23,20 @@ public class GenericTestRepository<ID, T> : IGenericRepository<ID, T> where T : 
         Database.Remove(id);
     }
 
-    public T? FindById(ID id) {
+    public void Commit() {
+        
+    }
+
+    public T? FindNullableById(ID id) {
         return Database.TryGetValue(id, out T? value) ? value : null;
+    }
+
+    public T FindById(ID id) {
+        return Database[id].OrElseThrow(() => EntityNotFoundException<T>.IdNotFound(id));
+    }
+
+    public T RequireById(ID id) {
+        return Database[id].OrElseThrow(() => new EntityMissingException<T>(id));
     }
 
     public IEnumerable<T> FindAll() {
@@ -99,7 +113,7 @@ public class StrategyTemplateTestRepository : GenericTestRepository<Ksuid, Strat
     
 }
 
-public class UserTestRepository : GenericTestRepository<string, NummiUser>, IUserRepository {
+public class TestUserRepository : GenericTestRepository<string, NummiUser>, IUserRepository {
     
 }
 
@@ -111,9 +125,11 @@ public class TestTransaction : ITransaction {
     public required IStrategyTemplateRepository StrategyTemplateRepository { get; init; }
     public required IUserRepository UserRepository { get; init; }
 
-    public void SaveChanges() {
+    public void Commit() {
         
     }
+
+    public object DbContext { get; } = new object();
 
     public void SaveAndDispose() {
         

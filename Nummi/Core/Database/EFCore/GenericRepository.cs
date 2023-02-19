@@ -2,14 +2,17 @@ using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
 using Nummi.Core.Database.Common;
 using Nummi.Core.Domain.Common;
+using Nummi.Core.Exceptions;
+using Nummi.Core.Util;
 
 namespace Nummi.Core.Database.EFCore; 
 
-public abstract class GenericRepository<ID, E> : IGenericRepository<ID, E> where E : class {
-    protected EFCoreContext Context { get; }
+public abstract class GenericRepository<ID, E> : IGenericRepository<ID, E> where E : class where ID : notnull {
+    protected ITransaction Transaction { get; }
+    private EFCoreContext Context => (Transaction.DbContext as EFCoreContext)!;
 
-    protected GenericRepository(EFCoreContext context) {
-        Context = context;
+    protected GenericRepository(ITransaction transaction) {
+        Transaction = transaction;
     }
 
     public virtual E Add(E entity) {
@@ -28,12 +31,57 @@ public abstract class GenericRepository<ID, E> : IGenericRepository<ID, E> where
         }
     }
 
-    public virtual E? FindById(ID id) {
-        return Context.Set<E>().Find(id);
+    public void Commit() {
+        Context.SaveChanges();
+    }
+
+    public virtual E? FindNullableById(ID id) {
+        var entity = Context.Set<E>().Find(id);
+        if (entity == null) {
+            return null;
+        }
+        
+        if (!typeof(Audited).IsAssignableFrom(typeof(E))) {
+            return entity;
+        }
+        
+        var audited = (entity as Audited)!;
+        return audited.IsDeleted ? null : entity;
+    }
+    
+    public virtual E FindById(ID id) {
+        var entity = Context.Set<E>().Find(id)
+            .OrElseThrow(() => EntityNotFoundException<E>.IdNotFound(id));
+
+        if (!typeof(Audited).IsAssignableFrom(typeof(E))) {
+            return entity;
+        }
+        
+        var audited = (entity as Audited)!;
+        if (audited.IsDeleted) {
+            throw EntityNotFoundException<E>.IdNotFound(id);
+        }
+
+        return entity;
+    }
+    
+    public virtual E RequireById(ID id) {
+        return Context.Set<E>().Find(id)
+            .OrElseThrow(() => new EntityMissingException<E>(id));
     }
 
     public virtual IEnumerable<E> FindAll() {
-        return Context.Set<E>().ToList();
+        return Context.Set<E>()
+            .AsEnumerable()
+            .Where(v => {
+                if (!typeof(Audited).IsAssignableFrom(typeof(E))) {
+                    return true;
+                }
+
+                var audited = (v as Audited)!;
+                return !audited.IsDeleted;
+            })
+            .ToList();
     }
 
     public virtual void LoadProperty<P>(E entity, Expression<Func<E, P?>> propertyExpression) where P : class {

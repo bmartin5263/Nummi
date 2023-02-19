@@ -18,6 +18,10 @@ public abstract class StrategyTemplate : Audited {
     
     public TimeSpan Frequency { get; set; }
     
+    protected StrategyTemplate() {
+        Name = null!;
+    }
+    
     protected StrategyTemplate(string name) {
         Name = name;
         Frequency = TimeSpan.FromMinutes(1);

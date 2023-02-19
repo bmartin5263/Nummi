@@ -5,5 +5,5 @@ using Nummi.Core.Domain.New;
 namespace Nummi.Core.Database.EFCore; 
 
 public class BotRepository : GenericRepository<Ksuid, Bot>, IBotRepository {
-    public BotRepository(EFCoreContext context) : base(context) { }
+    public BotRepository(ITransaction context) : base(context) { }
 }

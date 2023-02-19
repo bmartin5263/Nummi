@@ -4,30 +4,18 @@ namespace Nummi.Core.Database.EFCore;
 
 public class EFCoreTransaction : ITransaction {
     private bool Disposed { get; set; }
-    private EFCoreContext AppDb { get; }
-    public IBarRepository BarRepository { get; }
-    public IBotRepository BotRepository { get; }
-    public ISimulationRepository SimulationRepository { get; }
-    public IStrategyRepository StrategyRepository { get; }
-    public IStrategyTemplateRepository StrategyTemplateRepository { get; }
-    public IUserRepository UserRepository { get; }
+    public object DbContext { get; }
 
-    public EFCoreTransaction(EFCoreContext appDb, IBarRepository barRepository, IBotRepository botRepository, ISimulationRepository simulationRepository, IStrategyRepository strategyRepository, IStrategyTemplateRepository strategyTemplateRepository, IUserRepository userRepository) {
-        AppDb = appDb;
-        BarRepository = barRepository;
-        BotRepository = botRepository;
-        SimulationRepository = simulationRepository;
-        StrategyRepository = strategyRepository;
-        StrategyTemplateRepository = strategyTemplateRepository;
-        UserRepository = userRepository;
+    public EFCoreTransaction(EFCoreContext appDb) {
+        DbContext = appDb;
     }
-
-    public void SaveChanges() {
-        AppDb.SaveChanges();
+    
+    public void Commit() {
+        (DbContext as EFCoreContext)!.SaveChanges();
     }
 
     public void SaveAndDispose() {
-        SaveChanges();
+        Commit();
         Dispose();
     }
     
@@ -36,7 +24,7 @@ public class EFCoreTransaction : ITransaction {
             return;
         }
         GC.SuppressFinalize(this);
-        SaveChanges();
+        Commit();
         Disposed = true;
     }
 

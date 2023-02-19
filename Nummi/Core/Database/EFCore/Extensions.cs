@@ -1,9 +1,9 @@
 using System.Linq.Expressions;
-using KSUID;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using Nummi.Core.Domain.Common;
 using Nummi.Core.Domain.New;
 using Nummi.Core.Exceptions;
 using Nummi.Core.Util;
