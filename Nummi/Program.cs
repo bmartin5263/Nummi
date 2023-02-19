@@ -1,9 +1,13 @@
 using System.Reflection;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using Nummi.Api.Filters;
+using Nummi.Core.Bridge;
+using Nummi.Core.Bridge.DotNet;
+using Nummi.Core.Config;
 using Nummi.Core.Database.Common;
 using Nummi.Core.Database.EFCore;
 using Nummi.Core.Domain.New;
@@ -25,8 +29,9 @@ void ConfigureDatabase(WebApplicationBuilder builder)
 void ConfigureIdentities(WebApplicationBuilder builder)
 {
     builder.Services.AddDefaultIdentity<NummiUser>(options => 
-            options.SignIn.RequireConfirmedAccount = true
+            options.SignIn.RequireConfirmedAccount = false
         )
+        .AddRoles<IdentityRole>()
         .AddEntityFrameworkStores<EFCoreContext>();
 
     builder.Services.AddIdentityServer()
@@ -54,11 +59,15 @@ builder.Services.AddSingleton<CoinbaseClient>();
 builder.Services.AddSingleton<IBinanceClient, BinanceClient>();
 builder.Services.AddSingleton<BinanceClientAdapter>();
 
+// Singletons
+builder.Services.AddSingleton<INummiServiceProvider, AspDotNetServiceProvider>();
+
 // Services
 builder.Services.AddScoped<CryptoDataClientLive>();
 builder.Services.AddScoped<CryptoDataClientDbProxy>();
 builder.Services.AddScoped<BlogService>();
 builder.Services.AddScoped<TradingContextFactory>();
+builder.Services.AddScoped<INummiUserManager, AspDotNetUserManager>();
 
 // Commands
 builder.Services.AddScoped<ActivateBotCommand>();
@@ -84,8 +93,7 @@ builder.Services.AddScoped<ITransaction, EFCoreTransaction>();
 
 // Bot Execution Threads
 // builder.Services.AddSingleton<BotExecutionManager>(provider => new BotExecutionManager(provider, 1));
-// builder.Services.AddSingleton<IHostedService, BotExecutionManager>(
-//     serviceProvider => serviceProvider.GetService<BotExecutionManager>()!);
+builder.Services.AddSingleton<IHostedService, NummiInitializer>();
 
 builder.Services.AddSwaggerGen(options =>
 {

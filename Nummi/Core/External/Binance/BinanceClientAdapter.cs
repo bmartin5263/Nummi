@@ -70,7 +70,7 @@ public class BinanceClientAdapter {
             for (int i = 0; i < callDetails.Chunks; ++i) {
                 var bars = GetKlines(now, symbol, runningStartTime, callDetails.DateRange.End, period, Client.GetKlinesMaxLimit);
                 if (bars.Count != Client.GetKlinesMaxLimit) {
-                    throw new InvalidStateException($"Expected {Client.GetKlinesMaxLimit} bars, instead got {bars.Count}");
+                    throw new InvalidSystemStateException($"Expected {Client.GetKlinesMaxLimit} bars, instead got {bars.Count}");
                 }
                 allBars.AddRange(bars);
                 runningStartTime += period.Time * Client.GetKlinesMaxLimit;
@@ -78,7 +78,7 @@ public class BinanceClientAdapter {
 
             var remainingBars = GetKlines(now, symbol, runningStartTime, callDetails.DateRange.End, period, remainder);
             if (remainingBars.Count != remainder) {
-                throw new InvalidStateException($"Expected {remainder} bars, instead got {remainingBars.Count}");
+                throw new InvalidSystemStateException($"Expected {remainder} bars, instead got {remainingBars.Count}");
             }
             allBars.AddRange(remainingBars);
 
@@ -98,10 +98,10 @@ public class BinanceClientAdapter {
         UsedWeight += 1;
         
         if (UsedWeight != response.UsedWeight1M && !CheckIfWeightLimitShouldReset(now)) {
-            throw new InvalidStateException($"Weight limit not same {UsedWeight}, {response.UsedWeight1M}");
+            throw new InvalidSystemStateException($"Weight limit not same {UsedWeight}, {response.UsedWeight1M}");
         }
         if (UsedWeight > 1000) {
-            throw new InvalidStateException("Weight limit exceeded unexpectedly. Must investigate");
+            throw new InvalidSystemStateException("Weight limit exceeded unexpectedly. Must investigate");
         }
 
         LastRequestAt = now;

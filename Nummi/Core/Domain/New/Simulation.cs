@@ -54,7 +54,7 @@ public class Simulation : Audited {
     
     public void Start() {
         if (State != SimulationState.Created) {
-            throw new InvalidStateException($"Can only start Simulations that are in {nameof(SimulationState.Created)} status");
+            throw new InvalidSystemStateException($"Can only start Simulations that are in {nameof(SimulationState.Created)} status");
         }
 
         State = SimulationState.Started;
@@ -63,7 +63,7 @@ public class Simulation : Audited {
 
     public void Finish(Exception error) {
         if (State != SimulationState.Started) {
-            throw new InvalidStateException($"Can only finish Simulations that are in {nameof(SimulationState.Started)} status");
+            throw new InvalidSystemStateException($"Can only finish Simulations that are in {nameof(SimulationState.Started)} status");
         }
         
         FinishedAt = DateTimeOffset.UtcNow;

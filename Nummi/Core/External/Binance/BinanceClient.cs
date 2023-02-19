@@ -29,7 +29,7 @@ public class BinanceClient : IBinanceClient {
         Log.Info($"GetBars(symbol={symbol}, startTime={startTime.ToLocalTime()}, endTime={endTime.ToLocalTime()}, limit={limit})");
 
         if (DateTimeOffset.UtcNow < BlockedUntil) {
-            throw new InvalidStateException($"Binance has blocked us until {BlockedUntil}");
+            throw new InvalidSystemStateException($"Binance has blocked us until {BlockedUntil}");
         }
 
         if (limit is < 0 or > 1000) {
@@ -68,7 +68,7 @@ public class BinanceClient : IBinanceClient {
         Log.Debug($"GetExchangeInfo()");
         
         if (DateTime.UtcNow < BlockedUntil) {
-            throw new InvalidStateException("Blocked");
+            throw new InvalidSystemStateException("Blocked");
         }
 
         var response = Client.Get("/exchangeInfo")

@@ -27,6 +27,10 @@ public class GenericTestRepository<ID, T> : IGenericRepository<ID, T> where T : 
         
     }
 
+    public bool ExistsById(ID id) {
+        return FindNullableById(id) != null;
+    }
+
     public T? FindNullableById(ID id) {
         return Database.TryGetValue(id, out T? value) ? value : null;
     }

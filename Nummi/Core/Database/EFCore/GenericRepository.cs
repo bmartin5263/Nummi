@@ -35,6 +35,10 @@ public abstract class GenericRepository<ID, E> : IGenericRepository<ID, E> where
         Context.SaveChanges();
     }
 
+    public bool ExistsById(ID id) {
+        return FindNullableById(id) != null;
+    }
+
     public virtual E? FindNullableById(ID id) {
         var entity = Context.Set<E>().Find(id);
         if (entity == null) {

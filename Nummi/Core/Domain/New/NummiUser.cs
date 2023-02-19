@@ -11,13 +11,13 @@ public class NummiUser : IdentityUser, Audited {
     
     public DateTimeOffset? DeletedAt { get; set; }
     
-    public string? AlpacaPaperUserId { get; set; }
+    public string? AlpacaPaperId { get; set; }
     
-    public string? AlpacaPaperSecret { get; set; }
+    public string? AlpacaPaperKey { get; set; }
     
-    public string? AlpacaLiveUserId { get; set; }
+    public string? AlpacaLiveId { get; set; }
     
-    public string? AlpacaLiveSecret { get; set; }
+    public string? AlpacaLiveKey { get; set; }
 
     public List<Bot> Bots { get; } = new();
 

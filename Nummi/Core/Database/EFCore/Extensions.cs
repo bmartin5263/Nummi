@@ -101,6 +101,17 @@ public static class Extensions {
             .HasForeignKey(foreignKey);
     }
     
+    public static ReferenceCollectionBuilder<P, C> OneToMany<P, C, K>(
+        this ModelBuilder builder, 
+        Expression<Func<C, object?>> foreignKeyExpression,
+        Expression<Func<P, IEnumerable<C>?>> navigationExpression
+    ) where P : class where C : class {
+        return builder.Entity<P>()
+            .HasMany(navigationExpression)
+            .WithOne()
+            .HasForeignKey(foreignKeyExpression);
+    }
+    
     public static ReferenceCollectionBuilder<P, C> OneToMany<P, C>(
         this ModelBuilder builder, 
         Expression<Func<C, object?>> foreignKeyExpression

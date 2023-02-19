@@ -10,8 +10,8 @@ public class CoinbaseClient {
     }
 
     private global::Coinbase.CoinbaseClient Client { get; } = new(new ApiKeyConfig {
-        ApiKey = Environment.GetEnvironmentVariable("COINBASE_KEY") ?? throw new ArgumentException("Missing COINBASE_KEY"), 
-        ApiSecret = Environment.GetEnvironmentVariable("COINBASE_SECRET") ?? throw new ArgumentException("Missing COINBASE_SECRET")
+        ApiKey = Environment.GetEnvironmentVariable("NUMMI_COINBASE_ID") ?? throw new ArgumentException("Missing NUMMI_COINBASE_ID"), 
+        ApiSecret = Environment.GetEnvironmentVariable("NUMMI_COINBASE_KEYT") ?? throw new ArgumentException("Missing NUMMI_COINBASE_KEYT")
     });
     
 }

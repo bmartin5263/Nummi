@@ -176,10 +176,6 @@ public static class ModelMapper {
             Id = user.Id,
             Username = user.UserName,
             Email = user.Email,
-            AlpacaPaperUserId = user.AlpacaPaperUserId,
-            AlpacaPaperSecret = user.AlpacaPaperSecret,
-            AlpacaLiveUserId = user.AlpacaLiveUserId,
-            AlpacaLiveSecret = user.AlpacaLiveSecret,
             Bots = user.Bots.Select(ToDto).ToList(),
             Simulations = user.Simulations.Select(ToDto).ToList()
         };

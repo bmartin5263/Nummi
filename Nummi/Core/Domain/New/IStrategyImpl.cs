@@ -5,7 +5,10 @@ public interface IStrategyImpl {
     public void CheckForTrades(ITradingContext ctx, object? parameters, ref object? state);
 }
 
-public interface IStrategyImpl<in P, S> : IStrategyImpl where P : class where S : class {
+public interface ICSharpStrategyImpl : IStrategyImpl {
+}
+
+public interface ICSharpStrategyImpl<in P, S> : ICSharpStrategyImpl where P : class where S : class {
     
     void IStrategyImpl.Initialize(ITradingContext ctx, object? parameters, ref object? state) {
         S? casted = state as S;

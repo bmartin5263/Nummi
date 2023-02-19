@@ -14,11 +14,14 @@ public class CSharpStrategyTemplate : StrategyTemplate {
     }
 
     public CSharpStrategyTemplate(
+        string owningUserId,
         string name, 
+        TimeSpan frequency,
         string strategyTypeName, 
+        ulong version = 0,
         string? parameterTypeName = null, 
         string? stateTypeName = null
-    ): base(name) {
+    ): base(owningUserId, name, frequency, version) {
         StrategyTypeName = strategyTypeName;
         ParameterTypeName = parameterTypeName;
         StateTypeName = stateTypeName;
@@ -33,5 +36,9 @@ public class CSharpStrategyTemplate : StrategyTemplate {
         };
         strategy.Load();
         return strategy;
+    }
+
+    protected override StrategyTemplate CreateNewVersion() {
+        return new CSharpStrategyTemplate(UserId, Name, Frequency, StrategyTypeName, Version + 1, ParameterTypeName, StateTypeName);
     }
 }

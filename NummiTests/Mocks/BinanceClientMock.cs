@@ -83,7 +83,7 @@ public class BinanceClientMock : IBinanceClient {
     private void AssertWeightLimitIsNotExceeded(int weight) {
         UsedWeight += weight;
         if (UsedWeight > WeightLimit) {
-            throw new InvalidStateException("Weight limit has been exceeded");
+            throw new InvalidSystemStateException("Weight limit has been exceeded");
         }
     }
 }

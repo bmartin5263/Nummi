@@ -6,6 +6,7 @@ using Microsoft.Extensions.Options;
 using Nummi.Core.Domain.Common;
 using Nummi.Core.Domain.New;
 using Nummi.Core.Domain.Test;
+using Nummi.Core.Exceptions;
 
 namespace Nummi.Core.Database.EFCore;
 
@@ -40,11 +41,42 @@ public class EFCoreContext : ApiAuthorizationDbContext<NummiUser> {
         
         // Table Setups
         modelBuilder.Entity<NummiUser>().ToTable("Users");
-        modelBuilder.OneToMany<NummiUser, StrategyTemplate, string>("UserId", u => u.StrategyTemplates);
+        modelBuilder.OneToMany<NummiUser, StrategyTemplate, string>(t => t.UserId, u => u.StrategyTemplates);
         modelBuilder.OneToMany<NummiUser, Simulation, string>("UserId", u => u.Simulations)
             .IsRequired();
         modelBuilder.OneToMany<NummiUser, Bot, string>("UserId", u => u.Bots)
             .IsRequired();
+        
+        // modelBuilder.Entity<IdentityRole>().HasData(new IdentityRole {
+        //     Id = ROLE_ADMIN_ID,
+        //     Name = ROLE_ADMIN_NAME,
+        //     NormalizedName = ROLE_ADMIN_NAME
+        // });
+        //
+        // var user = new NummiUser {
+        //     Id = ADMIN_USER_ID,
+        //     CreatedAt = DateTimeOffset.UtcNow,
+        //     UserName = ADMIN_USER_NAME,
+        //     NormalizedUserName = ADMIN_USER_NAME,
+        //     Email = ADMIN_USER_EMAIL,
+        //     NormalizedEmail = ADMIN_USER_EMAIL,
+        //     EmailConfirmed = true,
+        //     SecurityStamp = string.Empty,
+        //     AlpacaPaperId = GetEnvironmentVariable(ALPACA_PAPER_ID_ENV_VAR),
+        //     AlpacaPaperKey = GetEnvironmentVariable(ALPACA_PAPER_KEY_ENV_VAR),
+        //     AlpacaLiveId = GetEnvironmentVariable(ALPACA_LIVE_ID_ENV_VAR),
+        //     AlpacaLiveKey = GetEnvironmentVariable(ALPACA_LIVE_KEY_ENV_VAR)
+        // };
+        // user.PasswordHash = new PasswordHasher<NummiUser>().HashPassword(
+        //     user: user,
+        //     password: GetEnvironmentVariable(ADMIN_USER_PASSWORD_ENV_VAR)
+        // );
+        // modelBuilder.Entity<NummiUser>().HasData(user);
+        //
+        // modelBuilder.Entity<IdentityUserRole<string>>().HasData(new IdentityUserRole<string> {
+        //     RoleId = ROLE_ADMIN_ID,
+        //     UserId = ADMIN_USER_ID
+        // });
 
         modelBuilder.Entity<Bar>().ToTable("HistoricBar");
         modelBuilder.Entity<Bar>()
@@ -111,6 +143,7 @@ public class EFCoreContext : ApiAuthorizationDbContext<NummiUser> {
             .HasColumnName("SimulationId");
         modelBuilder.OneToOne<Simulation, Strategy>("SimulationId", s => s.Strategy);
 
+        modelBuilder.Entity<Strategy>().ToTable("Strategy");
         modelBuilder.Entity<Strategy>()
             .HasKey(b => b.Id);
         modelBuilder.Entity<Strategy>()
@@ -126,27 +159,21 @@ public class EFCoreContext : ApiAuthorizationDbContext<NummiUser> {
         modelBuilder.Entity<StrategyTemplate>()
             .HasKey(b => b.Id);
         modelBuilder.Entity<StrategyTemplate>()
-            .HasAlternateKey(b => b.Name);
+            .HasAlternateKey(b => new { b.UserId, b.Name, b.Version });
         modelBuilder.Entity<StrategyTemplate>()
             .Property<Ksuid>(b => b.Id)
             .HasColumnName("StrategyTemplateId");
-        modelBuilder.Entity<CSharpStrategyTemplate>().HasData(new CSharpStrategyTemplate(
-            name: "Opportunist",
-            strategyTypeName: typeof(OpportunistStrategy).FullName!,
-            parameterTypeName: typeof(OpportunistParameters).FullName,
-            stateTypeName: typeof(OpportunistState).FullName
-        ) {
-            CreatedAt = DateTimeOffset.UtcNow
-        });
-        modelBuilder.Entity<CSharpStrategyTemplate>().HasData(new CSharpStrategyTemplate(
-            name: "Opportunist2",
-            strategyTypeName: typeof(OpportunistStrategy).FullName!,
-            parameterTypeName: typeof(OpportunistParameters).FullName,
-            stateTypeName: typeof(OpportunistState).FullName
-        ) {
-            CreatedAt = DateTimeOffset.Now
-        });
-        
+        // modelBuilder.Entity<CSharpStrategyTemplate>().HasData(new CSharpStrategyTemplate(
+        //     owningUserId: ADMIN_USER_ID,
+        //     name: "Opportunist",
+        //     frequency: TimeSpan.FromMinutes(1),
+        //     strategyTypeName: typeof(OpportunistStrategy).FullName!,
+        //     parameterTypeName: typeof(OpportunistParameters).FullName,
+        //     stateTypeName: typeof(OpportunistState).FullName
+        // ) {
+        //     CreatedAt = DateTimeOffset.UtcNow
+        // });
+
         modelBuilder.OneToMany<BotLog, StrategyLog>(s => s.BotLogId);
         
         // Testing
@@ -177,7 +204,7 @@ public class EFCoreContext : ApiAuthorizationDbContext<NummiUser> {
             }
         }
 
-        var modifiedEntries = this.ChangeTracker.Entries()
+        var modifiedEntries = ChangeTracker.Entries()
             .Where(x => x.State == EntityState.Modified)
             .Select(x => x.Entity);
 
@@ -202,7 +229,7 @@ public class EFCoreContext : ApiAuthorizationDbContext<NummiUser> {
             }
         }
 
-        var modifiedEntries = this.ChangeTracker.Entries()
+        var modifiedEntries = ChangeTracker.Entries()
             .Where(x => x.State == EntityState.Modified)
             .Select(x => x.Entity);
 
@@ -214,5 +241,10 @@ public class EFCoreContext : ApiAuthorizationDbContext<NummiUser> {
 
         var result = base.SaveChanges();
         return result;
+    }
+    
+    private string GetEnvironmentVariable(string name) {
+        return Environment.GetEnvironmentVariable(name) ??
+               throw new InvalidSystemArgumentException($"Missing Env Var: {name}");
     }
 }

@@ -14,14 +14,14 @@ public class OpportunistState {
     
 }
 
-public class OpportunistStrategy : IStrategyImpl<OpportunistParameters, OpportunistState> {
+public class OpportunistStrategy : ICSharpStrategyImpl<OpportunistParameters, OpportunistState> {
     
     public void Initialize(ITradingContext ctx, OpportunistParameters? parameters, ref OpportunistState? state) {
         if (parameters == null) {
-            throw new InvalidStateException("Parameters is null");
+            throw new InvalidSystemStateException("Parameters is null");
         }
         if (parameters.Symbols == null) {
-            throw new InvalidStateException("Symbols cannot be null");
+            throw new InvalidSystemStateException("Symbols cannot be null");
         }
 
         var now = ctx.Clock.NowUtc;

@@ -13,21 +13,37 @@ public abstract class StrategyTemplate : Audited {
     public DateTimeOffset? UpdatedAt { get; set; }
     
     public DateTimeOffset? DeletedAt { get; set; }
+    
+    public string UserId { get; private set; }
 
     public string Name { get; set; }
     
+    public ulong Version { get; set; }
+    
     public TimeSpan Frequency { get; set; }
     
+    public abstract bool AcceptsParameters { get; }
+
     protected StrategyTemplate() {
+        UserId = null!;
         Name = null!;
     }
     
-    protected StrategyTemplate(string name) {
+    protected StrategyTemplate(string owningUserId, string name, TimeSpan frequency, ulong version = 0) {
+        UserId = owningUserId;
         Name = name;
-        Frequency = TimeSpan.FromMinutes(1);
+        Frequency = frequency;
+        Version = version;
     }
 
-    public abstract bool AcceptsParameters { get; }
+    public StrategyTemplate UpdateNewVersion(Action<StrategyTemplate> update) {
+        var newVersion = CreateNewVersion();
+        update(newVersion);
+        return newVersion;
+    }
+    
     public abstract Strategy Instantiate(string? jsonParameters);
+    
+    protected abstract StrategyTemplate CreateNewVersion();
 }
 
