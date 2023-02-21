@@ -1,9 +1,10 @@
 using System.Text.Json.Serialization;
 using Nummi.Core.Domain.Common;
+using Nummi.Core.Domain.New;
 using Nummi.Core.Exceptions;
 using Nummi.Core.Util;
 
-namespace Nummi.Core.Domain.New;
+namespace Nummi.Core.Domain.Strategies;
 
 [JsonConverter(typeof(Serializer.AbstractTypeConverter<Strategy>))]
 public abstract class Strategy : Audited {
@@ -15,54 +16,39 @@ public abstract class Strategy : Audited {
     
     public DateTimeOffset? DeletedAt { get; set; }
 
-    public StrategyTemplate ParentTemplate { get; }
+    public StrategyTemplateVersion ParentTemplate { get; }
 
-    public TimeSpan Frequency => ParentTemplate.Frequency;
+    public TimeSpan Frequency { get; }
     
     public string? ParametersJson { get; set; }
 
     public string? StateJson { get; private set; }
     
-    protected object? ParametersInstance { get; private set; }
-    
     public List<StrategyLog> Logs { get; } = new();
     
     private object? stateInstance;
     private object? parametersInstance;
-    private IStrategyImpl? strategyImpl;
+    private IStrategyLogic? strategyLogic;
 
     protected Strategy() {
         ParentTemplate = null!;
     }
 
-    protected Strategy(StrategyTemplate parentTemplate) {
+    protected Strategy(StrategyTemplateVersion parentTemplate) {
         ParentTemplate = parentTemplate;
+        Frequency = parentTemplate.Frequency;
     }
 
     public void Initialize(ITradingContext ctx) {
         Load();
-        
-        strategyImpl!.Initialize(ctx, parametersInstance, ref stateInstance);
-
-        if (parametersInstance != null) {
-            ParametersJson = Serializer.ToJson(parametersInstance);
-        }
-        if (stateInstance != null) {
-            StateJson = Serializer.ToJson(stateInstance);
-        }
+        strategyLogic!.Initialize(ctx);
+        Save();
     }
 
     public void CheckForTrades(ITradingContext ctx) {
         Load();
-        
-        strategyImpl!.CheckForTrades(ctx, parametersInstance, ref stateInstance);
-
-        if (parametersInstance != null) {
-            ParametersJson = Serializer.ToJson(parametersInstance);
-        }
-        if (stateInstance != null) {
-            StateJson = Serializer.ToJson(stateInstance);
-        }
+        strategyLogic!.CheckForTrades(ctx);
+        Save();
     }
 
     public void Load() {
@@ -72,7 +58,16 @@ public abstract class Strategy : Audited {
         if (stateInstance == null && StateJson != null) {
             stateInstance = DeserializeState(StateJson);
         }
-        strategyImpl ??= CreateImpl();
+        strategyLogic ??= DoCreateLogic();
+    }
+
+    public void Save() {
+        if (parametersInstance != null) {
+            ParametersJson = Serializer.ToJson(parametersInstance);
+        }
+        if (stateInstance != null) {
+            StateJson = Serializer.ToJson(stateInstance);
+        }
     }
 
     private object DeserializeParameters(string parametersJson) {
@@ -93,7 +88,7 @@ public abstract class Strategy : Audited {
             return DoDeserializeState(stateJson);
         }
         catch (Exception e) {
-            throw new InvalidSystemArgumentException(
+            throw new SystemArgumentException(
                 $"Failed to instantiate Strategy {ParentTemplate.Name}. " +
                 $"Unable to deserialize state object: '{stateJson}'.",
                 e
@@ -101,7 +96,7 @@ public abstract class Strategy : Audited {
         }
     }
 
-    protected abstract IStrategyImpl CreateImpl();
+    protected abstract IStrategyLogic DoCreateLogic();
     protected abstract object DoDeserializeParameters(string parametersJson);
     protected abstract object DoDeserializeState(string stateJson);
     

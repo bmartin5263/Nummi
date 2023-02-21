@@ -1,6 +1,7 @@
 using System.Text.Json;
 using NLog;
 using Nummi.Core.Database.Common;
+using Nummi.Core.Domain.Strategies;
 using Nummi.Core.Util;
 
 namespace Nummi.Core.Domain.New.Commands;
@@ -24,10 +25,11 @@ public class SimulateStrategyCommand {
     }
 
     public Simulation Execute(string userId, SimulateStrategyParameters parameters) {
-        var user = UserRepository.FindById(userId);
-        var strategyTemplate = StrategyTemplateRepository.FindById(parameters.StrategyTemplateId.ToKsuid());
+        var user = UserRepository.FindById(userId.ToKsuid());
+        StrategyTemplate template = StrategyTemplateRepository.FindById(parameters.StrategyTemplateId.ToKsuid());
+        StrategyTemplateVersion latestVersion = template.Versions[0];
         
-        var strategy = strategyTemplate.Instantiate(Serializer.DocumentToJson(parameters.StrategyJsonParameters));
+        var strategy = latestVersion.Instantiate(Serializer.DocumentToJson(parameters.StrategyJsonParameters));
         var simulation = new Simulation(strategy, parameters.StartTime, parameters.EndTime);
         user.Simulations.Add(simulation);
 

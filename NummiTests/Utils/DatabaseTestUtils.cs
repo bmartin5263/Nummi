@@ -3,6 +3,8 @@ using System.Reflection;
 using Nummi.Core.Database.Common;
 using Nummi.Core.Domain.Common;
 using Nummi.Core.Domain.New;
+using Nummi.Core.Domain.New.User;
+using Nummi.Core.Domain.Strategies;
 using Nummi.Core.Exceptions;
 using Nummi.Core.Util;
 
@@ -10,17 +12,17 @@ namespace NummiTests.Utils;
 
 public class GenericTestRepository<ID, T> : IGenericRepository<ID, T> where T : class where ID : notnull {
 
-    private IDictionary<ID, T> Database { get; } = new Dictionary<ID, T>();
+    protected IDictionary<ID, T> Table { get; } = new Dictionary<ID, T>();
 
     public T Add(T entity) {
         var id = GetId(entity);
-        Database[id] = entity;
+        Table[id] = entity;
         return entity;
     }
 
     public void Remove(T entity) {
         var id = GetId(entity);
-        Database.Remove(id);
+        Table.Remove(id);
     }
 
     public void Commit() {
@@ -32,19 +34,19 @@ public class GenericTestRepository<ID, T> : IGenericRepository<ID, T> where T : 
     }
 
     public T? FindNullableById(ID id) {
-        return Database.TryGetValue(id, out T? value) ? value : null;
+        return Table.TryGetValue(id, out T? value) ? value : null;
     }
 
     public T FindById(ID id) {
-        return Database[id].OrElseThrow(() => EntityNotFoundException<T>.IdNotFound(id));
+        return Table[id].OrElseThrow(() => EntityNotFoundException<T>.IdNotFound(id));
     }
 
     public T RequireById(ID id) {
-        return Database[id].OrElseThrow(() => new EntityMissingException<T>(id));
+        return Table[id].OrElseThrow(() => new EntityMissingException<T>(id));
     }
 
     public IEnumerable<T> FindAll() {
-        return Database.Values;
+        return Table.Values;
     }
 
     public void LoadProperty<P>(T entity, Expression<Func<T, P?>> propertyExpression) where P : class {
@@ -114,10 +116,21 @@ public class StrategyTestRepository : GenericTestRepository<Ksuid, Strategy>, IS
 }
 
 public class StrategyTemplateTestRepository : GenericTestRepository<Ksuid, StrategyTemplate>, IStrategyTemplateRepository {
-    
+    public void RemoveAllByUserId(Ksuid userId) {
+        var removeList = new List<Ksuid>();
+        foreach (KeyValuePair<Ksuid,StrategyTemplate> pair in Table) {
+            if (pair.Value.UserId == userId) {
+                removeList.Add(pair.Key);
+            }
+        }
+
+        foreach (var id in removeList) {
+            Table.Remove(id);
+        }
+    }
 }
 
-public class TestUserRepository : GenericTestRepository<string, NummiUser>, IUserRepository {
+public class TestUserRepository : GenericTestRepository<Ksuid, NummiUser>, IUserRepository {
     
 }
 

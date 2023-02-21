@@ -21,7 +21,7 @@ public class Simulation : Audited {
     
     public DateTimeOffset? DeletedAt { get; set; }
 
-    public Strategy Strategy { get; }
+    public Strategies.Strategy Strategy { get; }
 
     public SimulationState State { get; private set; } = SimulationState.Created;
     
@@ -46,7 +46,7 @@ public class Simulation : Audited {
         Strategy = null!;
     }
     
-    public Simulation(Strategy strategy, DateTimeOffset startDate, DateTimeOffset endDate) {
+    public Simulation(Strategies.Strategy strategy, DateTimeOffset startDate, DateTimeOffset endDate) {
         Strategy = strategy;
         SimulationStartDate = startDate;
         SimulationEndDate = endDate;

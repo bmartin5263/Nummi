@@ -1,6 +1,6 @@
 using Nummi.Core.Database.Common;
 
-namespace Nummi.Core.Domain.New.Queries; 
+namespace Nummi.Core.Domain.Strategies; 
 
 public class GetStrategyTemplatesQuery {
     private IStrategyTemplateRepository StrategyTemplateRepository { get; }

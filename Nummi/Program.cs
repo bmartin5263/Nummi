@@ -10,10 +10,13 @@ using Nummi.Core.Bridge.DotNet;
 using Nummi.Core.Config;
 using Nummi.Core.Database.Common;
 using Nummi.Core.Database.EFCore;
+using Nummi.Core.Domain;
 using Nummi.Core.Domain.New;
 using Nummi.Core.Domain.New.Commands;
 using Nummi.Core.Domain.New.Data;
 using Nummi.Core.Domain.New.Queries;
+using Nummi.Core.Domain.New.User;
+using Nummi.Core.Domain.Strategies;
 using Nummi.Core.Domain.Test;
 using Nummi.Core.External.Alpaca;
 using Nummi.Core.External.Binance;
@@ -22,16 +25,15 @@ using Nummi.Core.External.Coinbase;
 void ConfigureDatabase(WebApplicationBuilder builder)
 {
     builder.Services.AddDbContext<EFCoreContext>(options =>
-        options.UseNpgsql("Host=localhost;Port=5432;Database=nummi;Username=brandon;Password=password"));
+        options.UseNpgsql("Host=localhost;Port=5432;Database=nummi;Username=brandon;Password=password;Include Error Detail=true"));
     builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 }
 
-void ConfigureIdentities(WebApplicationBuilder builder)
-{
-    builder.Services.AddDefaultIdentity<NummiUser>(options => 
+void ConfigureIdentities(WebApplicationBuilder builder) {
+    builder.Services.AddDefaultIdentity<NummiUser>(options =>
             options.SignIn.RequireConfirmedAccount = false
         )
-        .AddRoles<IdentityRole>()
+        .AddRoles<NummiRole>()
         .AddEntityFrameworkStores<EFCoreContext>();
 
     builder.Services.AddIdentityServer()
@@ -61,6 +63,7 @@ builder.Services.AddSingleton<BinanceClientAdapter>();
 
 // Singletons
 builder.Services.AddSingleton<INummiServiceProvider, AspDotNetServiceProvider>();
+builder.Services.AddSingleton<StrategyInstantiator>();
 
 // Services
 builder.Services.AddScoped<CryptoDataClientLive>();
@@ -75,6 +78,7 @@ builder.Services.AddScoped<ChangeBotStrategyCommand>();
 builder.Services.AddScoped<CreateBotCommand>();
 builder.Services.AddScoped<DeactivateBotCommand>();
 builder.Services.AddScoped<SimulateStrategyCommand>();
+builder.Services.AddScoped<ReInitializeBuiltinStrategiesCommand>();
 
 // Queries
 builder.Services.AddScoped<GetUserQuery>();

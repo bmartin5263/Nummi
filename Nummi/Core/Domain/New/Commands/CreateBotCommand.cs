@@ -1,4 +1,5 @@
 using Nummi.Core.Database.Common;
+using Nummi.Core.Domain.New.User;
 using Nummi.Core.Exceptions;
 using Nummi.Core.Util;
 
@@ -19,7 +20,7 @@ public class CreateBotCommand {
     }
 
     public Bot Execute(string userId, CreateBotParameters parameters) {
-        var user = UserRepository.FindById(userId)
+        var user = UserRepository.FindById(userId.ToKsuid())
             .OrElseThrow(() => EntityNotFoundException<NummiUser>.IdNotFound(userId));
         
         var bot = new Bot(parameters.Name, parameters.Mode, parameters.Funds ?? 0.0m);

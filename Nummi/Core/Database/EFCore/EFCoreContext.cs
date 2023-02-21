@@ -1,16 +1,27 @@
-﻿using Duende.IdentityServer.EntityFramework.Options;
-using Microsoft.AspNetCore.ApiAuthorization.IdentityServer;
+﻿using Duende.IdentityServer.EntityFramework.Entities;
+using Duende.IdentityServer.EntityFramework.Extensions;
+using Duende.IdentityServer.EntityFramework.Interfaces;
+using Duende.IdentityServer.EntityFramework.Options;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.Extensions.Options;
 using Nummi.Core.Domain.Common;
 using Nummi.Core.Domain.New;
+using Nummi.Core.Domain.New.User;
+using Nummi.Core.Domain.Strategies;
 using Nummi.Core.Domain.Test;
 using Nummi.Core.Exceptions;
 
 namespace Nummi.Core.Database.EFCore;
 
-public class EFCoreContext : ApiAuthorizationDbContext<NummiUser> {
+public class EFCoreContext : 
+    IdentityDbContext<NummiUser, NummiRole, Ksuid, NummiUserClaim, NummiUserRole, NummiUserLogin, NummiRoleClaim, NummiUserToken>,
+    IPersistedGrantDbContext 
+{
+    public DbSet<PersistedGrant> PersistedGrants { get; set; } = default!;
+    public DbSet<DeviceFlowCodes> DeviceFlowCodes { get; set; } = default!;
+    public DbSet<Key> Keys { get; set; } = default!;
     public DbSet<Bar> HistoricalBars { get; set; } = default!;
     public DbSet<Bot> Bots { get; set; } = default!;
     public DbSet<OrderLog> Trades { get; set; } = default!;
@@ -21,62 +32,42 @@ public class EFCoreContext : ApiAuthorizationDbContext<NummiUser> {
 
     public DbSet<Blog> Blogs { get; set; } = default!;
     public DbSet<Post> Posts { get; set; } = default!;
+    
+    private readonly IOptions<OperationalStoreOptions> _operationalStoreOptions;
 
     public EFCoreContext(DbContextOptions options, IOptions<OperationalStoreOptions> operationalStoreOptions)
-        : base(options, operationalStoreOptions)
+        : base(options)
     {
+        _operationalStoreOptions = operationalStoreOptions;
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder) {
         base.OnModelCreating(modelBuilder);
-        
+        modelBuilder.ConfigurePersistedGrantContext(_operationalStoreOptions.Value);
+
         // Table Inheritance
         modelBuilder.Entity<Strategy>()
             .HasDiscriminator<string>("StrategyType")
-            .HasValue<CSharpStrategy>("csharp");
+            .HasValue<StrategyBuiltin>("csharp");
         
-        modelBuilder.Entity<StrategyTemplate>()
+        modelBuilder.Entity<StrategyTemplateVersion>()
             .HasDiscriminator<string>("StrategyTemplateType")
-            .HasValue<CSharpStrategyTemplate>("csharp");
+            .HasValue<StrategyTemplateVersionBuiltin>("builtin");
         
         // Table Setups
         modelBuilder.Entity<NummiUser>().ToTable("Users");
-        modelBuilder.OneToMany<NummiUser, StrategyTemplate, string>(t => t.UserId, u => u.StrategyTemplates);
-        modelBuilder.OneToMany<NummiUser, Simulation, string>("UserId", u => u.Simulations)
+        modelBuilder.OneToMany<NummiUser, StrategyTemplate, Ksuid>(t => t.UserId, u => u.StrategyTemplates);
+        modelBuilder.OneToMany<NummiUser, Simulation, Ksuid>("UserId", u => u.Simulations)
             .IsRequired();
-        modelBuilder.OneToMany<NummiUser, Bot, string>("UserId", u => u.Bots)
+        modelBuilder.OneToMany<NummiUser, Bot, Ksuid>("UserId", u => u.Bots)
             .IsRequired();
         
-        // modelBuilder.Entity<IdentityRole>().HasData(new IdentityRole {
-        //     Id = ROLE_ADMIN_ID,
-        //     Name = ROLE_ADMIN_NAME,
-        //     NormalizedName = ROLE_ADMIN_NAME
-        // });
-        //
-        // var user = new NummiUser {
-        //     Id = ADMIN_USER_ID,
-        //     CreatedAt = DateTimeOffset.UtcNow,
-        //     UserName = ADMIN_USER_NAME,
-        //     NormalizedUserName = ADMIN_USER_NAME,
-        //     Email = ADMIN_USER_EMAIL,
-        //     NormalizedEmail = ADMIN_USER_EMAIL,
-        //     EmailConfirmed = true,
-        //     SecurityStamp = string.Empty,
-        //     AlpacaPaperId = GetEnvironmentVariable(ALPACA_PAPER_ID_ENV_VAR),
-        //     AlpacaPaperKey = GetEnvironmentVariable(ALPACA_PAPER_KEY_ENV_VAR),
-        //     AlpacaLiveId = GetEnvironmentVariable(ALPACA_LIVE_ID_ENV_VAR),
-        //     AlpacaLiveKey = GetEnvironmentVariable(ALPACA_LIVE_KEY_ENV_VAR)
-        // };
-        // user.PasswordHash = new PasswordHasher<NummiUser>().HashPassword(
-        //     user: user,
-        //     password: GetEnvironmentVariable(ADMIN_USER_PASSWORD_ENV_VAR)
-        // );
-        // modelBuilder.Entity<NummiUser>().HasData(user);
-        //
-        // modelBuilder.Entity<IdentityUserRole<string>>().HasData(new IdentityUserRole<string> {
-        //     RoleId = ROLE_ADMIN_ID,
-        //     UserId = ADMIN_USER_ID
-        // });
+        modelBuilder.Entity<NummiRole>().ToTable("User");
+        modelBuilder.Entity<NummiRoleClaim>().ToTable("RoleClaim");
+        modelBuilder.Entity<NummiUserClaim>().ToTable("UserClaim");
+        modelBuilder.Entity<NummiUserLogin>().ToTable("UserLogin");
+        modelBuilder.Entity<NummiUserRole>().ToTable("UserRole");
+        modelBuilder.Entity<NummiUserToken>().ToTable("UserToken");
 
         modelBuilder.Entity<Bar>().ToTable("HistoricBar");
         modelBuilder.Entity<Bar>()
@@ -159,10 +150,16 @@ public class EFCoreContext : ApiAuthorizationDbContext<NummiUser> {
         modelBuilder.Entity<StrategyTemplate>()
             .HasKey(b => b.Id);
         modelBuilder.Entity<StrategyTemplate>()
-            .HasAlternateKey(b => new { b.UserId, b.Name, b.Version });
+            .HasAlternateKey(b => new { b.UserId, b.Name });    // User cannot have two strategies with same name
         modelBuilder.Entity<StrategyTemplate>()
             .Property<Ksuid>(b => b.Id)
             .HasColumnName("StrategyTemplateId");
+        modelBuilder.OneToMany<StrategyTemplate, StrategyTemplateVersion, Ksuid>("StrategyTemplateId", u => u.Versions)
+            .IsRequired()
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<StrategyTemplateVersion>()
+            .HasKey("StrategyTemplateId", "VersionNumber");
         // modelBuilder.Entity<CSharpStrategyTemplate>().HasData(new CSharpStrategyTemplate(
         //     owningUserId: ADMIN_USER_ID,
         //     name: "Opportunist",
@@ -217,7 +214,7 @@ public class EFCoreContext : ApiAuthorizationDbContext<NummiUser> {
         var result = await base.SaveChangesAsync(cancellationToken);
         return result;
     }
-    
+
     public override int SaveChanges() {
         var insertedEntries = ChangeTracker.Entries()
             .Where(x => x.State == EntityState.Added)
@@ -245,6 +242,6 @@ public class EFCoreContext : ApiAuthorizationDbContext<NummiUser> {
     
     private string GetEnvironmentVariable(string name) {
         return Environment.GetEnvironmentVariable(name) ??
-               throw new InvalidSystemArgumentException($"Missing Env Var: {name}");
+               throw new SystemArgumentException($"Missing Env Var: {name}");
     }
 }

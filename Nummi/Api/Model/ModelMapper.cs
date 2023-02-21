@@ -1,5 +1,7 @@
 using Nummi.Core.Domain.New;
 using Nummi.Core.Domain.New.Data;
+using Nummi.Core.Domain.New.User;
+using Nummi.Core.Domain.Strategies;
 using Nummi.Core.Domain.Test;
 
 namespace Nummi.Api.Model; 
@@ -173,7 +175,7 @@ public static class ModelMapper {
 
     public static NummiUserDto ToDto(this NummiUser user) {
         return new NummiUserDto {
-            Id = user.Id,
+            Id = user.Id.ToString(),
             Username = user.UserName,
             Email = user.Email,
             Bots = user.Bots.Select(ToDto).ToList(),
@@ -186,9 +188,19 @@ public static class ModelMapper {
             Id = template.Id.ToString(),
             CreatedAt = template.CreatedAt,
             DeletedAt = template.DeletedAt,
-            Frequency = template.Frequency,
             Name = template.Name,
             UpdatedAt = template.UpdatedAt
+        };
+    }
+
+    public static StrategyTemplateVerionDto ToDto(this StrategyTemplateVersion version) {
+        return new StrategyTemplateVerionDto {
+            VersionNumber = version.VersionNumber,
+            CreatedAt = version.CreatedAt,
+            DeletedAt = version.DeletedAt,
+            Frequency = version.Frequency,
+            Name = version.Name,
+            UpdatedAt = version.UpdatedAt
         };
     }
 }

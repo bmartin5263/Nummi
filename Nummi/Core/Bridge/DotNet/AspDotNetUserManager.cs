@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 using Nummi.Core.Database.Common;
-using Nummi.Core.Domain.New;
+using Nummi.Core.Domain.New.User;
 using Nummi.Core.Exceptions;
 using static Nummi.Core.Config.Configuration;
 
@@ -10,9 +10,9 @@ public class AspDotNetUserManager : INummiUserManager {
     
     private IUserRepository UserRepository { get; }
     private UserManager<NummiUser> UserManager { get; }
-    private RoleManager<IdentityRole> RoleManager { get; }
+    private RoleManager<NummiRole> RoleManager { get; }
 
-    public AspDotNetUserManager(IUserRepository userRepository, UserManager<NummiUser> userManager, RoleManager<IdentityRole> roleManager) {
+    public AspDotNetUserManager(IUserRepository userRepository, UserManager<NummiUser> userManager, RoleManager<NummiRole> roleManager) {
         UserRepository = userRepository;
         UserManager = userManager;
         RoleManager = roleManager;
@@ -34,7 +34,7 @@ public class AspDotNetUserManager : INummiUserManager {
         return result;
     }
 
-    public IdentityResult CreateRole(IdentityRole role) {
+    public IdentityResult CreateRole(NummiRole role) {
         var result = RoleManager.CreateAsync(role).Result;
         if (!result.Succeeded) {
             throw new InvalidSystemConfigurationException(result.Errors.ToString()!);
@@ -54,7 +54,7 @@ public class AspDotNetUserManager : INummiUserManager {
         return UserManager.CreateAsync(user, password);
     }
 
-    public Task<IdentityResult> CreateRoleAsync(IdentityRole role) {
+    public Task<IdentityResult> CreateRoleAsync(NummiRole role) {
         return RoleManager.CreateAsync(role);
     }
 

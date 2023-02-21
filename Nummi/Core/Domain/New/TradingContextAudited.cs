@@ -1,4 +1,5 @@
 using Nummi.Core.Domain.Common;
+using Nummi.Core.Domain.Strategies;
 using Nummi.Core.External.Binance;
 using Nummi.Core.Util;
 
@@ -12,6 +13,12 @@ public class TradingContextAudited : ITradingContext {
     public decimal RemainingFunds => Delegate.RemainingFunds;
     public TradingMode Mode => Delegate.Mode;
     public Ksuid? BotId => Delegate.BotId;
+    public object? Parameters => Delegate.Parameters;
+
+    public object? State {
+        get => Delegate.State;
+        set => Delegate.State = value;
+    }
 
     public TradingContextAudited(ITradingContext delegateContext, StrategyLogBuilder logBuilder) {
         LogBuilder = logBuilder;

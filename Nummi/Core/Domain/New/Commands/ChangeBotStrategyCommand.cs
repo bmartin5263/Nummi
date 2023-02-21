@@ -1,4 +1,5 @@
 using Nummi.Core.Database.Common;
+using Nummi.Core.Domain.Strategies;
 using Nummi.Core.Exceptions;
 using Nummi.Core.Util;
 
@@ -26,8 +27,10 @@ public class ChangeBotStrategyCommand {
             throw new InvalidUserOperationException("Cannot change strategy of inactive bot");
         }
 
-        var strategyTemplate = StrategyTemplateRepository.FindById(parameters.StrategyTemplateId.ToKsuid());
-        var strategy = strategyTemplate.Instantiate(parameters.JsonParameters);
+        StrategyTemplate template = StrategyTemplateRepository.FindById(parameters.StrategyTemplateId.ToKsuid());
+        StrategyTemplateVersion latestVersion = template.Versions[0];
+
+        var strategy = latestVersion.Instantiate(parameters.JsonParameters);
         
         bot.ChangeActiveStrategy(strategy);
         BotRepository.Commit();

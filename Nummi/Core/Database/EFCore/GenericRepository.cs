@@ -9,7 +9,7 @@ namespace Nummi.Core.Database.EFCore;
 
 public abstract class GenericRepository<ID, E> : IGenericRepository<ID, E> where E : class where ID : notnull {
     protected ITransaction Transaction { get; }
-    private EFCoreContext Context => (Transaction.DbContext as EFCoreContext)!;
+    protected EFCoreContext Context => (Transaction.DbContext as EFCoreContext)!;
 
     protected GenericRepository(ITransaction transaction) {
         Transaction = transaction;

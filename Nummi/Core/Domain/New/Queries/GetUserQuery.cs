@@ -1,4 +1,5 @@
 using Nummi.Core.Database.Common;
+using Nummi.Core.Domain.New.User;
 using Nummi.Core.Exceptions;
 using Nummi.Core.Util;
 
@@ -12,7 +13,7 @@ public class GetUserQuery {
     }
 
     public NummiUser Execute(string userId) {
-        var user = UserRepository.FindById(userId)
+        var user = UserRepository.FindById(userId.ToKsuid())
             .OrElseThrow(() => EntityNotFoundException<NummiUser>.IdNotFound(userId));
         
         UserRepository.LoadCollection(user, u => u.Bots);

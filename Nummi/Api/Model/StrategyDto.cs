@@ -5,7 +5,7 @@ public class StrategyDto {
     public DateTimeOffset? CreatedAt { get; set; }
     public DateTimeOffset? UpdatedAt { get; set; }
     public DateTimeOffset? DeletedAt { get; set; }
-    public StrategyTemplateDto? ParentTemplate { get; set; }
+    public StrategyTemplateVerionDto? ParentTemplate { get; set; }
     public string? ParametersJson { get; set; }
     public string? StateJson { get; set; }
     protected object? ParametersInstance { get; set; }

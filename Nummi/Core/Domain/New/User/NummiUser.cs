@@ -1,9 +1,10 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Nummi.Core.Domain.Common;
+using Nummi.Core.Domain.Strategies;
 
-namespace Nummi.Core.Domain.New;
+namespace Nummi.Core.Domain.New.User;
 
-public class NummiUser : IdentityUser, Audited {
+public class NummiUser : IdentityUser<Ksuid>, Audited {
 
     public DateTimeOffset CreatedAt { get; set; }
     

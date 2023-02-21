@@ -1,5 +1,9 @@
+using System.ComponentModel;
+using Nummi.Core.Util;
+
 namespace Nummi.Core.Domain.Common; 
 
+[TypeConverter(typeof(KsuidConverter))]
 public record Ksuid(KSUID.Ksuid Value) : IComparable<Ksuid> {
     
     public virtual bool Equals(Ksuid? other) {

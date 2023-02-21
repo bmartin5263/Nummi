@@ -1,13 +1,18 @@
 using Microsoft.AspNetCore.Identity;
 using NLog;
 using Nummi.Core.Bridge;
-using Nummi.Core.Domain.New;
+using Nummi.Core.Domain.New.User;
+using Nummi.Core.Domain.Strategies;
 using Nummi.Core.Exceptions;
 using Nummi.Core.Util;
 using static Nummi.Core.Config.Configuration;
 
 namespace Nummi.Core.Config; 
 
+/// <summary>
+/// Initializes the application with its default data, including creating an admin user,
+/// identity roles, and some initial strategies
+/// </summary>
 public class NummiInitializer : IHostedService {
     private static readonly Logger Log = LogManager.GetCurrentClassLogger();
 
@@ -23,9 +28,9 @@ public class NummiInitializer : IHostedService {
         var userManager = scope.GetService<INummiUserManager>();
         
         if (!userManager.RoleExists(ROLE_USER_NAME)) {
-            Log.Info($"{"Creating".Green()} Identity Role {ROLE_USER_NAME.Blue()}");
+            Log.Info($"{"Creating".Green()} Identity Role {ROLE_USER_NAME.Yellow()}");
 
-            var userRole = new IdentityRole {
+            var userRole = new NummiRole {
                 Id = ROLE_USER_ID,
                 Name = ROLE_USER_NAME
             };
@@ -33,9 +38,9 @@ public class NummiInitializer : IHostedService {
         }
         
         if (!userManager.RoleExists(ROLE_ADMIN_NAME)) {
-            Log.Info($"{"Creating".Green()} Identity Role {ROLE_ADMIN_NAME.Blue()}");
+            Log.Info($"{"Creating".Green()} Identity Role {ROLE_ADMIN_NAME.Yellow()}");
 
-            var adminRole = new IdentityRole {
+            var adminRole = new NummiRole {
                 Id = ROLE_ADMIN_ID,
                 Name = ROLE_ADMIN_NAME
             };
@@ -48,10 +53,8 @@ public class NummiInitializer : IHostedService {
             var admin = new NummiUser {
                 Id = ADMIN_USER_ID,
                 CreatedAt = DateTimeOffset.UtcNow,
-                UserName = ADMIN_USER_NAME,
-                NormalizedUserName = ADMIN_USER_NAME,
+                UserName = ADMIN_USER_EMAIL,
                 Email = ADMIN_USER_EMAIL,
-                NormalizedEmail = ADMIN_USER_EMAIL,
                 EmailConfirmed = true,
                 SecurityStamp = string.Empty,
                 AlpacaPaperId = GetEnvironmentVariable(ALPACA_PAPER_ID_ENV_VAR),
@@ -62,6 +65,10 @@ public class NummiInitializer : IHostedService {
             AssertNotFailed(await userManager.CreateUserAsync(admin, "Password1!"));
             AssertNotFailed(await userManager.AssignRoleAsync(admin, ROLE_ADMIN_NAME));
         }
+
+        var initializeStrategiesCommand = scope.GetService<ReInitializeBuiltinStrategiesCommand>();
+        initializeStrategiesCommand.Execute();
+        
         Log.Info("Initialization Complete");
     }
 
@@ -71,7 +78,7 @@ public class NummiInitializer : IHostedService {
 
     private string GetEnvironmentVariable(string name) {
         return Environment.GetEnvironmentVariable(name) 
-               ?? throw new InvalidSystemArgumentException($"Missing Env Var: {name}");
+               ?? throw new SystemArgumentException($"Missing Env Var: {name}");
     }
 
     private void AssertNotFailed(IdentityResult result) {

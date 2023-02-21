@@ -1,6 +1,6 @@
 using Nummi.Core.Database.Common;
-using Nummi.Core.Domain.New;
 using Nummi.Core.Domain.New.Queries;
+using Nummi.Core.Domain.New.User;
 using NummiTests.Utils;
 
 namespace NummiTests.Unit; 
@@ -23,7 +23,7 @@ public class GetUserQueryTest {
         userRepository.Add(new NummiUser());
         var id = user.Id;
 
-        var result = subject.Execute(id);
+        var result = subject.Execute(id.ToString());
         
         Assert.That(result, Is.EqualTo(user));
     }

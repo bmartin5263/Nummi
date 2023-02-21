@@ -1,5 +1,6 @@
 using Nummi.Core.Database.Common;
 using Nummi.Core.Domain.Common;
+using Nummi.Core.Domain.Strategies;
 using Nummi.Core.Exceptions;
 using Nummi.Core.Util;
 
@@ -27,8 +28,10 @@ public class ActivateBotCommand {
             return bot.CurrentActivation!;
         }
 
-        var strategyTemplate = StrategyTemplateRepository.FindById(parameters.StrategyTemplateId.ToKsuid());
-        var strategy = strategyTemplate.Instantiate(parameters.JsonParameters);
+        StrategyTemplate strategyTemplate = StrategyTemplateRepository.FindById(parameters.StrategyTemplateId.ToKsuid());
+        StrategyTemplateVersion latestVersion = strategyTemplate.Versions[0];
+        
+        var strategy = latestVersion.Instantiate(parameters.JsonParameters);
 
         var activation = bot.Activate(strategy); // Domain Event BotActivated
         BotRepository.Commit();

@@ -11,6 +11,8 @@ public class TradingContext : ITradingContext {
     public decimal RemainingFunds => FundSource.RemainingFunds;
     public TradingMode Mode { get; }
     public Ksuid? BotId { get; }
+    public object? Parameters { get; }
+    public object? State { get; set; }
 
     private IFundSource FundSource { get; }
     private ICryptoDataClient DataClient { get; }
@@ -30,6 +32,7 @@ public class TradingContext : ITradingContext {
         TradingClient = tradingClient;
         Clock = clock;
         FundSource = fundSource;
+        Parameters = null;
     }
 
     public IDictionary<string, List<Bar>> GetBars(ISet<string> symbols, DateRange dateRange, Period period) { 

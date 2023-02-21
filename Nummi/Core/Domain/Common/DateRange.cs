@@ -9,7 +9,7 @@ public struct DateRange {
 
     public DateRange(DateTimeOffset start, DateTimeOffset end) {
         if (start > end) {
-            throw new InvalidSystemArgumentException($"'start' ({start}) cannot be after 'end' ({end})");
+            throw new SystemArgumentException($"'start' ({start}) cannot be after 'end' ({end})");
         }
         Start = start;
         End = end;

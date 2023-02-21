@@ -1,8 +1,9 @@
 using System.Diagnostics.CodeAnalysis;
 using Nummi.Core.Domain.Common;
+using Nummi.Core.Domain.New;
 using Nummi.Core.Util;
 
-namespace Nummi.Core.Domain.New; 
+namespace Nummi.Core.Domain.Strategies; 
 
 public enum StrategyAction {
     Initializing, Trading

@@ -68,7 +68,7 @@ public static class AlpacaMapper {
         if (quantity.Dollars == null) {
             return OrderQuantity.Fractional(quantity.Coins!.Value);
         }
-        throw new InvalidSystemArgumentException($"{nameof(CryptoOrderQuantity)} cannot be mapped to {nameof(OrderQuantity)}");
+        throw new SystemArgumentException($"{nameof(CryptoOrderQuantity)} cannot be mapped to {nameof(OrderQuantity)}");
     }
 
     public static Snapshot ToDomain(this ISnapshot snapshot) {

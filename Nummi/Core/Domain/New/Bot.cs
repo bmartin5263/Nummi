@@ -50,7 +50,7 @@ public class Bot : Audited {
         Funds -= amount;
     }
 
-    public BotActivation Activate(Strategy strategy) {
+    public BotActivation Activate(Strategies.Strategy strategy) {
         if (IsActive) {
             throw new InvalidUserArgumentException("Cannot activate an already active Bot");
         }
@@ -66,7 +66,7 @@ public class Bot : Audited {
         CurrentActivation = null;
     }
 
-    public void ChangeActiveStrategy(Strategy strategy) {
+    public void ChangeActiveStrategy(Strategies.Strategy strategy) {
         if (!IsActive) {
             throw new InvalidUserArgumentException("Cannot change strategy of an inactive Bot");
         }

@@ -12,7 +12,7 @@ public class BotActivation : Audited {
     
     public DateTimeOffset? DeletedAt { get; set; }
     
-    public Strategy Strategy { get; }
+    public Strategies.Strategy Strategy { get; }
     
     public TradingMode Mode { get; }
 
@@ -22,7 +22,7 @@ public class BotActivation : Audited {
         Strategy = null!;
     }
 
-    public BotActivation(Strategy strategy, TradingMode mode) {
+    public BotActivation(Strategies.Strategy strategy, TradingMode mode) {
         Strategy = strategy;
         Mode = mode;
     }

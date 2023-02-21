@@ -31,7 +31,7 @@ public class FundSourceInMemory : IFundSource {
     public void SubtractFunds(decimal amount) {
         Funds -= amount;
         if (Funds < 0) {
-            throw new InvalidSystemArgumentException("Funds is negative");
+            throw new SystemArgumentException("Funds is negative");
         }
     }
 }
