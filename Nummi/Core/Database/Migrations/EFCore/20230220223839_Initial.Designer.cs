@@ -12,7 +12,7 @@ using Nummi.Core.Database.EFCore;
 namespace Nummi.Core.Database.Migrations.EFCore
 {
     [DbContext(typeof(EFCoreContext))]
-    [Migration("20230214020951_Initial")]
+    [Migration("20230220223839_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -164,142 +164,6 @@ namespace Nummi.Core.Database.Migrations.EFCore
                     b.HasIndex("SubjectId", "SessionId", "Type");
 
                     b.ToTable("PersistedGrants", (string)null);
-                });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("text");
-
-                    b.Property<string>("ConcurrencyStamp")
-                        .IsConcurrencyToken()
-                        .HasColumnType("text");
-
-                    b.Property<string>("Name")
-                        .HasMaxLength(256)
-                        .HasColumnType("character varying(256)");
-
-                    b.Property<string>("NormalizedName")
-                        .HasMaxLength(256)
-                        .HasColumnType("character varying(256)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("NormalizedName")
-                        .IsUnique()
-                        .HasDatabaseName("RoleNameIndex");
-
-                    b.ToTable("AspNetRoles", (string)null);
-                });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("ClaimType")
-                        .HasColumnType("text");
-
-                    b.Property<string>("ClaimValue")
-                        .HasColumnType("text");
-
-                    b.Property<string>("RoleId")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("RoleId");
-
-                    b.ToTable("AspNetRoleClaims", (string)null);
-                });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("ClaimType")
-                        .HasColumnType("text");
-
-                    b.Property<string>("ClaimValue")
-                        .HasColumnType("text");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("AspNetUserClaims", (string)null);
-                });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
-                {
-                    b.Property<string>("LoginProvider")
-                        .HasMaxLength(128)
-                        .HasColumnType("character varying(128)");
-
-                    b.Property<string>("ProviderKey")
-                        .HasMaxLength(128)
-                        .HasColumnType("character varying(128)");
-
-                    b.Property<string>("ProviderDisplayName")
-                        .HasColumnType("text");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("LoginProvider", "ProviderKey");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("AspNetUserLogins", (string)null);
-                });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
-                {
-                    b.Property<string>("UserId")
-                        .HasColumnType("text");
-
-                    b.Property<string>("RoleId")
-                        .HasColumnType("text");
-
-                    b.HasKey("UserId", "RoleId");
-
-                    b.HasIndex("RoleId");
-
-                    b.ToTable("AspNetUserRoles", (string)null);
-                });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
-                {
-                    b.Property<string>("UserId")
-                        .HasColumnType("text");
-
-                    b.Property<string>("LoginProvider")
-                        .HasMaxLength(128)
-                        .HasColumnType("character varying(128)");
-
-                    b.Property<string>("Name")
-                        .HasMaxLength(128)
-                        .HasColumnType("character varying(128)");
-
-                    b.Property<string>("Value")
-                        .HasColumnType("text");
-
-                    b.HasKey("UserId", "LoginProvider", "Name");
-
-                    b.ToTable("AspNetUserTokens", (string)null);
                 });
 
             modelBuilder.Entity("Nummi.Core.Domain.New.Bar", b =>
@@ -590,7 +454,7 @@ namespace Nummi.Core.Database.Migrations.EFCore
                     b.HasIndex("SimulationId")
                         .IsUnique();
 
-                    b.ToTable("Strategies");
+                    b.ToTable("Strategy", (string)null);
 
                     b.HasDiscriminator<string>("StrategyType").HasValue("Strategy");
 
@@ -657,11 +521,52 @@ namespace Nummi.Core.Database.Migrations.EFCore
                     b.Property<DateTimeOffset?>("DeletedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<TimeSpan>("Frequency")
-                        .HasColumnType("interval");
+                    b.Property<bool>("IsPublic")
+                        .HasColumnType("boolean");
 
                     b.Property<string>("Name")
                         .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasAlternateKey("UserId", "Name");
+
+                    b.ToTable("StrategyTemplates");
+                });
+
+            modelBuilder.Entity("Nummi.Core.Domain.New.StrategyTemplateVersion", b =>
+                {
+                    b.Property<string>("StrategyTemplateId")
+                        .HasColumnType("text");
+
+                    b.Property<long>("VersionNumber")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<TimeSpan>("Frequency")
+                        .HasColumnType("interval");
+
+                    b.Property<bool>("IsDraft")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("SourceCode")
                         .HasColumnType("text");
 
                     b.Property<string>("StrategyTemplateType")
@@ -671,64 +576,67 @@ namespace Nummi.Core.Database.Migrations.EFCore
                     b.Property<DateTimeOffset?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("UserId")
-                        .HasColumnType("text");
+                    b.HasKey("StrategyTemplateId", "VersionNumber");
 
-                    b.HasKey("Id");
+                    b.ToTable("StrategyTemplateVersion");
 
-                    b.HasAlternateKey("Name");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("StrategyTemplates");
-
-                    b.HasDiscriminator<string>("StrategyTemplateType").HasValue("StrategyTemplate");
+                    b.HasDiscriminator<string>("StrategyTemplateType").HasValue("StrategyTemplateVersion");
 
                     b.UseTphMappingStrategy();
                 });
 
-            modelBuilder.Entity("Nummi.Core.Domain.Test.Blog", b =>
+            modelBuilder.Entity("Nummi.Core.Domain.New.User.NummiRole", b =>
                 {
                     b.Property<string>("Id")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .IsConcurrencyToken()
                         .HasColumnType("text");
 
                     b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
 
-                    b.Property<string>("PostId")
-                        .HasColumnType("text");
+                    b.Property<string>("NormalizedName")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Blogs");
+                    b.HasIndex("NormalizedName")
+                        .IsUnique()
+                        .HasDatabaseName("RoleNameIndex");
+
+                    b.ToTable("User", (string)null);
                 });
 
-            modelBuilder.Entity("Nummi.Core.Domain.Test.Post", b =>
+            modelBuilder.Entity("Nummi.Core.Domain.New.User.NummiRoleClaim", b =>
                 {
-                    b.Property<string>("Id")
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ClaimType")
                         .HasColumnType("text");
 
-                    b.Property<string>("BlogId")
+                    b.Property<string>("ClaimValue")
                         .HasColumnType("text");
 
-                    b.Property<string>("Content")
+                    b.Property<string>("RoleId")
                         .IsRequired()
                         .HasColumnType("text");
-
-                    b.Property<string>("Meta")
-                        .IsRequired()
-                        .HasColumnType("jsonb");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("BlogId")
-                        .IsUnique();
+                    b.HasIndex("RoleId");
 
-                    b.ToTable("Posts");
+                    b.ToTable("RoleClaim", (string)null);
                 });
 
-            modelBuilder.Entity("Nummi.Core.Domain.User.NummiUser", b =>
+            modelBuilder.Entity("Nummi.Core.Domain.New.User.NummiUser", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("text");
@@ -736,10 +644,16 @@ namespace Nummi.Core.Database.Migrations.EFCore
                     b.Property<int>("AccessFailedCount")
                         .HasColumnType("integer");
 
-                    b.Property<string>("AlpacaKeyId")
+                    b.Property<string>("AlpacaLiveId")
                         .HasColumnType("text");
 
-                    b.Property<string>("AlpacaSecret")
+                    b.Property<string>("AlpacaLiveKey")
+                        .HasColumnType("text");
+
+                    b.Property<string>("AlpacaPaperId")
+                        .HasColumnType("text");
+
+                    b.Property<string>("AlpacaPaperKey")
                         .HasColumnType("text");
 
                     b.Property<string>("ConcurrencyStamp")
@@ -807,16 +721,146 @@ namespace Nummi.Core.Database.Migrations.EFCore
                     b.ToTable("Users", (string)null);
                 });
 
-            modelBuilder.Entity("Nummi.Core.Domain.New.CSharpStrategy", b =>
+            modelBuilder.Entity("Nummi.Core.Domain.New.User.NummiUserClaim", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ClaimType")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ClaimValue")
+                        .HasColumnType("text");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("UserClaim", (string)null);
+                });
+
+            modelBuilder.Entity("Nummi.Core.Domain.New.User.NummiUserLogin", b =>
+                {
+                    b.Property<string>("LoginProvider")
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
+                    b.Property<string>("ProviderKey")
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
+                    b.Property<string>("ProviderDisplayName")
+                        .HasColumnType("text");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("LoginProvider", "ProviderKey");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("UserLogin", (string)null);
+                });
+
+            modelBuilder.Entity("Nummi.Core.Domain.New.User.NummiUserRole", b =>
+                {
+                    b.Property<string>("UserId")
+                        .HasColumnType("text");
+
+                    b.Property<string>("RoleId")
+                        .HasColumnType("text");
+
+                    b.HasKey("UserId", "RoleId");
+
+                    b.HasIndex("RoleId");
+
+                    b.ToTable("UserRole", (string)null);
+                });
+
+            modelBuilder.Entity("Nummi.Core.Domain.New.User.NummiUserToken", b =>
+                {
+                    b.Property<string>("UserId")
+                        .HasColumnType("text");
+
+                    b.Property<string>("LoginProvider")
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
+                    b.Property<string>("Name")
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
+                    b.Property<string>("Value")
+                        .HasColumnType("text");
+
+                    b.HasKey("UserId", "LoginProvider", "Name");
+
+                    b.ToTable("UserToken", (string)null);
+                });
+
+            modelBuilder.Entity("Nummi.Core.Domain.Test.Blog", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("PostId")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Blogs");
+                });
+
+            modelBuilder.Entity("Nummi.Core.Domain.Test.Post", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("text");
+
+                    b.Property<string>("BlogId")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Meta")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BlogId")
+                        .IsUnique();
+
+                    b.ToTable("Posts");
+                });
+
+            modelBuilder.Entity("Nummi.Core.Domain.New.BuiltinStrategy", b =>
                 {
                     b.HasBaseType("Nummi.Core.Domain.New.Strategy");
 
                     b.HasDiscriminator().HasValue("csharp");
                 });
 
-            modelBuilder.Entity("Nummi.Core.Domain.New.CSharpStrategyTemplate", b =>
+            modelBuilder.Entity("Nummi.Core.Domain.New.StrategyTemplateVersionBuiltin", b =>
                 {
-                    b.HasBaseType("Nummi.Core.Domain.New.StrategyTemplate");
+                    b.HasBaseType("Nummi.Core.Domain.New.StrategyTemplateVersion");
+
+                    b.Property<string>("LogicTypeName")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<string>("ParameterTypeName")
                         .HasColumnType("text");
@@ -824,84 +868,7 @@ namespace Nummi.Core.Database.Migrations.EFCore
                     b.Property<string>("StateTypeName")
                         .HasColumnType("text");
 
-                    b.Property<string>("StrategyTypeName")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasDiscriminator().HasValue("csharp");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = "2Li4VLZmsmmvSy9KFBGKf1Gmzlm",
-                            CreatedAt = new DateTimeOffset(new DateTime(2023, 2, 14, 2, 9, 51, 29, DateTimeKind.Unspecified).AddTicks(5170), new TimeSpan(0, 0, 0, 0, 0)),
-                            Frequency = new TimeSpan(0, 0, 1, 0, 0),
-                            Name = "Opportunist",
-                            ParameterTypeName = "Nummi.Core.Domain.New.OpportunistParameters",
-                            StateTypeName = "Nummi.Core.Domain.New.OpportunistState",
-                            StrategyTypeName = "Nummi.Core.Domain.New.OpportunistStrategy"
-                        },
-                        new
-                        {
-                            Id = "2Li4VJDZCZCC9hhUD2bXfs3JVUR",
-                            CreatedAt = new DateTimeOffset(new DateTime(2023, 2, 13, 20, 9, 51, 29, DateTimeKind.Unspecified).AddTicks(5200), new TimeSpan(0, -6, 0, 0, 0)),
-                            Frequency = new TimeSpan(0, 0, 1, 0, 0),
-                            Name = "Opportunist2",
-                            ParameterTypeName = "Nummi.Core.Domain.New.OpportunistParameters",
-                            StateTypeName = "Nummi.Core.Domain.New.OpportunistState",
-                            StrategyTypeName = "Nummi.Core.Domain.New.OpportunistStrategy"
-                        });
-                });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
-                {
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
-                        .WithMany()
-                        .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
-                {
-                    b.HasOne("Nummi.Core.Domain.User.NummiUser", null)
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
-                {
-                    b.HasOne("Nummi.Core.Domain.User.NummiUser", null)
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
-                {
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
-                        .WithMany()
-                        .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Nummi.Core.Domain.User.NummiUser", null)
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
-                {
-                    b.HasOne("Nummi.Core.Domain.User.NummiUser", null)
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.HasDiscriminator().HasValue("builtin");
                 });
 
             modelBuilder.Entity("Nummi.Core.Domain.New.Bot", b =>
@@ -911,7 +878,7 @@ namespace Nummi.Core.Database.Migrations.EFCore
                         .HasForeignKey("Nummi.Core.Domain.New.Bot", "CurrentBotActivationId")
                         .OnDelete(DeleteBehavior.SetNull);
 
-                    b.HasOne("Nummi.Core.Domain.User.NummiUser", null)
+                    b.HasOne("Nummi.Core.Domain.New.User.NummiUser", null)
                         .WithMany("Bots")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -947,7 +914,7 @@ namespace Nummi.Core.Database.Migrations.EFCore
 
             modelBuilder.Entity("Nummi.Core.Domain.New.Simulation", b =>
                 {
-                    b.HasOne("Nummi.Core.Domain.User.NummiUser", null)
+                    b.HasOne("Nummi.Core.Domain.New.User.NummiUser", null)
                         .WithMany("Simulations")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -980,9 +947,71 @@ namespace Nummi.Core.Database.Migrations.EFCore
 
             modelBuilder.Entity("Nummi.Core.Domain.New.StrategyTemplate", b =>
                 {
-                    b.HasOne("Nummi.Core.Domain.User.NummiUser", null)
+                    b.HasOne("Nummi.Core.Domain.New.User.NummiUser", null)
                         .WithMany("StrategyTemplates")
-                        .HasForeignKey("UserId");
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Nummi.Core.Domain.New.StrategyTemplateVersion", b =>
+                {
+                    b.HasOne("Nummi.Core.Domain.New.StrategyTemplate", null)
+                        .WithMany("Versions")
+                        .HasForeignKey("StrategyTemplateId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Nummi.Core.Domain.New.User.NummiRoleClaim", b =>
+                {
+                    b.HasOne("Nummi.Core.Domain.New.User.NummiRole", null)
+                        .WithMany()
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Nummi.Core.Domain.New.User.NummiUserClaim", b =>
+                {
+                    b.HasOne("Nummi.Core.Domain.New.User.NummiUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Nummi.Core.Domain.New.User.NummiUserLogin", b =>
+                {
+                    b.HasOne("Nummi.Core.Domain.New.User.NummiUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Nummi.Core.Domain.New.User.NummiUserRole", b =>
+                {
+                    b.HasOne("Nummi.Core.Domain.New.User.NummiRole", null)
+                        .WithMany()
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Nummi.Core.Domain.New.User.NummiUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Nummi.Core.Domain.New.User.NummiUserToken", b =>
+                {
+                    b.HasOne("Nummi.Core.Domain.New.User.NummiUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Nummi.Core.Domain.Test.Post", b =>
@@ -1021,18 +1050,23 @@ namespace Nummi.Core.Database.Migrations.EFCore
                     b.Navigation("Orders");
                 });
 
-            modelBuilder.Entity("Nummi.Core.Domain.Test.Blog", b =>
+            modelBuilder.Entity("Nummi.Core.Domain.New.StrategyTemplate", b =>
                 {
-                    b.Navigation("Post");
+                    b.Navigation("Versions");
                 });
 
-            modelBuilder.Entity("Nummi.Core.Domain.User.NummiUser", b =>
+            modelBuilder.Entity("Nummi.Core.Domain.New.User.NummiUser", b =>
                 {
                     b.Navigation("Bots");
 
                     b.Navigation("Simulations");
 
                     b.Navigation("StrategyTemplates");
+                });
+
+            modelBuilder.Entity("Nummi.Core.Domain.Test.Blog", b =>
+                {
+                    b.Navigation("Post");
                 });
 #pragma warning restore 612, 618
         }

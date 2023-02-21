@@ -3,8 +3,6 @@
 using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
-#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
-
 namespace Nummi.Core.Database.Migrations.EFCore
 {
     /// <inheritdoc />
@@ -13,20 +11,6 @@ namespace Nummi.Core.Database.Migrations.EFCore
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.CreateTable(
-                name: "AspNetRoles",
-                columns: table => new
-                {
-                    Id = table.Column<string>(type: "text", nullable: false),
-                    Name = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
-                    NormalizedName = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
-                    ConcurrencyStamp = table.Column<string>(type: "text", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_AspNetRoles", x => x.Id);
-                });
-
             migrationBuilder.CreateTable(
                 name: "Blogs",
                 columns: table => new
@@ -129,6 +113,20 @@ namespace Nummi.Core.Database.Migrations.EFCore
                 });
 
             migrationBuilder.CreateTable(
+                name: "User",
+                columns: table => new
+                {
+                    Id = table.Column<string>(type: "text", nullable: false),
+                    Name = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
+                    NormalizedName = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
+                    ConcurrencyStamp = table.Column<string>(type: "text", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_User", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Users",
                 columns: table => new
                 {
@@ -136,8 +134,10 @@ namespace Nummi.Core.Database.Migrations.EFCore
                     CreatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
                     UpdatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
                     DeletedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
-                    AlpacaKeyId = table.Column<string>(type: "text", nullable: true),
-                    AlpacaSecret = table.Column<string>(type: "text", nullable: true),
+                    AlpacaPaperId = table.Column<string>(type: "text", nullable: true),
+                    AlpacaPaperKey = table.Column<string>(type: "text", nullable: true),
+                    AlpacaLiveId = table.Column<string>(type: "text", nullable: true),
+                    AlpacaLiveKey = table.Column<string>(type: "text", nullable: true),
                     UserName = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
                     Email = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
@@ -156,27 +156,6 @@ namespace Nummi.Core.Database.Migrations.EFCore
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Users", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "AspNetRoleClaims",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    RoleId = table.Column<string>(type: "text", nullable: false),
-                    ClaimType = table.Column<string>(type: "text", nullable: true),
-                    ClaimValue = table.Column<string>(type: "text", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_AspNetRoleClaims", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_AspNetRoleClaims_AspNetRoles_RoleId",
-                        column: x => x.RoleId,
-                        principalTable: "AspNetRoles",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -199,86 +178,22 @@ namespace Nummi.Core.Database.Migrations.EFCore
                 });
 
             migrationBuilder.CreateTable(
-                name: "AspNetUserClaims",
+                name: "RoleClaim",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    UserId = table.Column<string>(type: "text", nullable: false),
+                    RoleId = table.Column<string>(type: "text", nullable: false),
                     ClaimType = table.Column<string>(type: "text", nullable: true),
                     ClaimValue = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_AspNetUserClaims", x => x.Id);
+                    table.PrimaryKey("PK_RoleClaim", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_AspNetUserClaims_Users_UserId",
-                        column: x => x.UserId,
-                        principalTable: "Users",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "AspNetUserLogins",
-                columns: table => new
-                {
-                    LoginProvider = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
-                    ProviderKey = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
-                    ProviderDisplayName = table.Column<string>(type: "text", nullable: true),
-                    UserId = table.Column<string>(type: "text", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_AspNetUserLogins", x => new { x.LoginProvider, x.ProviderKey });
-                    table.ForeignKey(
-                        name: "FK_AspNetUserLogins_Users_UserId",
-                        column: x => x.UserId,
-                        principalTable: "Users",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "AspNetUserRoles",
-                columns: table => new
-                {
-                    UserId = table.Column<string>(type: "text", nullable: false),
-                    RoleId = table.Column<string>(type: "text", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_AspNetUserRoles", x => new { x.UserId, x.RoleId });
-                    table.ForeignKey(
-                        name: "FK_AspNetUserRoles_AspNetRoles_RoleId",
+                        name: "FK_RoleClaim_User_RoleId",
                         column: x => x.RoleId,
-                        principalTable: "AspNetRoles",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_AspNetUserRoles_Users_UserId",
-                        column: x => x.UserId,
-                        principalTable: "Users",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "AspNetUserTokens",
-                columns: table => new
-                {
-                    UserId = table.Column<string>(type: "text", nullable: false),
-                    LoginProvider = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
-                    Name = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
-                    Value = table.Column<string>(type: "text", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_AspNetUserTokens", x => new { x.UserId, x.LoginProvider, x.Name });
-                    table.ForeignKey(
-                        name: "FK_AspNetUserTokens_Users_UserId",
-                        column: x => x.UserId,
-                        principalTable: "Users",
+                        principalTable: "User",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -319,23 +234,134 @@ namespace Nummi.Core.Database.Migrations.EFCore
                     CreatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
                     UpdatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
                     DeletedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
+                    UserId = table.Column<string>(type: "text", nullable: false),
+                    Name = table.Column<string>(type: "text", nullable: false),
+                    IsPublic = table.Column<bool>(type: "boolean", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_StrategyTemplates", x => x.StrategyTemplateId);
+                    table.UniqueConstraint("AK_StrategyTemplates_UserId_Name", x => new { x.UserId, x.Name });
+                    table.ForeignKey(
+                        name: "FK_StrategyTemplates_Users_UserId",
+                        column: x => x.UserId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "UserClaim",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    UserId = table.Column<string>(type: "text", nullable: false),
+                    ClaimType = table.Column<string>(type: "text", nullable: true),
+                    ClaimValue = table.Column<string>(type: "text", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_UserClaim", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_UserClaim_Users_UserId",
+                        column: x => x.UserId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "UserLogin",
+                columns: table => new
+                {
+                    LoginProvider = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
+                    ProviderKey = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
+                    ProviderDisplayName = table.Column<string>(type: "text", nullable: true),
+                    UserId = table.Column<string>(type: "text", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_UserLogin", x => new { x.LoginProvider, x.ProviderKey });
+                    table.ForeignKey(
+                        name: "FK_UserLogin_Users_UserId",
+                        column: x => x.UserId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "UserRole",
+                columns: table => new
+                {
+                    UserId = table.Column<string>(type: "text", nullable: false),
+                    RoleId = table.Column<string>(type: "text", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_UserRole", x => new { x.UserId, x.RoleId });
+                    table.ForeignKey(
+                        name: "FK_UserRole_User_RoleId",
+                        column: x => x.RoleId,
+                        principalTable: "User",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_UserRole_Users_UserId",
+                        column: x => x.UserId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "UserToken",
+                columns: table => new
+                {
+                    UserId = table.Column<string>(type: "text", nullable: false),
+                    LoginProvider = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
+                    Name = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
+                    Value = table.Column<string>(type: "text", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_UserToken", x => new { x.UserId, x.LoginProvider, x.Name });
+                    table.ForeignKey(
+                        name: "FK_UserToken_Users_UserId",
+                        column: x => x.UserId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "StrategyTemplateVersion",
+                columns: table => new
+                {
+                    VersionNumber = table.Column<long>(type: "bigint", nullable: false),
+                    StrategyTemplateId = table.Column<string>(type: "text", nullable: false),
+                    CreatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
+                    DeletedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
                     Name = table.Column<string>(type: "text", nullable: false),
                     Frequency = table.Column<TimeSpan>(type: "interval", nullable: false),
+                    SourceCode = table.Column<string>(type: "text", nullable: true),
+                    IsDraft = table.Column<bool>(type: "boolean", nullable: false),
                     StrategyTemplateType = table.Column<string>(type: "text", nullable: false),
-                    UserId = table.Column<string>(type: "text", nullable: true),
-                    StrategyTypeName = table.Column<string>(type: "text", nullable: true),
+                    LogicTypeName = table.Column<string>(type: "text", nullable: true),
                     ParameterTypeName = table.Column<string>(type: "text", nullable: true),
                     StateTypeName = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_StrategyTemplates", x => x.StrategyTemplateId);
-                    table.UniqueConstraint("AK_StrategyTemplates_Name", x => x.Name);
+                    table.PrimaryKey("PK_StrategyTemplateVersion", x => new { x.StrategyTemplateId, x.VersionNumber });
                     table.ForeignKey(
-                        name: "FK_StrategyTemplates_Users_UserId",
-                        column: x => x.UserId,
-                        principalTable: "Users",
-                        principalColumn: "Id");
+                        name: "FK_StrategyTemplateVersion_StrategyTemplates_StrategyTemplateId",
+                        column: x => x.StrategyTemplateId,
+                        principalTable: "StrategyTemplates",
+                        principalColumn: "StrategyTemplateId",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -409,7 +435,7 @@ namespace Nummi.Core.Database.Migrations.EFCore
                 });
 
             migrationBuilder.CreateTable(
-                name: "Strategies",
+                name: "Strategy",
                 columns: table => new
                 {
                     StrategyId = table.Column<string>(type: "text", nullable: false),
@@ -425,14 +451,14 @@ namespace Nummi.Core.Database.Migrations.EFCore
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Strategies", x => x.StrategyId);
+                    table.PrimaryKey("PK_Strategy", x => x.StrategyId);
                     table.ForeignKey(
-                        name: "FK_Strategies_BotActivation_BotActivationId",
+                        name: "FK_Strategy_BotActivation_BotActivationId",
                         column: x => x.BotActivationId,
                         principalTable: "BotActivation",
                         principalColumn: "BotActivationId");
                     table.ForeignKey(
-                        name: "FK_Strategies_Simulation_SimulationId",
+                        name: "FK_Strategy_Simulation_SimulationId",
                         column: x => x.SimulationId,
                         principalTable: "Simulation",
                         principalColumn: "SimulationId");
@@ -463,9 +489,9 @@ namespace Nummi.Core.Database.Migrations.EFCore
                         principalTable: "BotLog",
                         principalColumn: "BotLogId");
                     table.ForeignKey(
-                        name: "FK_StrategyLog_Strategies_StrategyId",
+                        name: "FK_StrategyLog_Strategy_StrategyId",
                         column: x => x.StrategyId,
-                        principalTable: "Strategies",
+                        principalTable: "Strategy",
                         principalColumn: "StrategyId",
                         onDelete: ReferentialAction.Restrict);
                 });
@@ -495,41 +521,6 @@ namespace Nummi.Core.Database.Migrations.EFCore
                         principalTable: "StrategyLog",
                         principalColumn: "StrategyLogId");
                 });
-
-            migrationBuilder.InsertData(
-                table: "StrategyTemplates",
-                columns: new[] { "StrategyTemplateId", "CreatedAt", "DeletedAt", "Frequency", "Name", "ParameterTypeName", "StateTypeName", "StrategyTemplateType", "StrategyTypeName", "UpdatedAt", "UserId" },
-                values: new object[,]
-                {
-                    { "2Li4VJDZCZCC9hhUD2bXfs3JVUR", new DateTimeOffset(new DateTime(2023, 2, 13, 20, 9, 51, 29, DateTimeKind.Unspecified).AddTicks(5200), new TimeSpan(0, -6, 0, 0, 0)), null, new TimeSpan(0, 0, 1, 0, 0), "Opportunist2", "Nummi.Core.Domain.New.OpportunistParameters", "Nummi.Core.Domain.New.OpportunistState", "csharp", "Nummi.Core.Domain.New.OpportunistStrategy", null, null },
-                    { "2Li4VLZmsmmvSy9KFBGKf1Gmzlm", new DateTimeOffset(new DateTime(2023, 2, 14, 2, 9, 51, 29, DateTimeKind.Unspecified).AddTicks(5170), new TimeSpan(0, 0, 0, 0, 0)), null, new TimeSpan(0, 0, 1, 0, 0), "Opportunist", "Nummi.Core.Domain.New.OpportunistParameters", "Nummi.Core.Domain.New.OpportunistState", "csharp", "Nummi.Core.Domain.New.OpportunistStrategy", null, null }
-                });
-
-            migrationBuilder.CreateIndex(
-                name: "IX_AspNetRoleClaims_RoleId",
-                table: "AspNetRoleClaims",
-                column: "RoleId");
-
-            migrationBuilder.CreateIndex(
-                name: "RoleNameIndex",
-                table: "AspNetRoles",
-                column: "NormalizedName",
-                unique: true);
-
-            migrationBuilder.CreateIndex(
-                name: "IX_AspNetUserClaims_UserId",
-                table: "AspNetUserClaims",
-                column: "UserId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_AspNetUserLogins_UserId",
-                table: "AspNetUserLogins",
-                column: "UserId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_AspNetUserRoles_RoleId",
-                table: "AspNetUserRoles",
-                column: "RoleId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Bot_CurrentBotActivationId",
@@ -595,19 +586,24 @@ namespace Nummi.Core.Database.Migrations.EFCore
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "IX_RoleClaim_RoleId",
+                table: "RoleClaim",
+                column: "RoleId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Simulation_UserId",
                 table: "Simulation",
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Strategies_BotActivationId",
-                table: "Strategies",
+                name: "IX_Strategy_BotActivationId",
+                table: "Strategy",
                 column: "BotActivationId",
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_Strategies_SimulationId",
-                table: "Strategies",
+                name: "IX_Strategy_SimulationId",
+                table: "Strategy",
                 column: "SimulationId",
                 unique: true);
 
@@ -622,9 +618,25 @@ namespace Nummi.Core.Database.Migrations.EFCore
                 column: "StrategyId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_StrategyTemplates_UserId",
-                table: "StrategyTemplates",
+                name: "RoleNameIndex",
+                table: "User",
+                column: "NormalizedName",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserClaim_UserId",
+                table: "UserClaim",
                 column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserLogin_UserId",
+                table: "UserLogin",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserRole_RoleId",
+                table: "UserRole",
+                column: "RoleId");
 
             migrationBuilder.CreateIndex(
                 name: "EmailIndex",
@@ -650,27 +662,8 @@ namespace Nummi.Core.Database.Migrations.EFCore
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropForeignKey(
-                name: "FK_Bot_Users_UserId",
-                table: "Bot");
-
-            migrationBuilder.DropForeignKey(
                 name: "FK_Bot_BotActivation_CurrentBotActivationId",
                 table: "Bot");
-
-            migrationBuilder.DropTable(
-                name: "AspNetRoleClaims");
-
-            migrationBuilder.DropTable(
-                name: "AspNetUserClaims");
-
-            migrationBuilder.DropTable(
-                name: "AspNetUserLogins");
-
-            migrationBuilder.DropTable(
-                name: "AspNetUserRoles");
-
-            migrationBuilder.DropTable(
-                name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
                 name: "DeviceCodes");
@@ -694,10 +687,22 @@ namespace Nummi.Core.Database.Migrations.EFCore
                 name: "Posts");
 
             migrationBuilder.DropTable(
-                name: "StrategyTemplates");
+                name: "RoleClaim");
 
             migrationBuilder.DropTable(
-                name: "AspNetRoles");
+                name: "StrategyTemplateVersion");
+
+            migrationBuilder.DropTable(
+                name: "UserClaim");
+
+            migrationBuilder.DropTable(
+                name: "UserLogin");
+
+            migrationBuilder.DropTable(
+                name: "UserRole");
+
+            migrationBuilder.DropTable(
+                name: "UserToken");
 
             migrationBuilder.DropTable(
                 name: "StrategyLog");
@@ -706,22 +711,28 @@ namespace Nummi.Core.Database.Migrations.EFCore
                 name: "Blogs");
 
             migrationBuilder.DropTable(
+                name: "StrategyTemplates");
+
+            migrationBuilder.DropTable(
+                name: "User");
+
+            migrationBuilder.DropTable(
                 name: "BotLog");
 
             migrationBuilder.DropTable(
-                name: "Strategies");
+                name: "Strategy");
 
             migrationBuilder.DropTable(
                 name: "Simulation");
-
-            migrationBuilder.DropTable(
-                name: "Users");
 
             migrationBuilder.DropTable(
                 name: "BotActivation");
 
             migrationBuilder.DropTable(
                 name: "Bot");
+
+            migrationBuilder.DropTable(
+                name: "Users");
         }
     }
 }
