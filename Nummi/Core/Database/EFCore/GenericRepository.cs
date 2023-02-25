@@ -18,7 +18,19 @@ public abstract class GenericRepository<ID, E> : IGenericRepository<ID, E> where
     public virtual E Add(E entity) {
         return Context.Set<E>().Add(entity).Entity;
     }
+
+    public virtual void AddRange(IEnumerable<E> entity) {
+        Context.Set<E>().AddRange(entity);
+    }
     
+    public virtual Task AddRangeAsync(IEnumerable<E> entity) { 
+        return Context.Set<E>().AddRangeAsync(entity);
+    }
+
+    public virtual long AddRangeIfNotExists(IEnumerable<E> entity) {
+        throw new NotImplementedException();
+    }
+
     public virtual void Remove(E entity) {
         var dbSet = Context.Set<E>();
         if (typeof(Audited).IsAssignableFrom(typeof(E))) {
@@ -35,7 +47,7 @@ public abstract class GenericRepository<ID, E> : IGenericRepository<ID, E> where
         Context.SaveChanges();
     }
 
-    public bool ExistsById(ID id) {
+    public virtual bool ExistsById(ID id) {
         return FindNullableById(id) != null;
     }
 

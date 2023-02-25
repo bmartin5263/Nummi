@@ -28,11 +28,4 @@ public class EFCoreTransaction : ITransaction {
         Disposed = true;
     }
 
-#if DEBUG
-    ~EFCoreTransaction() {
-        if (!Disposed) {
-            throw new ApplicationException("Transaction not disposed...");
-        }
-    }
-#endif
 }

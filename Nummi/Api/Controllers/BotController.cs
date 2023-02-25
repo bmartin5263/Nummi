@@ -2,7 +2,7 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Nummi.Api.Model;
-using Nummi.Core.Domain.New.Commands;
+using Nummi.Core.App.Commands;
 using Nummi.Core.Util;
 
 namespace Nummi.Api.Controllers; 

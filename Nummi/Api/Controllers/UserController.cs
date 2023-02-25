@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Nummi.Api.Model;
-using Nummi.Core.Domain.New.Queries;
+using Nummi.Core.App.Queries;
 
 namespace Nummi.Api.Controllers;
 

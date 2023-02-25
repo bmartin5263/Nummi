@@ -6,6 +6,7 @@ namespace Nummi.Core.Domain.Strategies;
 
 [JsonConverter(typeof(Serializer.AbstractTypeConverter<StrategyTemplateVersion>))]
 public abstract class StrategyTemplateVersion : Audited {
+    public Ksuid Id { get; } = Ksuid.Generate();
     public uint VersionNumber { get; set; }
     public DateTimeOffset CreatedAt { get; set; }
     public DateTimeOffset? UpdatedAt { get; set; }
@@ -31,7 +32,12 @@ public abstract class StrategyTemplateVersion : Audited {
         IsDraft = false;
     }
 
-    public abstract bool AcceptsParameters { get; }
-    public abstract Strategy Instantiate(string? parameters);
+    public Strategy Instantiate(string? parametersJson) {
+        var strategy = DoInstantiate(parametersJson);
+        strategy.Load();
+        return strategy;
+    }
+
+    protected abstract Strategy DoInstantiate(string? parametersJson);
 }
 

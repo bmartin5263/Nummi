@@ -65,7 +65,7 @@ public class Serializer {
         return JsonSerializer.Deserialize<T>(json, DEFAULT_OPTIONS);
     }
 
-    public static JsonElement ToJsonElement(string json) {
+    public static JsonElement FromJson(string json) {
         return JsonSerializer.Deserialize<JsonElement>(json, DEFAULT_OPTIONS);
     }
 

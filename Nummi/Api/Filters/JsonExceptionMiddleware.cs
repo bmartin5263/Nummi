@@ -27,6 +27,7 @@ public class JsonExceptionMiddleware {
             code = context.Response.StatusCode,
             type = ex.GetType().Name,
             message = ex.Message,
+            causedByMessage = ex.InnerException?.Message,
             trace = ex.StackTrace?.Split('\n')
         };
 

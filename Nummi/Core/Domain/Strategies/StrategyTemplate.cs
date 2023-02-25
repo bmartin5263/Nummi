@@ -1,6 +1,5 @@
 using System.Text.Json.Serialization;
 using Nummi.Core.Domain.Common;
-using Nummi.Core.Domain.New;
 using Nummi.Core.Util;
 
 namespace Nummi.Core.Domain.Strategies; 
@@ -31,7 +30,8 @@ public class StrategyTemplate : Audited {
         Name = null!;
     }
     
-    public StrategyTemplate(Ksuid owningUserId, string name, StrategyTemplateVersion firstVersion) {
+    public StrategyTemplate(Ksuid id, Ksuid owningUserId, string name, StrategyTemplateVersion firstVersion) {
+        Id = id;
         UserId = owningUserId;
         Name = name;
         Versions.Add(firstVersion);

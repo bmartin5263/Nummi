@@ -1,20 +1,23 @@
 using JetBrains.Annotations;
-using Nummi.Core.Domain.New;
+using Nummi.Core.App;
 
 namespace Nummi.Core.Domain.Strategies; 
 
 public class StrategyBuiltin : Strategy {
 
-    public string StrategyTypeName => (ParentTemplate as StrategyTemplateVersionBuiltin)!.LogicTypeName;
-    public string? ParameterTypeName => (ParentTemplate as StrategyTemplateVersionBuiltin)!.ParameterTypeName;
-    public string? StateTypeName => (ParentTemplate as StrategyTemplateVersionBuiltin)!.StateTypeName;
+    public string StrategyTypeName => (ParentTemplateVersion as StrategyTemplateVersionBuiltin)!.LogicTypeName;
+    public string ParameterTypeName => (ParentTemplateVersion as StrategyTemplateVersionBuiltin)!.ParameterTypeName;
+    public string StateTypeName => (ParentTemplateVersion as StrategyTemplateVersionBuiltin)!.StateTypeName;
 
     [UsedImplicitly]
     protected StrategyBuiltin() {
         
     }
 
-    public StrategyBuiltin(StrategyTemplateVersionBuiltin parentTemplate) : base(parentTemplate) {
+    public StrategyBuiltin(
+        StrategyTemplateVersionBuiltin templateVersion,
+        string? parametersJson
+    ) : base(templateVersion, parametersJson) {
         
     }
     
@@ -24,10 +27,15 @@ public class StrategyBuiltin : Strategy {
     }
 
     protected override object DoDeserializeParameters(string parametersJson) {
-        return ParseJson(parametersJson, ParameterTypeName!);
+        return ParseJson(parametersJson, ParameterTypeName);
     }
 
     protected override object DoDeserializeState(string stateJson) {
-        return ParseJson(stateJson, StateTypeName!);
+        return ParseJson(stateJson, StateTypeName);
+    }
+
+    protected override object CreateDefaultState() {
+        var stateType = Type.GetType(StateTypeName)!;
+        return Activator.CreateInstance(stateType)!;
     }
 }

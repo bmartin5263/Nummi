@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Identity;
 using NLog;
+using Nummi.Core.App.Strategies;
 using Nummi.Core.Bridge;
 using Nummi.Core.Domain.New.User;
-using Nummi.Core.Domain.Strategies;
 using Nummi.Core.Exceptions;
 using Nummi.Core.Util;
 using static Nummi.Core.Config.Configuration;

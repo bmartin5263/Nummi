@@ -1,10 +1,8 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Nummi.Api.Model;
-using Nummi.Core.Config;
-using Nummi.Core.Domain.New.Commands;
-using Nummi.Core.Domain.New.Queries;
-using Nummi.Core.Domain.Strategies;
+using Nummi.Core.App.Simulations;
+using Nummi.Core.App.Strategies;
 
 namespace Nummi.Api.Controllers; 
 

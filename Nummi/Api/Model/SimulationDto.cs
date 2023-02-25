@@ -1,4 +1,4 @@
-using Nummi.Core.Domain.New;
+using Nummi.Core.Domain.Simulations;
 
 namespace Nummi.Api.Model; 
 

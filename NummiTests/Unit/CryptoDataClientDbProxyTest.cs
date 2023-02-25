@@ -1,10 +1,10 @@
 using Moq;
+using Nummi.Core.App.Client;
 using Nummi.Core.Domain.Common;
-using Nummi.Core.Domain.New;
-using Nummi.Core.Domain.New.Data;
+using Nummi.Core.Domain.Crypto;
 using Nummi.Core.External.Binance;
 using Nummi.Core.Util;
-using NummiTests.Mocks;
+using NummiTests.Utils;
 
 namespace NummiTests.Unit; 
 
@@ -35,7 +35,7 @@ public class CryptoDataClientDbProxyTest {
 
         subject!.GetBars(symbols, dateRange, period);
         
-        Assert.That(barRepository!.Database, Has.Count.EqualTo(11));
+        Assert.That(barRepository!.Table, Has.Count.EqualTo(11));
     }
 
     [Test]
@@ -54,11 +54,11 @@ public class CryptoDataClientDbProxyTest {
                 ),
                 It.Is<Period>(p => p == Period.Minute)
             )).Returns(GenerateBars(symbols, fullRange, period));
-        var originalDbCount = barRepository.Database.Count;
+        var originalDbCount = barRepository.Table.Count;
 
         subject!.GetBars(symbols, fullRange, period);
         
-        Assert.That(barRepository!.Database, Has.Count.EqualTo(originalDbCount + 7));
+        Assert.That(barRepository!.Table, Has.Count.EqualTo(originalDbCount + 7));
         
     }
 
@@ -78,11 +78,11 @@ public class CryptoDataClientDbProxyTest {
                 ),
                 It.Is<Period>(p => p == Period.Minute)
             )).Returns(GenerateBars(symbols, fullRange, period));
-        var originalDbCount = barRepository.Database.Count;
+        var originalDbCount = barRepository.Table.Count;
 
         subject!.GetBars(symbols, fullRange, period);
         
-        Assert.That(barRepository!.Database, Has.Count.EqualTo(originalDbCount + 5));
+        Assert.That(barRepository!.Table, Has.Count.EqualTo(originalDbCount + 5));
     }
 
     [Test]
@@ -113,11 +113,11 @@ public class CryptoDataClientDbProxyTest {
                 ),
                 It.Is<Period>(p => p == Period.Minute)
             )).Returns(GenerateBars(missingRanges, period));
-        var originalDbCount = barRepository.Database.Count;
+        var originalDbCount = barRepository!.Table.Count;
 
         subject!.GetBars(symbols, fullRange, period);
         
-        Assert.That(barRepository!.Database, Has.Count.EqualTo(originalDbCount + 12));
+        Assert.That(barRepository!.Table, Has.Count.EqualTo(originalDbCount + 12));
     }
 
     private IDictionary<string, List<Bar>> GenerateBars(string symbol, DateRange dateRange, Period period) {

@@ -1,7 +1,7 @@
 using System.Net;
 using System.Text.Json;
 using NLog;
-using Nummi.Core.Domain.New;
+using Nummi.Core.Domain.Crypto;
 using Nummi.Core.Exceptions;
 using Nummi.Core.Util;
 

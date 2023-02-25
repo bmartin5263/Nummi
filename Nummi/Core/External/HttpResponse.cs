@@ -124,7 +124,7 @@ public class HttpResponse {
     }
 
     public HttpResponse ReadJsonElement(out JsonElement value) {
-        value = Serializer.ToJsonElement(JsonBody);
+        value = Serializer.FromJson(JsonBody);
         return this;
     }
 }

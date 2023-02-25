@@ -1,5 +1,5 @@
 using Nummi.Core.Domain.Common;
-using Nummi.Core.Domain.New;
+using Nummi.Core.Domain.Crypto;
 using Nummi.Core.External.Binance;
 using Nummi.Core.Util;
 using NummiTests.Mocks;

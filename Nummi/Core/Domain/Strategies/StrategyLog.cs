@@ -1,6 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using Nummi.Core.Domain.Common;
-using Nummi.Core.Domain.New;
+using Nummi.Core.Domain.Crypto;
 using Nummi.Core.Util;
 
 namespace Nummi.Core.Domain.Strategies; 

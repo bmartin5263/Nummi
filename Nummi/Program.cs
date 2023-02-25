@@ -1,22 +1,22 @@
 using System.Reflection;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using Nummi.Api.Filters;
+using Nummi.Core.App;
+using Nummi.Core.App.Client;
+using Nummi.Core.App.Commands;
+using Nummi.Core.App.Queries;
+using Nummi.Core.App.Simulations;
+using Nummi.Core.App.Strategies;
 using Nummi.Core.Bridge;
 using Nummi.Core.Bridge.DotNet;
 using Nummi.Core.Config;
 using Nummi.Core.Database.Common;
 using Nummi.Core.Database.EFCore;
-using Nummi.Core.Domain;
-using Nummi.Core.Domain.New;
-using Nummi.Core.Domain.New.Commands;
-using Nummi.Core.Domain.New.Data;
-using Nummi.Core.Domain.New.Queries;
+using Nummi.Core.Domain.Common;
 using Nummi.Core.Domain.New.User;
-using Nummi.Core.Domain.Strategies;
 using Nummi.Core.Domain.Test;
 using Nummi.Core.External.Alpaca;
 using Nummi.Core.External.Binance;
@@ -63,13 +63,13 @@ builder.Services.AddSingleton<BinanceClientAdapter>();
 
 // Singletons
 builder.Services.AddSingleton<INummiServiceProvider, AspDotNetServiceProvider>();
-builder.Services.AddSingleton<StrategyInstantiator>();
+builder.Services.AddSingleton<StrategyTemplateFactory>();
 
 // Services
 builder.Services.AddScoped<CryptoDataClientLive>();
 builder.Services.AddScoped<CryptoDataClientDbProxy>();
 builder.Services.AddScoped<BlogService>();
-builder.Services.AddScoped<TradingContextFactory>();
+builder.Services.AddScoped<TradingSessionFactory>();
 builder.Services.AddScoped<INummiUserManager, AspDotNetUserManager>();
 
 // Commands
@@ -79,6 +79,7 @@ builder.Services.AddScoped<CreateBotCommand>();
 builder.Services.AddScoped<DeactivateBotCommand>();
 builder.Services.AddScoped<SimulateStrategyCommand>();
 builder.Services.AddScoped<ReInitializeBuiltinStrategiesCommand>();
+builder.Services.AddScoped<InstantiateStrategyCommand>();
 
 // Queries
 builder.Services.AddScoped<GetUserQuery>();
@@ -110,7 +111,8 @@ builder.Services.AddSwaggerGen(options =>
 
     var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
     options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
-    
+    options.MapType<Ksuid>(() => new OpenApiSchema { Type = "string" });
+
     options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         In = ParameterLocation.Header,

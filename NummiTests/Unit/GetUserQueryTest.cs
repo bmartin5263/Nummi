@@ -1,5 +1,5 @@
+using Nummi.Core.App.Queries;
 using Nummi.Core.Database.Common;
-using Nummi.Core.Domain.New.Queries;
 using Nummi.Core.Domain.New.User;
 using NummiTests.Utils;
 

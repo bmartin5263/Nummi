@@ -1,11 +1,7 @@
-using Nummi.Core.Domain.New;
+using Nummi.Core.Domain.Crypto;
 
-namespace Nummi.Core.Database.Common; 
+namespace Nummi.Core.Database.Common;
 
-public interface IBarRepository {
-    Bar? FindById(string symbol, DateTimeOffset openTime, TimeSpan period);
+public interface IBarRepository : IGenericRepository<BarId, Bar> {
     List<Bar> FindByIdRange(string symbol, DateTimeOffset startOpenTime, DateTimeOffset endOpenTime, TimeSpan period);
-    void Add(Bar bar);
-    int AddRange(IEnumerable<Bar> bars);
-    void Save();
 }

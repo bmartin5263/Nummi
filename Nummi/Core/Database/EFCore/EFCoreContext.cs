@@ -7,8 +7,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.Extensions.Options;
 using Nummi.Core.Domain.Common;
+using Nummi.Core.Domain.Crypto;
 using Nummi.Core.Domain.New;
 using Nummi.Core.Domain.New.User;
+using Nummi.Core.Domain.Simulations;
 using Nummi.Core.Domain.Strategies;
 using Nummi.Core.Domain.Test;
 using Nummi.Core.Exceptions;
@@ -41,142 +43,91 @@ public class EFCoreContext :
         _operationalStoreOptions = operationalStoreOptions;
     }
 
-    protected override void OnModelCreating(ModelBuilder modelBuilder) {
-        base.OnModelCreating(modelBuilder);
-        modelBuilder.ConfigurePersistedGrantContext(_operationalStoreOptions.Value);
+    protected override void OnModelCreating(ModelBuilder builder) {
+        base.OnModelCreating(builder);
+        builder.ConfigurePersistedGrantContext(_operationalStoreOptions.Value);
 
         // Table Inheritance
-        modelBuilder.Entity<Strategy>()
+        builder.Entity<Strategy>()
             .HasDiscriminator<string>("StrategyType")
-            .HasValue<StrategyBuiltin>("csharp");
+            .HasValue<StrategyBuiltin>("builtin");
         
-        modelBuilder.Entity<StrategyTemplateVersion>()
+        builder.Entity<StrategyTemplateVersion>()
             .HasDiscriminator<string>("StrategyTemplateType")
             .HasValue<StrategyTemplateVersionBuiltin>("builtin");
         
         // Table Setups
-        modelBuilder.Entity<NummiUser>().ToTable("Users");
-        modelBuilder.OneToMany<NummiUser, StrategyTemplate, Ksuid>(t => t.UserId, u => u.StrategyTemplates);
-        modelBuilder.OneToMany<NummiUser, Simulation, Ksuid>("UserId", u => u.Simulations)
+        builder.Entity<NummiUser>().ToTable("User");
+        builder.OneToMany<NummiUser, StrategyTemplate, Ksuid>(t => t.UserId, u => u.StrategyTemplates);
+        builder.OneToMany<NummiUser, Simulation, Ksuid>("UserId", u => u.Simulations)
             .IsRequired();
-        modelBuilder.OneToMany<NummiUser, Bot, Ksuid>("UserId", u => u.Bots)
+        builder.OneToMany<NummiUser, Bot, Ksuid>("UserId", u => u.Bots)
             .IsRequired();
         
-        modelBuilder.Entity<NummiRole>().ToTable("User");
-        modelBuilder.Entity<NummiRoleClaim>().ToTable("RoleClaim");
-        modelBuilder.Entity<NummiUserClaim>().ToTable("UserClaim");
-        modelBuilder.Entity<NummiUserLogin>().ToTable("UserLogin");
-        modelBuilder.Entity<NummiUserRole>().ToTable("UserRole");
-        modelBuilder.Entity<NummiUserToken>().ToTable("UserToken");
+        builder.Entity<NummiRole>().ToTable("Role");
+        builder.Entity<NummiRoleClaim>().ToTable("RoleClaim");
+        builder.Entity<NummiUserClaim>().ToTable("UserClaim");
+        builder.Entity<NummiUserLogin>().ToTable("UserLogin");
+        builder.Entity<NummiUserRole>().ToTable("UserRole");
+        builder.Entity<NummiUserToken>().ToTable("UserToken");
 
-        modelBuilder.Entity<Bar>().ToTable("HistoricBar");
-        modelBuilder.Entity<Bar>()
-            .HasKey(b => new { b.Symbol, b.OpenTime, b.Period });
-
-        modelBuilder.Entity<Bot>().ToTable("Bot");
-        modelBuilder.Entity<Bot>()
-            .HasKey(b => b.Id);
-        modelBuilder.Entity<Bot>()
-            .HasAlternateKey("UserId", "Name");
-        modelBuilder.Entity<Bot>()
-            .Property<Ksuid>(b => b.Id)
-            .HasColumnName("BotId");
-        modelBuilder.OneToMany<Bot, BotActivation>("BotId", s => s.ActivationHistory)
+        builder.DefineTable<Bar>("HistoricalBar", b => new { b.Symbol, b.OpenTime, b.Period });
+        
+        builder.DefineTable<Bot>();
+        builder.Entity<Bot>().HasAlternateKey("UserId", "Name");
+        builder.OneToMany<Bot, BotActivation>("BotId", s => s.ActivationHistory)
             .IsRequired();
-        modelBuilder.OneToOneInverse<Bot, BotActivation>("CurrentBotActivationId", s => s.CurrentActivation)
+        builder.OneToOneOptionalInverse<Bot, BotActivation>("CurrentBotActivationId", s => s.CurrentActivation)
             .OnDelete(DeleteBehavior.SetNull);
         
-        modelBuilder.Entity<BotActivation>().ToTable("BotActivation");
-        modelBuilder.Entity<BotActivation>()
-            .HasKey(b => b.Id);
-        modelBuilder.Entity<BotActivation>()
-            .Property<Ksuid>(b => b.Id)
-            .HasColumnName("BotActivationId");
-        modelBuilder.OneToOne<BotActivation, Strategy>("BotActivationId", s => s.Strategy);
-        modelBuilder.OneToMany<BotActivation, BotLog>("BotActivationId", s => s.Logs)
+        builder.DefineTable<BotActivation>();
+        builder.OneToOne<BotActivation, Strategy>("BotActivationId", s => s.Strategy);
+        builder.OneToMany<BotActivation, BotLog>("BotActivationId", s => s.Logs)
             .IsRequired()
             .OnDelete(DeleteBehavior.Restrict);
 
-        modelBuilder.Entity<BotLog>().ToTable("BotLog");
-        modelBuilder.Entity<BotLog>()
-            .HasKey(b => b.Id);
-        modelBuilder.Entity<BotLog>()
-            .Property<Ksuid>(b => b.Id)
-            .HasColumnName("BotLogId");
+        builder.DefineTable<BotLog>();
 
-        modelBuilder.Entity<OrderLog>().ToTable("OrderLog");
-        modelBuilder.Entity<OrderLog>()
-            .HasKey(b => b.Id);
-        modelBuilder.Entity<OrderLog>()
-            .Property<Ksuid>(b => b.Id)
-            .HasColumnName("OrderLogId");
-        modelBuilder.Entity<OrderLog>()
+        builder.DefineTable<OrderLog>();
+        builder.Entity<OrderLog>()
             .Property(s => s.Quantity)
             .HasJsonConversion();
 
-        modelBuilder.Entity<StrategyLog>().ToTable("StrategyLog");
-        modelBuilder.Entity<StrategyLog>()
-            .HasKey(b => b.Id);
-        modelBuilder.Entity<StrategyLog>()
-            .Property<Ksuid>(b => b.Id)
-            .HasColumnName("StrategyLogId");
-        modelBuilder.OneToMany<StrategyLog, OrderLog>("StrategyLogId", s => s.Orders);
+        builder.DefineTable<StrategyLog>();
+        builder.OneToMany<StrategyLog, OrderLog>("StrategyLogId", s => s.Orders);
 
-        modelBuilder.Entity<Price>().ToTable("HistoricPrice");
-        modelBuilder.Entity<Price>()
-            .HasKey(b => new { b.Symbol, b.Time });
+        builder.DefineTable<Price>("HistoricalPrice", b => new { b.Symbol, b.Time });
         
-        modelBuilder.Entity<Simulation>().ToTable("Simulation");
-        modelBuilder.Entity<Simulation>()
-            .HasKey(b => b.Id);
-        modelBuilder.Entity<Simulation>()
-            .Property<Ksuid>(b => b.Id)
-            .HasColumnName("SimulationId");
-        modelBuilder.OneToOne<Simulation, Strategy>("SimulationId", s => s.Strategy);
+        builder.DefineTable<Simulation>();
+        builder.OneToOne<Simulation, Strategy>("SimulationId", s => s.Strategy);
 
-        modelBuilder.Entity<Strategy>().ToTable("Strategy");
-        modelBuilder.Entity<Strategy>()
-            .HasKey(b => b.Id);
-        modelBuilder.Entity<Strategy>()
-            .Property(s => s.ParentTemplate)
-            .HasJsonConversion();
-        modelBuilder.Entity<Strategy>()
-            .Property<Ksuid>(b => b.Id)
-            .HasColumnName("StrategyId");
-        modelBuilder.OneToMany<Strategy, StrategyLog>("StrategyId", s => s.Logs)
+        builder.DefineTable<Strategy>();
+        builder.Entity<Strategy>()
+            .Property(s => s.ParametersJson)
+            .HasColumnType("jsonb");
+        builder.Entity<Strategy>()
+            .Property(s => s.StateJson)
+            .HasColumnType("jsonb");
+        builder.OneToMany<Strategy, StrategyLog>("StrategyId", s => s.Logs)
+            .IsRequired()
+            .OnDelete(DeleteBehavior.Restrict);
+        builder.ManyToOne<Strategy, StrategyTemplateVersion>("StrategyTemplateVersionId", s => s.ParentTemplateVersion)
+            .OnDelete(DeleteBehavior.Restrict);
+        
+        builder.DefineTable<StrategyTemplate>();
+        builder.Entity<StrategyTemplate>().HasAlternateKey(b => new { b.UserId, b.Name });    // User cannot have two strategies with same name
+        builder.OneToMany<StrategyTemplate, StrategyTemplateVersion>("StrategyTemplateId", u => u.Versions)
             .IsRequired()
             .OnDelete(DeleteBehavior.Restrict);
 
-        modelBuilder.Entity<StrategyTemplate>()
-            .HasKey(b => b.Id);
-        modelBuilder.Entity<StrategyTemplate>()
-            .HasAlternateKey(b => new { b.UserId, b.Name });    // User cannot have two strategies with same name
-        modelBuilder.Entity<StrategyTemplate>()
-            .Property<Ksuid>(b => b.Id)
-            .HasColumnName("StrategyTemplateId");
-        modelBuilder.OneToMany<StrategyTemplate, StrategyTemplateVersion, Ksuid>("StrategyTemplateId", u => u.Versions)
-            .IsRequired()
-            .OnDelete(DeleteBehavior.Restrict);
-
-        modelBuilder.Entity<StrategyTemplateVersion>()
-            .HasKey("StrategyTemplateId", "VersionNumber");
-        // modelBuilder.Entity<CSharpStrategyTemplate>().HasData(new CSharpStrategyTemplate(
-        //     owningUserId: ADMIN_USER_ID,
-        //     name: "Opportunist",
-        //     frequency: TimeSpan.FromMinutes(1),
-        //     strategyTypeName: typeof(OpportunistStrategy).FullName!,
-        //     parameterTypeName: typeof(OpportunistParameters).FullName,
-        //     stateTypeName: typeof(OpportunistState).FullName
-        // ) {
-        //     CreatedAt = DateTimeOffset.UtcNow
-        // });
-
-        modelBuilder.OneToMany<BotLog, StrategyLog>(s => s.BotLogId);
+        builder.DefineTable<StrategyTemplateVersion>();
+        builder.Entity<StrategyTemplateVersion>().HasAlternateKey("StrategyTemplateId", "VersionNumber");
+        builder.OneToMany<BotLog, StrategyLog>(s => s.BotLogId);
         
         // Testing
-        modelBuilder.OneToOne<Blog, Post>("BlogId", b => b.Post)
+        builder.OneToOne<Blog, Post>("BlogId", b => b.Post)
             .OnDelete(DeleteBehavior.ClientSetNull);
-        modelBuilder.RegisterJsonProperty<Post, Metadata>(p => p.Meta);
+        builder.RegisterJsonProperty<Post, Metadata>(p => p.Meta);
     }
     
     protected override void ConfigureConventions(ModelConfigurationBuilder builder) {

@@ -1,5 +1,3 @@
-using Nummi.Core.Domain.New;
-
 namespace Nummi.Core.Domain.Strategies; 
 
 public class StrategyException : Exception {

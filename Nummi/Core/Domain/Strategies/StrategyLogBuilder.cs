@@ -1,10 +1,9 @@
-using Nummi.Core.Domain.New;
+using Nummi.Core.Domain.Crypto;
 
 namespace Nummi.Core.Domain.Strategies; 
 
 public class StrategyLogBuilder {
     
-    public string? BotId { get; private set; }
     public Strategy Strategy { get; private set; }
     public TradingMode Mode { get; private set; }
     public StrategyAction Action { get; private set; }
@@ -14,8 +13,7 @@ public class StrategyLogBuilder {
     public Exception? Error { get; set; }
     public IList<OrderLog> Orders { get; } = new List<OrderLog>();
 
-    public StrategyLogBuilder(Strategy strategy, TradingMode mode, StrategyAction action, string? botId) {
-        BotId = botId;
+    public StrategyLogBuilder(Strategy strategy, TradingMode mode, StrategyAction action) {
         Strategy = strategy;
         Mode = mode;
         Action = action;

@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Nummi.Core.Domain.Common;
-using Nummi.Core.Domain.New;
+using Nummi.Core.Domain.Crypto;
 using Nummi.Core.Exceptions;
 using Nummi.Core.Util;
 
@@ -64,6 +64,25 @@ public static class Extensions {
             .WithOne()
             .HasForeignKey<C>(foreignKey);
     }
+    
+    public static void DefineTable<E>(this ModelBuilder builder) where E : class {
+        builder.DefineTable<E>(typeof(E).Name);
+    }
+    
+    public static void DefineTable<E>(this ModelBuilder builder, string tableName) where E : class {
+        builder.Entity<E>().ToTable(tableName);
+        builder.Entity<E>()
+            .HasKey("Id");
+        builder.Entity<E>()
+            .Property("Id")
+            .HasColumnName(tableName + "Id");
+    }
+    
+    public static void DefineTable<E>(this ModelBuilder builder, string tableName, Expression<Func<E, object?>> keyExpression) where E : class {
+        builder.Entity<E>().ToTable(tableName);
+        builder.Entity<E>()
+            .HasKey(keyExpression);
+    }
 
     public static ReferenceReferenceBuilder<P, C> OneToOne<P, C>(this ModelBuilder builder, string foreignKey) where P : class where C : class {
         builder.Entity<C>().Property<Ksuid?>(foreignKey);
@@ -73,12 +92,36 @@ public static class Extensions {
             .HasForeignKey<C>(foreignKey);
     }
 
-    public static ReferenceReferenceBuilder<P, C> OneToOneInverse<P, C>(this ModelBuilder builder, string foreignKey, Expression<Func<P, C?>>? navigationExpression = null) where P : class where C : class {
+    public static ReferenceReferenceBuilder<P, C> OneToOneOptionalInverse<P, C>(this ModelBuilder builder, string foreignKey, Expression<Func<P, C?>>? navigationExpression = null) where P : class where C : class {
         builder.Entity<P>().Property<Ksuid?>(foreignKey);
         return builder.Entity<P>()
             .HasOne(navigationExpression)
             .WithOne()
             .HasForeignKey<P>(foreignKey);
+    }
+
+    // public static ReferenceReferenceBuilder<P, C> OneToOneInverse<P, C>(this ModelBuilder builder, string foreignKey, Expression<Func<P, C?>>? navigationExpression = null) where P : class where C : class {
+    //     return builder.OneToOneInverse<P, C, Ksuid>(foreignKey, navigationExpression);
+    // }
+    //
+    // public static ReferenceReferenceBuilder<P, C> OneToOneInverse<P, C, K>(this ModelBuilder builder, string foreignKey, Expression<Func<P, C?>>? navigationExpression = null) where P : class where C : class {
+    //     builder.Entity<P>().Property<K>(foreignKey);
+    //     return builder.Entity<P>()
+    //         .HasOne(navigationExpression)
+    //         .WithOne()
+    //         .HasForeignKey<P>(foreignKey);
+    // }
+
+    public static ReferenceCollectionBuilder<C, P> ManyToOne<P, C>(this ModelBuilder builder, string foreignKey, Expression<Func<P, C?>>? navigationExpression = null) where P : class where C : class {
+        return builder.ManyToOne<P, C, Ksuid>(foreignKey, navigationExpression);
+    }
+    
+    public static ReferenceCollectionBuilder<C, P> ManyToOne<P, C, K>(this ModelBuilder builder, string foreignKey, Expression<Func<P, C?>>? navigationExpression = null) where P : class where C : class {
+        builder.Entity<P>().Property<K>(foreignKey);
+        return builder.Entity<P>()
+            .HasOne(navigationExpression)
+            .WithMany()
+            .HasForeignKey(foreignKey);
     }
     
     public static ReferenceCollectionBuilder<P, C> OneToMany<P, C>(

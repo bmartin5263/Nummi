@@ -1,6 +1,6 @@
 using NLog;
 using Nummi.Core.Domain.Common;
-using Nummi.Core.Domain.New;
+using Nummi.Core.Domain.Crypto;
 using Nummi.Core.Exceptions;
 
 namespace Nummi.Core.External.Binance; 

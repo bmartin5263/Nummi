@@ -2,8 +2,9 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Nummi.Api.Model;
-using Nummi.Core.Domain.New.Commands;
-using Nummi.Core.Domain.New.Queries;
+using Nummi.Core.App.Queries;
+using Nummi.Core.App.Simulations;
+using Nummi.Core.Util;
 
 namespace Nummi.Api.Controllers; 
 
@@ -50,9 +51,10 @@ public class SimulationController : ControllerBase {
     /// </summary>
     [Route("")]
     [HttpPost]
-    public SimulationDto SimulateStrategy([FromBody] SimulateStrategyParameters request) {
+    public SimulationDto SimulateStrategy([FromBody] SimulateStrategyParametersDto request) {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
-        return SimulateStrategyCommand.Execute(userId, request)
+        var parameters = request.ToDomain(userId.ToKsuid());
+        return SimulateStrategyCommand.Execute(parameters)
             .ToDto();
     }
 }

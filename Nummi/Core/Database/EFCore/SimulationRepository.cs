@@ -1,6 +1,6 @@
 using Nummi.Core.Database.Common;
 using Nummi.Core.Domain.Common;
-using Nummi.Core.Domain.New;
+using Nummi.Core.Domain.Simulations;
 
 namespace Nummi.Core.Database.EFCore; 
 

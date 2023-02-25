@@ -1,6 +1,7 @@
+using Nummi.Core.Domain.Crypto;
 using Nummi.Core.Domain.New;
-using Nummi.Core.Domain.New.Data;
 using Nummi.Core.Domain.New.User;
+using Nummi.Core.Domain.Simulations;
 using Nummi.Core.Domain.Strategies;
 using Nummi.Core.Domain.Test;
 
@@ -77,7 +78,7 @@ public static class ModelMapper {
             DeletedAt = strategy.DeletedAt,
             Logs = strategy.Logs.Select(l => l.ToDto()).ToList(),
             ParametersJson = strategy.ParametersJson,
-            ParentTemplate = strategy.ParentTemplate.ToDto(),
+            ParentTemplate = strategy.ParentTemplateVersion.ToDto(),
             StateJson = strategy.StateJson,
             UpdatedAt = strategy.UpdatedAt
         };
@@ -189,7 +190,8 @@ public static class ModelMapper {
             CreatedAt = template.CreatedAt,
             DeletedAt = template.DeletedAt,
             Name = template.Name,
-            UpdatedAt = template.UpdatedAt
+            UpdatedAt = template.UpdatedAt,
+            Frequency = template.Versions[0].Frequency
         };
     }
 

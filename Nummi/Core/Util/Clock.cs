@@ -1,30 +1,29 @@
-using Nummi.Core.Exceptions;
-
 namespace Nummi.Core.Util; 
 
 public interface IClock {
-    public DateTime Now { get; }
-    public DateTime NowUtc { get; }
+    public DateTimeOffset Now { get; }
+    public DateTimeOffset NowUtc { get; }
 }
 
 public class ClockLive : IClock {
-    public DateTime Now => DateTime.Now;
-    public DateTime NowUtc => DateTime.UtcNow;
+    public DateTimeOffset Now => DateTimeOffset.Now;
+    public DateTimeOffset NowUtc => DateTimeOffset.UtcNow;
 }
 
 public class ClockMock : IClock {
     
-    public DateTime Now => NowUtc.ToLocalTime();
-    public DateTime NowUtc { get; set; }
+    public DateTimeOffset Now => NowUtc.ToLocalTime();
+    public DateTimeOffset NowUtc { get; set; }
 
-    public ClockMock(DateTime time) {
-        if (time.Kind != DateTimeKind.Utc) {
-            throw new InvalidUserArgumentException("Clock mock must use UTC");
-        }
+    public ClockMock() {
+        NowUtc = DateTimeOffset.UtcNow;
+    }
+    
+    public ClockMock(DateTimeOffset time) {
         NowUtc = time;
     }
 
-    public void ChangeTime(Func<DateTime, DateTime> func) {
+    public void ChangeTime(Func<DateTimeOffset, DateTimeOffset> func) {
         NowUtc = func(NowUtc);
     }
 }

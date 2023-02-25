@@ -1,5 +1,5 @@
 using System.Net;
-using Nummi.Core.Domain.New;
+using Nummi.Core.Domain.Crypto;
 using Nummi.Core.Exceptions;
 using Nummi.Core.External.Binance;
 using Nummi.Core.Util;

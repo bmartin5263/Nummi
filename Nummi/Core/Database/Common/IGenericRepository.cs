@@ -27,6 +27,9 @@ public interface IGenericRepository<ID, E> where E : class {
     public E RequireById(ID id);
     
     public E Add(E entity);
+    public void AddRange(IEnumerable<E> entities);
+    public long AddRangeIfNotExists(IEnumerable<E> entities);
+    public Task AddRangeAsync(IEnumerable<E> entities);
     public void Remove(E entity);
     public IEnumerable<E> FindAll();
     public void LoadProperty<P>(E entity, Expression<Func<E, P?>> propertyExpression) where P : class;
