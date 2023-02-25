@@ -1,9 +1,10 @@
-﻿#nullable disable
-
+﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
-namespace Nummi.Core.Database.Migrations.EFCore
+#nullable disable
+
+namespace Nummi.Core.Database.EFCore.Migrations
 {
     /// <inheritdoc />
     public partial class Initial : Migration
@@ -44,7 +45,7 @@ namespace Nummi.Core.Database.Migrations.EFCore
                 });
 
             migrationBuilder.CreateTable(
-                name: "HistoricBar",
+                name: "HistoricalBar",
                 columns: table => new
                 {
                     Symbol = table.Column<string>(type: "text", nullable: false),
@@ -58,11 +59,11 @@ namespace Nummi.Core.Database.Migrations.EFCore
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_HistoricBar", x => new { x.Symbol, x.OpenTime, x.Period });
+                    table.PrimaryKey("PK_HistoricalBar", x => new { x.Symbol, x.OpenTime, x.Period });
                 });
 
             migrationBuilder.CreateTable(
-                name: "HistoricPrice",
+                name: "HistoricalPrice",
                 columns: table => new
                 {
                     Symbol = table.Column<string>(type: "text", nullable: false),
@@ -71,7 +72,7 @@ namespace Nummi.Core.Database.Migrations.EFCore
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_HistoricPrice", x => new { x.Symbol, x.Time });
+                    table.PrimaryKey("PK_HistoricalPrice", x => new { x.Symbol, x.Time });
                 });
 
             migrationBuilder.CreateTable(
@@ -113,7 +114,7 @@ namespace Nummi.Core.Database.Migrations.EFCore
                 });
 
             migrationBuilder.CreateTable(
-                name: "User",
+                name: "Role",
                 columns: table => new
                 {
                     Id = table.Column<string>(type: "text", nullable: false),
@@ -123,11 +124,11 @@ namespace Nummi.Core.Database.Migrations.EFCore
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_User", x => x.Id);
+                    table.PrimaryKey("PK_Role", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
-                name: "Users",
+                name: "User",
                 columns: table => new
                 {
                     Id = table.Column<string>(type: "text", nullable: false),
@@ -155,7 +156,7 @@ namespace Nummi.Core.Database.Migrations.EFCore
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Users", x => x.Id);
+                    table.PrimaryKey("PK_User", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -191,9 +192,9 @@ namespace Nummi.Core.Database.Migrations.EFCore
                 {
                     table.PrimaryKey("PK_RoleClaim", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_RoleClaim_User_RoleId",
+                        name: "FK_RoleClaim_Role_RoleId",
                         column: x => x.RoleId,
-                        principalTable: "User",
+                        principalTable: "Role",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -219,15 +220,15 @@ namespace Nummi.Core.Database.Migrations.EFCore
                 {
                     table.PrimaryKey("PK_Simulation", x => x.SimulationId);
                     table.ForeignKey(
-                        name: "FK_Simulation_Users_UserId",
+                        name: "FK_Simulation_User_UserId",
                         column: x => x.UserId,
-                        principalTable: "Users",
+                        principalTable: "User",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
-                name: "StrategyTemplates",
+                name: "StrategyTemplate",
                 columns: table => new
                 {
                     StrategyTemplateId = table.Column<string>(type: "text", nullable: false),
@@ -240,12 +241,12 @@ namespace Nummi.Core.Database.Migrations.EFCore
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_StrategyTemplates", x => x.StrategyTemplateId);
-                    table.UniqueConstraint("AK_StrategyTemplates_UserId_Name", x => new { x.UserId, x.Name });
+                    table.PrimaryKey("PK_StrategyTemplate", x => x.StrategyTemplateId);
+                    table.UniqueConstraint("AK_StrategyTemplate_UserId_Name", x => new { x.UserId, x.Name });
                     table.ForeignKey(
-                        name: "FK_StrategyTemplates_Users_UserId",
+                        name: "FK_StrategyTemplate_User_UserId",
                         column: x => x.UserId,
-                        principalTable: "Users",
+                        principalTable: "User",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -264,9 +265,9 @@ namespace Nummi.Core.Database.Migrations.EFCore
                 {
                     table.PrimaryKey("PK_UserClaim", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_UserClaim_Users_UserId",
+                        name: "FK_UserClaim_User_UserId",
                         column: x => x.UserId,
-                        principalTable: "Users",
+                        principalTable: "User",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -284,9 +285,9 @@ namespace Nummi.Core.Database.Migrations.EFCore
                 {
                     table.PrimaryKey("PK_UserLogin", x => new { x.LoginProvider, x.ProviderKey });
                     table.ForeignKey(
-                        name: "FK_UserLogin_Users_UserId",
+                        name: "FK_UserLogin_User_UserId",
                         column: x => x.UserId,
-                        principalTable: "Users",
+                        principalTable: "User",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -302,15 +303,15 @@ namespace Nummi.Core.Database.Migrations.EFCore
                 {
                     table.PrimaryKey("PK_UserRole", x => new { x.UserId, x.RoleId });
                     table.ForeignKey(
-                        name: "FK_UserRole_User_RoleId",
+                        name: "FK_UserRole_Role_RoleId",
                         column: x => x.RoleId,
-                        principalTable: "User",
+                        principalTable: "Role",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_UserRole_Users_UserId",
+                        name: "FK_UserRole_User_UserId",
                         column: x => x.UserId,
-                        principalTable: "Users",
+                        principalTable: "User",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -328,9 +329,9 @@ namespace Nummi.Core.Database.Migrations.EFCore
                 {
                     table.PrimaryKey("PK_UserToken", x => new { x.UserId, x.LoginProvider, x.Name });
                     table.ForeignKey(
-                        name: "FK_UserToken_Users_UserId",
+                        name: "FK_UserToken_User_UserId",
                         column: x => x.UserId,
-                        principalTable: "Users",
+                        principalTable: "User",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -339,8 +340,8 @@ namespace Nummi.Core.Database.Migrations.EFCore
                 name: "StrategyTemplateVersion",
                 columns: table => new
                 {
+                    StrategyTemplateVersionId = table.Column<string>(type: "text", nullable: false),
                     VersionNumber = table.Column<long>(type: "bigint", nullable: false),
-                    StrategyTemplateId = table.Column<string>(type: "text", nullable: false),
                     CreatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
                     UpdatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
                     DeletedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
@@ -348,6 +349,7 @@ namespace Nummi.Core.Database.Migrations.EFCore
                     Frequency = table.Column<TimeSpan>(type: "interval", nullable: false),
                     SourceCode = table.Column<string>(type: "text", nullable: true),
                     IsDraft = table.Column<bool>(type: "boolean", nullable: false),
+                    StrategyTemplateId = table.Column<string>(type: "text", nullable: false),
                     StrategyTemplateType = table.Column<string>(type: "text", nullable: false),
                     LogicTypeName = table.Column<string>(type: "text", nullable: true),
                     ParameterTypeName = table.Column<string>(type: "text", nullable: true),
@@ -355,11 +357,12 @@ namespace Nummi.Core.Database.Migrations.EFCore
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_StrategyTemplateVersion", x => new { x.StrategyTemplateId, x.VersionNumber });
+                    table.PrimaryKey("PK_StrategyTemplateVersion", x => x.StrategyTemplateVersionId);
+                    table.UniqueConstraint("AK_StrategyTemplateVersion_StrategyTemplateId_VersionNumber", x => new { x.StrategyTemplateId, x.VersionNumber });
                     table.ForeignKey(
-                        name: "FK_StrategyTemplateVersion_StrategyTemplates_StrategyTemplateId",
+                        name: "FK_StrategyTemplateVersion_StrategyTemplate_StrategyTemplateId",
                         column: x => x.StrategyTemplateId,
-                        principalTable: "StrategyTemplates",
+                        principalTable: "StrategyTemplate",
                         principalColumn: "StrategyTemplateId",
                         onDelete: ReferentialAction.Restrict);
                 });
@@ -384,9 +387,9 @@ namespace Nummi.Core.Database.Migrations.EFCore
                     table.PrimaryKey("PK_Bot", x => x.BotId);
                     table.UniqueConstraint("AK_Bot_UserId_Name", x => new { x.UserId, x.Name });
                     table.ForeignKey(
-                        name: "FK_Bot_Users_UserId",
+                        name: "FK_Bot_User_UserId",
                         column: x => x.UserId,
-                        principalTable: "Users",
+                        principalTable: "User",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -442,9 +445,9 @@ namespace Nummi.Core.Database.Migrations.EFCore
                     CreatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
                     UpdatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
                     DeletedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
-                    ParentTemplate = table.Column<string>(type: "jsonb", nullable: false),
-                    ParametersJson = table.Column<string>(type: "text", nullable: true),
-                    StateJson = table.Column<string>(type: "text", nullable: true),
+                    StrategyTemplateVersionId = table.Column<string>(type: "text", nullable: true),
+                    ParametersJson = table.Column<string>(type: "jsonb", nullable: true),
+                    StateJson = table.Column<string>(type: "jsonb", nullable: true),
                     BotActivationId = table.Column<string>(type: "text", nullable: true),
                     SimulationId = table.Column<string>(type: "text", nullable: true),
                     StrategyType = table.Column<string>(type: "text", nullable: false)
@@ -462,6 +465,12 @@ namespace Nummi.Core.Database.Migrations.EFCore
                         column: x => x.SimulationId,
                         principalTable: "Simulation",
                         principalColumn: "SimulationId");
+                    table.ForeignKey(
+                        name: "FK_Strategy_StrategyTemplateVersion_StrategyTemplateVersionId",
+                        column: x => x.StrategyTemplateVersionId,
+                        principalTable: "StrategyTemplateVersion",
+                        principalColumn: "StrategyTemplateVersionId",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -586,6 +595,12 @@ namespace Nummi.Core.Database.Migrations.EFCore
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "RoleNameIndex",
+                table: "Role",
+                column: "NormalizedName",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_RoleClaim_RoleId",
                 table: "RoleClaim",
                 column: "RoleId");
@@ -608,6 +623,11 @@ namespace Nummi.Core.Database.Migrations.EFCore
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "IX_Strategy_StrategyTemplateVersionId",
+                table: "Strategy",
+                column: "StrategyTemplateVersionId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_StrategyLog_BotLogId",
                 table: "StrategyLog",
                 column: "BotLogId");
@@ -618,9 +638,14 @@ namespace Nummi.Core.Database.Migrations.EFCore
                 column: "StrategyId");
 
             migrationBuilder.CreateIndex(
-                name: "RoleNameIndex",
+                name: "EmailIndex",
                 table: "User",
-                column: "NormalizedName",
+                column: "NormalizedEmail");
+
+            migrationBuilder.CreateIndex(
+                name: "UserNameIndex",
+                table: "User",
+                column: "NormalizedUserName",
                 unique: true);
 
             migrationBuilder.CreateIndex(
@@ -637,17 +662,6 @@ namespace Nummi.Core.Database.Migrations.EFCore
                 name: "IX_UserRole_RoleId",
                 table: "UserRole",
                 column: "RoleId");
-
-            migrationBuilder.CreateIndex(
-                name: "EmailIndex",
-                table: "Users",
-                column: "NormalizedEmail");
-
-            migrationBuilder.CreateIndex(
-                name: "UserNameIndex",
-                table: "Users",
-                column: "NormalizedUserName",
-                unique: true);
 
             migrationBuilder.AddForeignKey(
                 name: "FK_Bot_BotActivation_CurrentBotActivationId",
@@ -669,10 +683,10 @@ namespace Nummi.Core.Database.Migrations.EFCore
                 name: "DeviceCodes");
 
             migrationBuilder.DropTable(
-                name: "HistoricBar");
+                name: "HistoricalBar");
 
             migrationBuilder.DropTable(
-                name: "HistoricPrice");
+                name: "HistoricalPrice");
 
             migrationBuilder.DropTable(
                 name: "Keys");
@@ -688,9 +702,6 @@ namespace Nummi.Core.Database.Migrations.EFCore
 
             migrationBuilder.DropTable(
                 name: "RoleClaim");
-
-            migrationBuilder.DropTable(
-                name: "StrategyTemplateVersion");
 
             migrationBuilder.DropTable(
                 name: "UserClaim");
@@ -711,10 +722,7 @@ namespace Nummi.Core.Database.Migrations.EFCore
                 name: "Blogs");
 
             migrationBuilder.DropTable(
-                name: "StrategyTemplates");
-
-            migrationBuilder.DropTable(
-                name: "User");
+                name: "Role");
 
             migrationBuilder.DropTable(
                 name: "BotLog");
@@ -726,13 +734,19 @@ namespace Nummi.Core.Database.Migrations.EFCore
                 name: "Simulation");
 
             migrationBuilder.DropTable(
+                name: "StrategyTemplateVersion");
+
+            migrationBuilder.DropTable(
+                name: "StrategyTemplate");
+
+            migrationBuilder.DropTable(
                 name: "BotActivation");
 
             migrationBuilder.DropTable(
                 name: "Bot");
 
             migrationBuilder.DropTable(
-                name: "Users");
+                name: "User");
         }
     }
 }
