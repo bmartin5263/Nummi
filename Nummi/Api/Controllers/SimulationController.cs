@@ -1,10 +1,12 @@
 using System.Security.Claims;
+using System.Text.Json;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Nummi.Api.Model;
-using Nummi.Core.App.Queries;
 using Nummi.Core.App.Simulations;
-using Nummi.Core.Util;
+using Nummi.Core.Domain.Simulations;
+using Nummi.Core.Domain.Strategies;
+using Nummi.Core.Domain.User;
 
 namespace Nummi.Api.Controllers; 
 
@@ -43,7 +45,15 @@ public class SimulationController : ControllerBase {
     [Route("{id}")]
     [HttpGet]
     public SimulationDto GetSimulation(string id) {
-        return GetOneSimulationQuery.Execute(id).ToDto();
+        return GetOneSimulationQuery.Execute(SimulationId.FromString(id)).ToDto();
+    }
+    
+    public record SimulateStrategyParametersDto {
+        public required string StrategyTemplateId { get; init; }
+        public required DateTimeOffset StartTime { get; init; }
+        public required DateTimeOffset EndTime { get; init; }
+        public required decimal Funds { get; init; }
+        public JsonDocument? StrategyJsonParameters { get; init; }
     }
 
     /// <summary>
@@ -53,8 +63,14 @@ public class SimulationController : ControllerBase {
     [HttpPost]
     public SimulationDto SimulateStrategy([FromBody] SimulateStrategyParametersDto request) {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
-        var parameters = request.ToDomain(userId.ToKsuid());
-        return SimulateStrategyCommand.Execute(parameters)
+        return SimulateStrategyCommand.Execute(new SimulateStrategyParameters {
+                UserId = IdentityId.FromString(userId),
+                StrategyTemplateId = StrategyTemplateId.FromString(request.StrategyTemplateId),
+                StartTime = request.StartTime,
+                EndTime = request.EndTime,
+                Funds = request.Funds,
+                StrategyJsonParameters = request.StrategyJsonParameters
+            })
             .ToDto();
     }
 }

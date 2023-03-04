@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Identity;
-using Nummi.Core.Domain.New.User;
+using Nummi.Core.Domain.User;
 
 namespace Nummi.Core.Bridge; 
 

@@ -1,10 +1,13 @@
 using System.Reflection;
+using System.Text;
 using System.Text.Json.Serialization;
-using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Nummi.Api.Filters;
 using Nummi.Core.App;
+using Nummi.Core.App.Bots;
 using Nummi.Core.App.Client;
 using Nummi.Core.App.Commands;
 using Nummi.Core.App.Queries;
@@ -16,8 +19,9 @@ using Nummi.Core.Config;
 using Nummi.Core.Database.Common;
 using Nummi.Core.Database.EFCore;
 using Nummi.Core.Domain.Common;
-using Nummi.Core.Domain.New.User;
 using Nummi.Core.Domain.Test;
+using Nummi.Core.Domain.User;
+using Nummi.Core.Events;
 using Nummi.Core.External.Alpaca;
 using Nummi.Core.External.Binance;
 using Nummi.Core.External.Coinbase;
@@ -39,8 +43,23 @@ void ConfigureIdentities(WebApplicationBuilder builder) {
     builder.Services.AddIdentityServer()
         .AddApiAuthorization<NummiUser, EFCoreContext>();
 
-    builder.Services.AddAuthentication()
-        .AddIdentityServerJwt();
+    builder.Services
+        .AddAuthentication(options => {
+            options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+            options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme; 
+        })
+        .AddJwtBearer(o => { 
+            o.TokenValidationParameters = new TokenValidationParameters {
+                ValidIssuer = builder.Configuration["JWT:Issuer"],
+                ValidAudience = builder.Configuration["JWT:Audience"],
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWT:Key"]!)),
+                ValidateIssuer = true,
+                ValidateAudience = true,
+                ValidateLifetime = false,
+                ValidateIssuerSigningKey = true 
+            };
+        });
 }
 
 var builder = WebApplication.CreateBuilder(args);
@@ -64,6 +83,7 @@ builder.Services.AddSingleton<BinanceClientAdapter>();
 // Singletons
 builder.Services.AddSingleton<INummiServiceProvider, AspDotNetServiceProvider>();
 builder.Services.AddSingleton<StrategyTemplateFactory>();
+builder.Services.AddSingleton<EventDispatcher>();
 
 // Services
 builder.Services.AddScoped<CryptoDataClientLive>();
@@ -98,7 +118,8 @@ builder.Services.AddScoped<ITransaction, EFCoreTransaction>();
 
 // Bot Execution Threads
 // builder.Services.AddSingleton<BotExecutionManager>(provider => new BotExecutionManager(provider, 1));
-builder.Services.AddSingleton<IHostedService, NummiInitializer>();
+builder.Services.AddHostedService<NummiInitializer>();
+builder.Services.AddHostedService<BotExecutor>();
 
 builder.Services.AddSwaggerGen(options =>
 {

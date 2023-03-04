@@ -1,9 +1,9 @@
+using Nummi.Core.Domain.Bots;
 using Nummi.Core.Domain.Crypto;
-using Nummi.Core.Domain.New;
-using Nummi.Core.Domain.New.User;
 using Nummi.Core.Domain.Simulations;
 using Nummi.Core.Domain.Strategies;
 using Nummi.Core.Domain.Test;
+using Nummi.Core.Domain.User;
 
 namespace Nummi.Api.Model; 
 
@@ -64,10 +64,15 @@ public static class ModelMapper {
     public static BotDto ToDto(this Bot bot) {
         return new BotDto {
             Id = bot.Id.ToString(),
+            CreatedAt = bot.CreatedAt,
+            UpdatedAt = bot.UpdatedAt,
+            DeletedAt = bot.DeletedAt,
             Name = bot.Name,
+            Funds = bot.Funds,
             Mode = bot.Mode,
             InErrorState = bot.InErrorState,
-            Funds = bot.Funds,
+            CurrentActivation = bot.CurrentActivation?.ToDto(),
+            ActivationHistory = bot.ActivationHistory.Select(ToDto).ToList()
         };
     }
 
@@ -180,7 +185,8 @@ public static class ModelMapper {
             Username = user.UserName,
             Email = user.Email,
             Bots = user.Bots.Select(ToDto).ToList(),
-            Simulations = user.Simulations.Select(ToDto).ToList()
+            Simulations = user.Simulations.Select(ToDto).ToList(),
+            StrategyTemplates = user.StrategyTemplates.Select(ToDto).ToList()
         };
     }
 
@@ -191,16 +197,16 @@ public static class ModelMapper {
             DeletedAt = template.DeletedAt,
             Name = template.Name,
             UpdatedAt = template.UpdatedAt,
-            Frequency = template.Versions[0].Frequency
+            Frequency = template.Versions[0].Frequency.AsTimeSpan
         };
     }
 
-    public static StrategyTemplateVerionDto ToDto(this StrategyTemplateVersion version) {
-        return new StrategyTemplateVerionDto {
+    public static StrategyTemplateVersionDto ToDto(this StrategyTemplateVersion version) {
+        return new StrategyTemplateVersionDto {
             VersionNumber = version.VersionNumber,
             CreatedAt = version.CreatedAt,
             DeletedAt = version.DeletedAt,
-            Frequency = version.Frequency,
+            Frequency = version.Frequency.AsTimeSpan,
             Name = version.Name,
             UpdatedAt = version.UpdatedAt
         };

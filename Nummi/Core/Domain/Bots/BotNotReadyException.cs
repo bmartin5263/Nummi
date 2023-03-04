@@ -1,4 +1,4 @@
-namespace Nummi.Core.Domain.New; 
+namespace Nummi.Core.Domain.Bots; 
 
 public class BotNotReadyException : Exception {
     public TimeSpan WaitTime { get; }

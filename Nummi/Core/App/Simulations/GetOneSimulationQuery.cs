@@ -1,8 +1,7 @@
 using Nummi.Core.Database.Common;
 using Nummi.Core.Domain.Simulations;
-using Nummi.Core.Util;
 
-namespace Nummi.Core.App.Queries; 
+namespace Nummi.Core.App.Simulations; 
 
 public class GetOneSimulationQuery {
     private ISimulationRepository SimulationRepository { get; }
@@ -11,8 +10,8 @@ public class GetOneSimulationQuery {
         SimulationRepository = simulationRepository;
     }
 
-    public Simulation Execute(string id) {
-        var simulation = SimulationRepository.FindById(id.ToKsuid());
+    public Simulation Execute(SimulationId id) {
+        var simulation = SimulationRepository.FindById(id);
         SimulationRepository.LoadProperty(simulation, s => s.Strategy);
         return simulation;
     }

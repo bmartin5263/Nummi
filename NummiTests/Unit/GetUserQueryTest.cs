@@ -1,6 +1,6 @@
 using Nummi.Core.App.Queries;
 using Nummi.Core.Database.Common;
-using Nummi.Core.Domain.New.User;
+using Nummi.Core.Domain.User;
 using NummiTests.Utils;
 
 namespace NummiTests.Unit; 
@@ -8,12 +8,14 @@ namespace NummiTests.Unit;
 public class GetUserQueryTest {
 
     private IUserRepository userRepository = null!;
+    private IStrategyTemplateRepository strategyTemplateRepository = null!;
     private GetUserQuery subject = null!;
 
     [SetUp]
     public void Setup() {
         userRepository = new TestUserRepository();
-        subject = new GetUserQuery(userRepository);
+        strategyTemplateRepository = new StrategyTemplateTestRepository();
+        subject = new GetUserQuery(userRepository, strategyTemplateRepository);
     }
 
     [Test]
@@ -21,9 +23,8 @@ public class GetUserQueryTest {
         userRepository.Add(new NummiUser());
         var user = userRepository.Add(new NummiUser());
         userRepository.Add(new NummiUser());
-        var id = user.Id;
 
-        var result = subject.Execute(id.ToString());
+        var result = subject.Execute(user.Id);
         
         Assert.That(result, Is.EqualTo(user));
     }

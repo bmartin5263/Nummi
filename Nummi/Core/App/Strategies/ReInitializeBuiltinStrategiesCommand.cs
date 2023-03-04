@@ -18,7 +18,7 @@ public class ReInitializeBuiltinStrategiesCommand {
         var templates = new List<StrategyTemplate>();
         
         foreach (IStrategyLogicBuiltin logicInstance in logicInstances) {
-            if (!StrategyTemplateRepository.ExistsById(logicInstance.Id)) {
+            if (!StrategyTemplateRepository.ExistsById(StrategyTemplateId.FromGuid(logicInstance.Id))) {
                 StrategyTemplate template = StrategyTemplateFactory.CreateBuiltinTemplate(logicInstance);
                 StrategyTemplateRepository.Add(template);
                 templates.Add(template);

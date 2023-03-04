@@ -1,7 +1,6 @@
 // using Nummi.Core.Database.Common;
 // using Nummi.Core.Domain.Crypto;
-// using Nummi.Core.Domain.New;
-// using Nummi.Core.Exceptions;
+// // using Nummi.Core.Exceptions;
 // using NummiTests.Utils;
 //
 // namespace NummiTests.Mocks; 

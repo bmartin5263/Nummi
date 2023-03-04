@@ -16,13 +16,13 @@ public static class Extensions {
         return OrElseThrow(self, supplier);
     }
 
-    public static Ksuid ToKsuid(this string self) {
-        return Ksuid.FromString(self);
-    }
-
-    public static Ksuid? ToKsuidNullable(this string? self) {
-        return self == null ? null : Ksuid.FromString(self);
-    }
+    // public static Ksuid ToKsuid(this string self) {
+    //     return Ksuid.FromString(self);
+    // }
+    //
+    // public static Ksuid? ToKsuidNullable(this string? self) {
+    //     return self == null ? null : Ksuid.FromString(self);
+    // }
 
     // https://stackoverflow.com/questions/1004698/how-to-truncate-milliseconds-off-of-a-net-datetime
     public static DateTime Truncate(this DateTime dateTime, TimeSpan timeSpan) {

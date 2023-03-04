@@ -1,9 +1,38 @@
+using Microsoft.EntityFrameworkCore;
 using Nummi.Core.Database.Common;
-using Nummi.Core.Domain.Common;
-using Nummi.Core.Domain.New;
+using Nummi.Core.Domain.Bots;
 
 namespace Nummi.Core.Database.EFCore; 
 
-public class BotRepository : GenericRepository<Ksuid, Bot>, IBotRepository {
+public class BotRepository : GenericRepository<BotId, Bot>, IBotRepository {
     public BotRepository(ITransaction context) : base(context) { }
+    
+    public Bot? FindByIdWithStrategyAndActivation(BotId botId) {
+        return Context.Bots
+            .Include(b => b.ActivationHistory)
+            .FirstOrDefault(b => b.Id == botId);
+    }
+
+    public Bot? FindByIdForExecution(BotId botId) {
+        return Context.Bots
+            .Include(b => b.ActivationHistory)
+            .Include(b => b.CurrentActivation!)
+                .ThenInclude(s => s.Strategy)
+                    .ThenInclude(s => s.ParentTemplateVersion)
+            .Include(b => b.CurrentActivation!)
+                .ThenInclude(s => s.Strategy)
+                    .ThenInclude(s => s.Logs
+                        .OrderByDescending(log => log.StartTime)
+                        .Take(1)
+                    )
+            .FirstOrDefault(b => b.Id == botId);
+    }
+
+    public List<Bot> FindActiveWithStrategyAndActivation() {
+        return Context.Bots
+            .Include(b => b.ActivationHistory)
+            .Include(b => b.CurrentActivation!)
+            .ThenInclude(s => s.Strategy)
+            .ToList();
+    }
 }

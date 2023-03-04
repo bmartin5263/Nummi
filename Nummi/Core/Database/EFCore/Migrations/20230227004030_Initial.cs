@@ -117,7 +117,7 @@ namespace Nummi.Core.Database.EFCore.Migrations
                 name: "Role",
                 columns: table => new
                 {
-                    Id = table.Column<string>(type: "text", nullable: false),
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
                     Name = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
                     NormalizedName = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
                     ConcurrencyStamp = table.Column<string>(type: "text", nullable: true)
@@ -131,7 +131,7 @@ namespace Nummi.Core.Database.EFCore.Migrations
                 name: "User",
                 columns: table => new
                 {
-                    Id = table.Column<string>(type: "text", nullable: false),
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
                     CreatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
                     UpdatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
                     DeletedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
@@ -184,7 +184,7 @@ namespace Nummi.Core.Database.EFCore.Migrations
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    RoleId = table.Column<string>(type: "text", nullable: false),
+                    RoleId = table.Column<Guid>(type: "uuid", nullable: false),
                     ClaimType = table.Column<string>(type: "text", nullable: true),
                     ClaimValue = table.Column<string>(type: "text", nullable: true)
                 },
@@ -203,7 +203,7 @@ namespace Nummi.Core.Database.EFCore.Migrations
                 name: "Simulation",
                 columns: table => new
                 {
-                    SimulationId = table.Column<string>(type: "text", nullable: false),
+                    SimulationId = table.Column<Guid>(type: "uuid", nullable: false),
                     CreatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
                     UpdatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
                     DeletedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
@@ -214,7 +214,7 @@ namespace Nummi.Core.Database.EFCore.Migrations
                     FinishedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
                     Error = table.Column<string>(type: "text", nullable: true),
                     TotalExecutionTime = table.Column<TimeSpan>(type: "interval", nullable: true),
-                    UserId = table.Column<string>(type: "text", nullable: false)
+                    UserId = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -231,11 +231,11 @@ namespace Nummi.Core.Database.EFCore.Migrations
                 name: "StrategyTemplate",
                 columns: table => new
                 {
-                    StrategyTemplateId = table.Column<string>(type: "text", nullable: false),
+                    StrategyTemplateId = table.Column<Guid>(type: "uuid", nullable: false),
                     CreatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
                     UpdatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
                     DeletedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
-                    UserId = table.Column<string>(type: "text", nullable: false),
+                    UserId = table.Column<Guid>(type: "uuid", nullable: false),
                     Name = table.Column<string>(type: "text", nullable: false),
                     IsPublic = table.Column<bool>(type: "boolean", nullable: false)
                 },
@@ -257,7 +257,7 @@ namespace Nummi.Core.Database.EFCore.Migrations
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    UserId = table.Column<string>(type: "text", nullable: false),
+                    UserId = table.Column<Guid>(type: "uuid", nullable: false),
                     ClaimType = table.Column<string>(type: "text", nullable: true),
                     ClaimValue = table.Column<string>(type: "text", nullable: true)
                 },
@@ -279,7 +279,7 @@ namespace Nummi.Core.Database.EFCore.Migrations
                     LoginProvider = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
                     ProviderKey = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
                     ProviderDisplayName = table.Column<string>(type: "text", nullable: true),
-                    UserId = table.Column<string>(type: "text", nullable: false)
+                    UserId = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -296,8 +296,8 @@ namespace Nummi.Core.Database.EFCore.Migrations
                 name: "UserRole",
                 columns: table => new
                 {
-                    UserId = table.Column<string>(type: "text", nullable: false),
-                    RoleId = table.Column<string>(type: "text", nullable: false)
+                    UserId = table.Column<Guid>(type: "uuid", nullable: false),
+                    RoleId = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -320,7 +320,7 @@ namespace Nummi.Core.Database.EFCore.Migrations
                 name: "UserToken",
                 columns: table => new
                 {
-                    UserId = table.Column<string>(type: "text", nullable: false),
+                    UserId = table.Column<Guid>(type: "uuid", nullable: false),
                     LoginProvider = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
                     Name = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
                     Value = table.Column<string>(type: "text", nullable: true)
@@ -340,7 +340,7 @@ namespace Nummi.Core.Database.EFCore.Migrations
                 name: "StrategyTemplateVersion",
                 columns: table => new
                 {
-                    StrategyTemplateVersionId = table.Column<string>(type: "text", nullable: false),
+                    StrategyTemplateVersionId = table.Column<Guid>(type: "uuid", nullable: false),
                     VersionNumber = table.Column<long>(type: "bigint", nullable: false),
                     CreatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
                     UpdatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
@@ -349,7 +349,7 @@ namespace Nummi.Core.Database.EFCore.Migrations
                     Frequency = table.Column<TimeSpan>(type: "interval", nullable: false),
                     SourceCode = table.Column<string>(type: "text", nullable: true),
                     IsDraft = table.Column<bool>(type: "boolean", nullable: false),
-                    StrategyTemplateId = table.Column<string>(type: "text", nullable: false),
+                    StrategyTemplateId = table.Column<Guid>(type: "uuid", nullable: false),
                     StrategyTemplateType = table.Column<string>(type: "text", nullable: false),
                     LogicTypeName = table.Column<string>(type: "text", nullable: true),
                     ParameterTypeName = table.Column<string>(type: "text", nullable: true),
@@ -371,7 +371,7 @@ namespace Nummi.Core.Database.EFCore.Migrations
                 name: "Bot",
                 columns: table => new
                 {
-                    BotId = table.Column<string>(type: "text", nullable: false),
+                    BotId = table.Column<Guid>(type: "uuid", nullable: false),
                     CreatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
                     UpdatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
                     DeletedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
@@ -379,8 +379,8 @@ namespace Nummi.Core.Database.EFCore.Migrations
                     Funds = table.Column<decimal>(type: "numeric", nullable: false),
                     Mode = table.Column<string>(type: "text", nullable: false),
                     InErrorState = table.Column<bool>(type: "boolean", nullable: false),
-                    CurrentBotActivationId = table.Column<string>(type: "text", nullable: true),
-                    UserId = table.Column<string>(type: "text", nullable: false)
+                    CurrentBotActivationId = table.Column<Guid>(type: "uuid", nullable: false),
+                    UserId = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -398,11 +398,11 @@ namespace Nummi.Core.Database.EFCore.Migrations
                 name: "BotActivation",
                 columns: table => new
                 {
-                    BotActivationId = table.Column<string>(type: "text", nullable: false),
+                    BotActivationId = table.Column<Guid>(type: "uuid", nullable: false),
                     CreatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
                     UpdatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
                     DeletedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
-                    BotId = table.Column<string>(type: "text", nullable: false)
+                    BotId = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -419,12 +419,12 @@ namespace Nummi.Core.Database.EFCore.Migrations
                 name: "BotLog",
                 columns: table => new
                 {
-                    BotLogId = table.Column<string>(type: "text", nullable: false),
+                    BotLogId = table.Column<Guid>(type: "uuid", nullable: false),
                     StartTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     EndTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     TotalTime = table.Column<TimeSpan>(type: "interval", nullable: false),
                     Error = table.Column<string>(type: "text", nullable: true),
-                    BotActivationId = table.Column<string>(type: "text", nullable: false)
+                    BotActivationId = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -441,15 +441,15 @@ namespace Nummi.Core.Database.EFCore.Migrations
                 name: "Strategy",
                 columns: table => new
                 {
-                    StrategyId = table.Column<string>(type: "text", nullable: false),
+                    StrategyId = table.Column<Guid>(type: "uuid", nullable: false),
                     CreatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
                     UpdatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
                     DeletedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
-                    StrategyTemplateVersionId = table.Column<string>(type: "text", nullable: true),
+                    StrategyTemplateVersionId = table.Column<Guid>(type: "uuid", nullable: false),
                     ParametersJson = table.Column<string>(type: "jsonb", nullable: true),
                     StateJson = table.Column<string>(type: "jsonb", nullable: true),
-                    BotActivationId = table.Column<string>(type: "text", nullable: true),
-                    SimulationId = table.Column<string>(type: "text", nullable: true),
+                    BotActivationId = table.Column<Guid>(type: "uuid", nullable: false),
+                    SimulationId = table.Column<Guid>(type: "uuid", nullable: false),
                     StrategyType = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
@@ -459,12 +459,14 @@ namespace Nummi.Core.Database.EFCore.Migrations
                         name: "FK_Strategy_BotActivation_BotActivationId",
                         column: x => x.BotActivationId,
                         principalTable: "BotActivation",
-                        principalColumn: "BotActivationId");
+                        principalColumn: "BotActivationId",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_Strategy_Simulation_SimulationId",
                         column: x => x.SimulationId,
                         principalTable: "Simulation",
-                        principalColumn: "SimulationId");
+                        principalColumn: "SimulationId",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_Strategy_StrategyTemplateVersion_StrategyTemplateVersionId",
                         column: x => x.StrategyTemplateVersionId,
@@ -477,8 +479,8 @@ namespace Nummi.Core.Database.EFCore.Migrations
                 name: "StrategyLog",
                 columns: table => new
                 {
-                    StrategyLogId = table.Column<string>(type: "text", nullable: false),
-                    BotLogId = table.Column<string>(type: "text", nullable: true),
+                    StrategyLogId = table.Column<Guid>(type: "uuid", nullable: false),
+                    BotLogId = table.Column<Guid>(type: "uuid", nullable: true),
                     Mode = table.Column<string>(type: "text", nullable: false),
                     Action = table.Column<string>(type: "text", nullable: false),
                     StartTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
@@ -487,7 +489,7 @@ namespace Nummi.Core.Database.EFCore.Migrations
                     ApiCalls = table.Column<int>(type: "integer", nullable: false),
                     TotalApiCallTime = table.Column<TimeSpan>(type: "interval", nullable: false),
                     Error = table.Column<string>(type: "text", nullable: true),
-                    StrategyId = table.Column<string>(type: "text", nullable: false)
+                    StrategyId = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -509,7 +511,7 @@ namespace Nummi.Core.Database.EFCore.Migrations
                 name: "OrderLog",
                 columns: table => new
                 {
-                    OrderLogId = table.Column<string>(type: "text", nullable: false),
+                    OrderLogId = table.Column<Guid>(type: "uuid", nullable: false),
                     SubmittedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     Symbol = table.Column<string>(type: "text", nullable: false),
                     Quantity = table.Column<string>(type: "jsonb", nullable: false),
@@ -519,7 +521,7 @@ namespace Nummi.Core.Database.EFCore.Migrations
                     FundsBefore = table.Column<decimal>(type: "numeric", nullable: true),
                     FundsAfter = table.Column<decimal>(type: "numeric", nullable: true),
                     Error = table.Column<string>(type: "text", nullable: true),
-                    StrategyLogId = table.Column<string>(type: "text", nullable: true)
+                    StrategyLogId = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -528,7 +530,8 @@ namespace Nummi.Core.Database.EFCore.Migrations
                         name: "FK_OrderLog_StrategyLog_StrategyLogId",
                         column: x => x.StrategyLogId,
                         principalTable: "StrategyLog",
-                        principalColumn: "StrategyLogId");
+                        principalColumn: "StrategyLogId",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(

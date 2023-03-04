@@ -1,9 +1,13 @@
 using System.Security.Claims;
+using System.Text.Json;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Nummi.Api.Model;
 using Nummi.Core.App.Commands;
-using Nummi.Core.Util;
+using Nummi.Core.Domain.Bots;
+using Nummi.Core.Domain.Crypto;
+using Nummi.Core.Domain.Strategies;
+using Nummi.Core.Domain.User;
 
 namespace Nummi.Api.Controllers; 
 
@@ -15,11 +19,20 @@ public class BotController : ControllerBase {
     private CreateBotCommand CreateBotCommand { get; }
     private ActivateBotCommand ActivateBotCommand { get; }
     private DeactivateBotCommand DeactivateBotCommand { get; }
+    private ReactivateBotCommand ReactivateBotCommand { get; }
 
-    public BotController(CreateBotCommand createBotCommand, ActivateBotCommand activateBotCommand, DeactivateBotCommand deactivateBotCommand) {
+    public BotController(CreateBotCommand createBotCommand, ActivateBotCommand activateBotCommand, DeactivateBotCommand deactivateBotCommand, ReactivateBotCommand reactivateBotCommand) {
         CreateBotCommand = createBotCommand;
         ActivateBotCommand = activateBotCommand;
         DeactivateBotCommand = deactivateBotCommand;
+        ReactivateBotCommand = reactivateBotCommand;
+    }
+    
+    public record CreateBotParametersDto {
+        public required string UserId { get; init; }
+        public required string Name { get; init; }
+        public required TradingMode Mode { get; init; }
+        public decimal? Funds { get; init; }
     }
 
     /// <summary>
@@ -27,10 +40,20 @@ public class BotController : ControllerBase {
     /// </summary>
     [Route("")]
     [HttpPost]
-    public BotDto CreateBot([FromBody] CreateBotParameters request) {
+    public BotDto CreateBot([FromBody] CreateBotParametersDto request) {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
-        return CreateBotCommand.Execute(userId, request)
+        return CreateBotCommand.Execute(new CreateBotParameters {
+                UserId = IdentityId.FromString(request.UserId),
+                Name = request.Name,
+                Mode = request.Mode,
+                Funds = request.Funds
+            })
             .ToDto();
+    }
+
+    public record ActivateBotParametersDto {
+        public required string StrategyTemplateId { get; init; }
+        public JsonDocument? StrategyJsonParameters { get; init; }
     }
     
     /// <summary>
@@ -38,8 +61,12 @@ public class BotController : ControllerBase {
     /// </summary>
     [Route("{botId}/activation")]
     [HttpPost]
-    public BotActivationDto ActivateBot(string botId, [FromBody] ActivateBotParameters request) {
-        return ActivateBotCommand.Execute(botId.ToKsuid(), request)
+    public BotActivationDto ActivateBot(string botId, [FromBody] ActivateBotParametersDto request) {
+        return ActivateBotCommand.Execute(new ActivateBotParameters {
+                BotId = BotId.FromString(botId),
+                StrategyTemplateId = StrategyTemplateId.FromString(request.StrategyTemplateId),
+                StrategyJsonParameters = request.StrategyJsonParameters
+            })
             .ToDto();
     }
     
@@ -49,7 +76,16 @@ public class BotController : ControllerBase {
     [Route("{botId}/activation")]
     [HttpDelete]
     public void DeactivateBot(string botId) { 
-        DeactivateBotCommand.Execute(botId.ToKsuid());
+        DeactivateBotCommand.Execute(BotId.FromString(botId));
+    }
+    
+    /// <summary>
+    /// Clear a Bot's Error State and Reschedule It
+    /// </summary>
+    [Route("{botId}/reactivate")]
+    [HttpPatch]
+    public void ClearBotErrorState(string botId) { 
+        ReactivateBotCommand.Execute(BotId.FromString(botId));
     }
     
     //

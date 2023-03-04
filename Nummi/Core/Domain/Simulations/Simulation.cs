@@ -15,11 +15,18 @@ public enum SimulationState {
     Finished
 }
 
+public readonly record struct SimulationId(Guid Value) {
+    public override string ToString() => Value.ToString("N");
+    public static SimulationId Generate() => new(Guid.NewGuid());
+    public static SimulationId FromGuid(Guid id) => new(id);
+    public static SimulationId FromString(string s) => new(Guid.ParseExact(s, "N"));
+}
+
 public class Simulation : Audited {
     
     private static readonly Logger Log = LogManager.GetCurrentClassLogger();
 
-    public Ksuid Id { get; } = Ksuid.Generate();
+    public SimulationId Id { get; } = SimulationId.Generate();
 
     public DateTimeOffset CreatedAt { get; set; }
     
@@ -75,7 +82,7 @@ public class Simulation : Audited {
             Strategy.Initialize(session);
             while (clock.NowUtc < SimulationEndDate) {
                 Strategy.CheckForTrades(session);
-                clock.NowUtc += Strategy.Frequency;
+                clock.NowUtc += Strategy.Frequency.AsTimeSpan;
             }
         }
         catch (Exception e) {

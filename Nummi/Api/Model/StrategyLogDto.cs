@@ -8,8 +8,8 @@ public class StrategyLogDto {
     public string? BotLogId { get; set; }
     public TradingMode? Mode { get; set; }
     public StrategyAction? Action { get; set; }
-    public DateTime? StartTime { get; set; }
-    public DateTime? EndTime { get; set; }
+    public DateTimeOffset? StartTime { get; set; }
+    public DateTimeOffset? EndTime { get; set; }
     public TimeSpan? TotalTime { get; set; }
     public int? ApiCalls { get; set; }
     public TimeSpan? TotalApiCallTime { get; set; }

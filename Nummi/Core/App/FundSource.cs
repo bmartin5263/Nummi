@@ -1,4 +1,4 @@
-using Nummi.Core.Domain.New;
+using Nummi.Core.Domain.Bots;
 using Nummi.Core.Exceptions;
 
 namespace Nummi.Core.App; 

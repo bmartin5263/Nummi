@@ -3,8 +3,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using Nummi.Core.Domain.Common;
-using Nummi.Core.Domain.Crypto;
 using Nummi.Core.Exceptions;
 using Nummi.Core.Util;
 
@@ -57,8 +55,8 @@ public static class Extensions {
             .HaveConversion<C>();     
     }
 
-    public static ReferenceReferenceBuilder<P, C> OneToOne<P, C>(this ModelBuilder builder, string foreignKey, Expression<Func<P, C?>>? navigationExpression = null) where P : class where C : class {
-        builder.Entity<C>().Property<Ksuid?>(foreignKey);
+    public static ReferenceReferenceBuilder<P, C> OneToOne<P, C, PKey>(this ModelBuilder builder, string foreignKey, Expression<Func<P, C?>> navigationExpression) where P : class where C : class {
+        builder.Entity<C>().Property<PKey?>(foreignKey);
         return builder.Entity<P>()
             .HasOne(navigationExpression)
             .WithOne()
@@ -84,16 +82,16 @@ public static class Extensions {
             .HasKey(keyExpression);
     }
 
-    public static ReferenceReferenceBuilder<P, C> OneToOne<P, C>(this ModelBuilder builder, string foreignKey) where P : class where C : class {
-        builder.Entity<C>().Property<Ksuid?>(foreignKey);
+    public static ReferenceReferenceBuilder<P, C> OneToOne<P, C, ID>(this ModelBuilder builder, string foreignKey) where P : class where C : class {
+        builder.Entity<C>().Property<ID?>(foreignKey);
         return builder.Entity<P>()
             .HasOne<C>()
             .WithOne()
             .HasForeignKey<C>(foreignKey);
     }
 
-    public static ReferenceReferenceBuilder<P, C> OneToOneOptionalInverse<P, C>(this ModelBuilder builder, string foreignKey, Expression<Func<P, C?>>? navigationExpression = null) where P : class where C : class {
-        builder.Entity<P>().Property<Ksuid?>(foreignKey);
+    public static ReferenceReferenceBuilder<P, C> OneToOneOptionalInverse<P, C, ID>(this ModelBuilder builder, string foreignKey, Expression<Func<P, C?>>? navigationExpression = null) where P : class where C : class {
+        builder.Entity<P>().Property<ID?>(foreignKey);
         return builder.Entity<P>()
             .HasOne(navigationExpression)
             .WithOne()
@@ -101,7 +99,7 @@ public static class Extensions {
     }
 
     // public static ReferenceReferenceBuilder<P, C> OneToOneInverse<P, C>(this ModelBuilder builder, string foreignKey, Expression<Func<P, C?>>? navigationExpression = null) where P : class where C : class {
-    //     return builder.OneToOneInverse<P, C, Ksuid>(foreignKey, navigationExpression);
+    //     return builder.OneToOneInverse<P, C, ID>(foreignKey, navigationExpression);
     // }
     //
     // public static ReferenceReferenceBuilder<P, C> OneToOneInverse<P, C, K>(this ModelBuilder builder, string foreignKey, Expression<Func<P, C?>>? navigationExpression = null) where P : class where C : class {
@@ -112,32 +110,20 @@ public static class Extensions {
     //         .HasForeignKey<P>(foreignKey);
     // }
 
-    public static ReferenceCollectionBuilder<C, P> ManyToOne<P, C>(this ModelBuilder builder, string foreignKey, Expression<Func<P, C?>>? navigationExpression = null) where P : class where C : class {
-        return builder.ManyToOne<P, C, Ksuid>(foreignKey, navigationExpression);
-    }
-    
-    public static ReferenceCollectionBuilder<C, P> ManyToOne<P, C, K>(this ModelBuilder builder, string foreignKey, Expression<Func<P, C?>>? navigationExpression = null) where P : class where C : class {
-        builder.Entity<P>().Property<K>(foreignKey);
+    public static ReferenceCollectionBuilder<C, P> ManyToOne<P, C, CKey>(this ModelBuilder builder, string foreignKey, Expression<Func<P, C?>>? navigationExpression = null) where P : class where C : class {
+        builder.Entity<P>().Property<CKey>(foreignKey);
         return builder.Entity<P>()
             .HasOne(navigationExpression)
             .WithMany()
             .HasForeignKey(foreignKey);
     }
     
-    public static ReferenceCollectionBuilder<P, C> OneToMany<P, C>(
-        this ModelBuilder builder, 
-        string foreignKey, 
-        Expression<Func<P, IEnumerable<C>?>> navigationExpression
-    ) where P : class where C : class {
-        return OneToMany<P, C, Ksuid>(builder, foreignKey, navigationExpression);
-    }
-    
-    public static ReferenceCollectionBuilder<P, C> OneToMany<P, C, K>(
+    public static ReferenceCollectionBuilder<P, C> OneToMany<P, C, PKey>(
         this ModelBuilder builder, 
         string foreignKey,
         Expression<Func<P, IEnumerable<C>?>> navigationExpression
     ) where P : class where C : class {
-        builder.Entity<C>().Property<K?>(foreignKey);
+        builder.Entity<C>().Property<PKey?>(foreignKey);
         return builder.Entity<P>()
             .HasMany(navigationExpression)
             .WithOne()
@@ -220,25 +206,29 @@ public static class Extensions {
 
         return propertyBuilder;
     }
-    
-    public static int AddRangeIfNotExists(this DbSet<Bar> dbSet, IEnumerable<Bar> entities) {
-        var allEntities = entities.ToList();
-        var symbols = allEntities.Select(e => e.Symbol);
-        var openTimes = allEntities.Select(e => e.OpenTime);
-        var periods = allEntities.Select(e => e.Period);
+
+    public static V GetOrInsert<D, K, V>(this D self, K key, Func<V> defaultValue) where D : IDictionary<K, V>? {
+        if (self!.TryGetValue(key, out var value)) {
+            return value;
+        }
+        value = defaultValue();
+        if (value == null) {
+            throw new SystemArgumentException("GetOrInsert() defaultValue returned null");
+        }
         
-        var rawSelection = from entity in dbSet
-            where symbols.Contains(entity.Symbol) && openTimes.Contains(entity.OpenTime) && periods.Contains(entity.Period)
-            select entity;
-
-        var refined = from entity in rawSelection.AsEnumerable()
-            join pair in allEntities on new { entity.Symbol, OpenTimeUtc = entity.OpenTime, entity.Period }
-                                     equals new { pair.Symbol, OpenTimeUtc = pair.OpenTime, pair.Period}
-            select entity;
-
-        var entitiesToAdd = allEntities.Except(refined).ToList();
-        dbSet.AddRange(entitiesToAdd);
-
-        return entitiesToAdd.Count;
+        self[key] = value;
+        return value;
+    }
+    
+    public static V? GetOrInsertNullable<D, K, V>(this D self, K key, Func<V?> defaultValue) where D : IDictionary<K, V>? {
+        if (self!.TryGetValue(key, out var value)) {
+            return value;
+        }
+        value = defaultValue();
+        if (value == null) {
+            return default;
+        }
+        self[key] = value;
+        return value;
     }
 }

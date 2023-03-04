@@ -1,16 +1,16 @@
 using Microsoft.EntityFrameworkCore;
 using Nummi.Core.Database.Common;
-using Nummi.Core.Domain.Common;
 using Nummi.Core.Domain.Strategies;
+using Nummi.Core.Domain.User;
 using Nummi.Core.Exceptions;
 using Nummi.Core.Util;
 
 namespace Nummi.Core.Database.EFCore; 
 
-public class StrategyTemplateRepository : GenericRepository<Ksuid, StrategyTemplate>, IStrategyTemplateRepository {
+public class StrategyTemplateRepository : GenericRepository<StrategyTemplateId, StrategyTemplate>, IStrategyTemplateRepository {
     public StrategyTemplateRepository(ITransaction context) : base(context) { }
 
-    public void RemoveAllByUserId(Ksuid userId) {
+    public void RemoveAllByUserId(IdentityId userId) {
         var templates = Context.StrategyTemplates
             .Include(x => x.Versions)
             .Where(x => x.UserId == userId)
@@ -23,7 +23,7 @@ public class StrategyTemplateRepository : GenericRepository<Ksuid, StrategyTempl
         Context.StrategyTemplates.RemoveRange(templates);
     }
 
-    public StrategyTemplate? FindByUserAndName(Ksuid userId, string name) {
+    public StrategyTemplate? FindByUserAndName(IdentityId userId, string name) {
         return Context.Set<StrategyTemplate>()
             .Include(t => t.Versions
                 .OrderByDescending(v => v.VersionNumber)
@@ -32,7 +32,7 @@ public class StrategyTemplateRepository : GenericRepository<Ksuid, StrategyTempl
             .FirstOrDefault(t => t.Name == name && t.UserId == userId);
     }
 
-    public override StrategyTemplate? FindNullableById(Ksuid id) {
+    public override StrategyTemplate? FindNullableById(StrategyTemplateId id) {
         return Context.Set<StrategyTemplate>()
             .Include(t => t.Versions
                 .OrderByDescending(v => v.VersionNumber)
@@ -41,7 +41,7 @@ public class StrategyTemplateRepository : GenericRepository<Ksuid, StrategyTempl
             .FirstOrDefault(t => t.Id == id);
     }
 
-    public override StrategyTemplate FindById(Ksuid id) {
+    public override StrategyTemplate FindById(StrategyTemplateId id) {
         return Context.Set<StrategyTemplate>()
             .Include(t => t.Versions
                 .OrderByDescending(v => v.VersionNumber)
@@ -51,7 +51,7 @@ public class StrategyTemplateRepository : GenericRepository<Ksuid, StrategyTempl
             .OrElseThrow(() => EntityNotFoundException<StrategyTemplate>.IdNotFound(id));
     }
 
-    public override StrategyTemplate RequireById(Ksuid id) {
+    public override StrategyTemplate RequireById(StrategyTemplateId id) {
         return Context.Set<StrategyTemplate>()
             .Include(t => t.Versions
                 .OrderByDescending(v => v.VersionNumber)

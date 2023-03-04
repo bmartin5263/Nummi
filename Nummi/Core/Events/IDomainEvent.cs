@@ -1,4 +1,4 @@
-namespace Nummi.Core.Domain.Common; 
+namespace Nummi.Core.Events; 
 
 public interface IDomainEvent {
     

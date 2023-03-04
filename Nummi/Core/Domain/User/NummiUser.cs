@@ -3,10 +3,10 @@ using Nummi.Core.Domain.Common;
 using Nummi.Core.Domain.Simulations;
 using Nummi.Core.Domain.Strategies;
 
-namespace Nummi.Core.Domain.New.User;
+namespace Nummi.Core.Domain.User;
 
-public class NummiUser : IdentityUser<Ksuid>, Audited {
-    public sealed override Ksuid Id { get; set; }
+public class NummiUser : IdentityUser<IdentityId>, Audited {
+    public sealed override IdentityId Id { get; set; }
 
     public DateTimeOffset CreatedAt { get; set; }
     
@@ -22,17 +22,17 @@ public class NummiUser : IdentityUser<Ksuid>, Audited {
     
     public string? AlpacaLiveKey { get; set; }
 
-    public List<Bot> Bots { get; } = new();
+    public List<Bots.Bot> Bots { get; } = new();
 
     public List<StrategyTemplate> StrategyTemplates { get; } = new();
 
     public List<Simulation> Simulations { get; } = new();
 
     public NummiUser() {
-        Id = Ksuid.Generate();
+        Id = IdentityId.Generate();
     }
 
     public NummiUser(string userName) : base(userName) {
-        Id = Ksuid.Generate();
+        Id = IdentityId.Generate();
     }
 }

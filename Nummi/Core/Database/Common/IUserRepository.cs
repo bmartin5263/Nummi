@@ -1,7 +1,7 @@
-using Nummi.Core.Domain.Common;
-using Nummi.Core.Domain.New.User;
+using Nummi.Core.Domain.User;
 
 namespace Nummi.Core.Database.Common; 
 
-public interface IUserRepository : IGenericRepository<Ksuid, NummiUser> {
+public interface IUserRepository : IGenericRepository<IdentityId, NummiUser> {
+    NummiUser FindByIdWithAllDetails(IdentityId id);
 }

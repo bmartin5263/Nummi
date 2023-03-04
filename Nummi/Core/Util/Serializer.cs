@@ -113,7 +113,7 @@ public class Serializer {
 
     public class KsuidConverter : JsonConverter<Ksuid> {
         public override Ksuid Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) {
-            return reader.GetString()!.ToKsuid();
+            return Ksuid.FromString(reader.GetString()!);
         }
 
         public override void Write(Utf8JsonWriter writer, Ksuid value, JsonSerializerOptions options) {

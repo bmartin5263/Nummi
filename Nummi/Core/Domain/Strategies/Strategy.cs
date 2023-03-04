@@ -7,11 +7,18 @@ using Nummi.Core.Util;
 
 namespace Nummi.Core.Domain.Strategies;
 
+public readonly record struct StrategyId(Guid Value) {
+    public override string ToString() => Value.ToString("N");
+    public static StrategyId Generate() => new(Guid.NewGuid());
+    public static StrategyId FromGuid(Guid id) => new(id);
+    public static StrategyId FromString(string s) => new(Guid.ParseExact(s, "N"));
+}
+
 [JsonConverter(typeof(Serializer.AbstractTypeConverter<Strategy>))]
 public abstract class Strategy : Audited {
     protected static readonly object EMPTY_OBJECT = new();
     
-    public Ksuid Id { get; } = Ksuid.Generate();
+    public StrategyId Id { get; } = StrategyId.Generate();
 
     public DateTimeOffset CreatedAt { get; set; }
     
@@ -21,7 +28,7 @@ public abstract class Strategy : Audited {
 
     public StrategyTemplateVersion ParentTemplateVersion { get; }
 
-    public TimeSpan Frequency { get; }
+    public StrategyFrequency Frequency { get; private set; }
     
     public string? ParametersJson { get; private set; }
 
@@ -36,6 +43,7 @@ public abstract class Strategy : Audited {
 
     protected Strategy() {
         ParentTemplateVersion = null!;
+        Frequency = null!;
     }
 
     protected Strategy(
@@ -60,7 +68,38 @@ public abstract class Strategy : Audited {
             action: action
         );
     }
-    
+
+    public StrategyExecutionResult Run(ITradingSession session) {
+        Load();
+
+        List<StrategyLog> newLogs = new();
+        StrategyLog? newLog;
+        
+        if (Logs.Count > 0) {
+            TimeSpan sinceLastExecution = DateTimeOffset.UtcNow - Logs[0].StartTime;
+            if (strategyLogic!.NeedsInitialization(sinceLastExecution)) {
+                newLog = Initialize(session);
+                newLogs.Add(newLog);
+                if (newLog.Exception != null) {
+                    return StrategyExecutionResult.Fail(newLogs, newLog.Exception);
+                }
+            }
+        }
+        else {
+            newLog = Initialize(session);
+            newLogs.Add(newLog);
+            if (newLog.Exception != null) {
+                return StrategyExecutionResult.Fail(newLogs, newLog.Exception);
+            }
+        }
+
+        newLog = CheckForTrades(session);
+        newLogs.Add(newLog);
+        return newLog.Exception != null 
+            ? StrategyExecutionResult.Fail(newLogs, newLog.Exception) 
+            : StrategyExecutionResult.Success(newLogs);
+    }
+
     public StrategyLog Initialize(ITradingSession session) {
         return WithContext(session, StrategyAction.Initializing, context => strategyLogic!.Initialize(context));
     }
@@ -70,7 +109,6 @@ public abstract class Strategy : Audited {
     }
 
     private StrategyLog WithContext(ITradingSession session, StrategyAction actionName, Action<StrategyContext> action) {
-        Load();
         StrategyLogBuilder logBuilder = CreateLogBuilder(session, actionName);
         StrategyContext context = new(session, logBuilder, parametersInstance!, stateInstance!);
 
@@ -84,9 +122,6 @@ public abstract class Strategy : Audited {
         StrategyLog log = logBuilder.Build();
         Logs.Add(log);
 
-        if (log.Error != null) {
-            throw new StrategyException(log, logBuilder.Error);
-        }
         return log;
     }
 

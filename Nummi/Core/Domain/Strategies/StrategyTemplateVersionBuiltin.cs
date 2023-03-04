@@ -14,7 +14,7 @@ public class StrategyTemplateVersionBuiltin : StrategyTemplateVersion {
     public StrategyTemplateVersionBuiltin(
         uint version,
         string name,
-        TimeSpan frequency,
+        StrategyFrequency frequency,
         string logicTypeName, 
         string parameterTypeName, 
         string stateTypeName

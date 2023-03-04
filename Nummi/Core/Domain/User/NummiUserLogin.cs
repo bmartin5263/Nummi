@@ -1,8 +1,7 @@
 using Microsoft.AspNetCore.Identity;
-using Nummi.Core.Domain.Common;
 
-namespace Nummi.Core.Domain.New.User; 
+namespace Nummi.Core.Domain.User; 
 
-public class NummiUserLogin : IdentityUserLogin<Ksuid> {
+public class NummiUserLogin : IdentityUserLogin<IdentityId> {
     
 }

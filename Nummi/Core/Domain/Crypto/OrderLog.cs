@@ -1,11 +1,17 @@
-using Nummi.Core.Domain.Common;
 using Nummi.Core.Util;
 
 namespace Nummi.Core.Domain.Crypto;
 
+public readonly record struct OrderLogId(Guid Value) {
+    public override string ToString() => Value.ToString("N");
+    public static OrderLogId Generate() => new(Guid.NewGuid());
+    public static OrderLogId FromGuid(Guid id) => new(id);
+    public static OrderLogId FromString(string s) => new(Guid.ParseExact(s, "N"));
+}
+
 public class OrderLog {
     
-    public Ksuid Id { get; } = Ksuid.Generate();
+    public OrderLogId Id { get; } = OrderLogId.Generate();
     
     public required DateTime SubmittedAt { get; init; }
 

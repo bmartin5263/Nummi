@@ -12,7 +12,7 @@ using Nummi.Core.Database.EFCore;
 namespace Nummi.Core.Database.EFCore.Migrations
 {
     [DbContext(typeof(EFCoreContext))]
-    [Migration("20230221235600_Initial")]
+    [Migration("20230227004030_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -166,23 +166,105 @@ namespace Nummi.Core.Database.EFCore.Migrations
                     b.ToTable("PersistedGrants", (string)null);
                 });
 
-            modelBuilder.Entity("Nummi.Core.Domain.Crypto.Price", b =>
+            modelBuilder.Entity("Nummi.Core.Domain.Bot.Bot", b =>
                 {
-                    b.Property<string>("Symbol")
-                        .HasColumnType("text");
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("BotId");
 
-                    b.Property<DateTime>("Time")
+                    b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<decimal>("Value")
+                    b.Property<Guid>("CurrentBotActivationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<decimal>("Funds")
                         .HasColumnType("numeric");
 
-                    b.HasKey("Symbol", "Time");
+                    b.Property<bool>("InErrorState")
+                        .HasColumnType("boolean");
 
-                    b.ToTable("HistoricalPrice", (string)null);
+                    b.Property<string>("Mode")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasAlternateKey("UserId", "Name");
+
+                    b.HasIndex("CurrentBotActivationId")
+                        .IsUnique();
+
+                    b.ToTable("Bot", (string)null);
                 });
 
-            modelBuilder.Entity("Nummi.Core.Domain.New.Bar", b =>
+            modelBuilder.Entity("Nummi.Core.Domain.Bot.BotActivation", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("BotActivationId");
+
+                    b.Property<Guid>("BotId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BotId");
+
+                    b.ToTable("BotActivation", (string)null);
+                });
+
+            modelBuilder.Entity("Nummi.Core.Domain.Bot.BotLog", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("BotLogId");
+
+                    b.Property<Guid>("BotActivationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("EndTime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Error")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("StartTime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<TimeSpan>("TotalTime")
+                        .HasColumnType("interval");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BotActivationId");
+
+                    b.ToTable("BotLog", (string)null);
+                });
+
+            modelBuilder.Entity("Nummi.Core.Domain.Crypto.Bar", b =>
                 {
                     b.Property<string>("Symbol")
                         .HasColumnType("text");
@@ -213,111 +295,10 @@ namespace Nummi.Core.Database.EFCore.Migrations
                     b.ToTable("HistoricalBar", (string)null);
                 });
 
-            modelBuilder.Entity("Nummi.Core.Domain.New.Bot", b =>
+            modelBuilder.Entity("Nummi.Core.Domain.Crypto.OrderLog", b =>
                 {
-                    b.Property<string>("Id")
-                        .HasColumnType("text")
-                        .HasColumnName("BotId");
-
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("CurrentBotActivationId")
-                        .HasColumnType("text");
-
-                    b.Property<DateTimeOffset?>("DeletedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<decimal>("Funds")
-                        .HasColumnType("numeric");
-
-                    b.Property<bool>("InErrorState")
-                        .HasColumnType("boolean");
-
-                    b.Property<string>("Mode")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<DateTimeOffset?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.HasAlternateKey("UserId", "Name");
-
-                    b.HasIndex("CurrentBotActivationId")
-                        .IsUnique();
-
-                    b.ToTable("Bot", (string)null);
-                });
-
-            modelBuilder.Entity("Nummi.Core.Domain.New.BotActivation", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("text")
-                        .HasColumnName("BotActivationId");
-
-                    b.Property<string>("BotId")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<DateTimeOffset?>("DeletedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<DateTimeOffset?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("BotId");
-
-                    b.ToTable("BotActivation", (string)null);
-                });
-
-            modelBuilder.Entity("Nummi.Core.Domain.New.BotLog", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("text")
-                        .HasColumnName("BotLogId");
-
-                    b.Property<string>("BotActivationId")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<DateTime>("EndTime")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("Error")
-                        .HasColumnType("text");
-
-                    b.Property<DateTime>("StartTime")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<TimeSpan>("TotalTime")
-                        .HasColumnType("interval");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("BotActivationId");
-
-                    b.ToTable("BotLog", (string)null);
-                });
-
-            modelBuilder.Entity("Nummi.Core.Domain.New.OrderLog", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("text")
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
                         .HasColumnName("OrderLogId");
 
                     b.Property<string>("Duration")
@@ -341,8 +322,8 @@ namespace Nummi.Core.Database.EFCore.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("StrategyLogId")
-                        .HasColumnType("text");
+                    b.Property<Guid>("StrategyLogId")
+                        .HasColumnType("uuid");
 
                     b.Property<DateTime>("SubmittedAt")
                         .HasColumnType("timestamp with time zone");
@@ -362,10 +343,294 @@ namespace Nummi.Core.Database.EFCore.Migrations
                     b.ToTable("OrderLog", (string)null);
                 });
 
-            modelBuilder.Entity("Nummi.Core.Domain.New.User.NummiRole", b =>
+            modelBuilder.Entity("Nummi.Core.Domain.Crypto.Price", b =>
+                {
+                    b.Property<string>("Symbol")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("Time")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<decimal>("Value")
+                        .HasColumnType("numeric");
+
+                    b.HasKey("Symbol", "Time");
+
+                    b.ToTable("HistoricalPrice", (string)null);
+                });
+
+            modelBuilder.Entity("Nummi.Core.Domain.Simulations.Simulation", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("SimulationId");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Error")
+                        .HasColumnType("text");
+
+                    b.Property<DateTimeOffset?>("FinishedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset>("SimulationEndDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset>("SimulationStartDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset?>("StartedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("State")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<TimeSpan?>("TotalExecutionTime")
+                        .HasColumnType("interval")
+                        .HasColumnName("TotalExecutionTime");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Simulation", (string)null);
+                });
+
+            modelBuilder.Entity("Nummi.Core.Domain.Strategies.Strategy", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("StrategyId");
+
+                    b.Property<Guid>("BotActivationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ParametersJson")
+                        .HasColumnType("jsonb");
+
+                    b.Property<Guid>("SimulationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("StateJson")
+                        .HasColumnType("jsonb");
+
+                    b.Property<Guid>("StrategyTemplateVersionId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("StrategyType")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BotActivationId")
+                        .IsUnique();
+
+                    b.HasIndex("SimulationId")
+                        .IsUnique();
+
+                    b.HasIndex("StrategyTemplateVersionId");
+
+                    b.ToTable("Strategy", (string)null);
+
+                    b.HasDiscriminator<string>("StrategyType").HasValue("Strategy");
+
+                    b.UseTphMappingStrategy();
+                });
+
+            modelBuilder.Entity("Nummi.Core.Domain.Strategies.StrategyLog", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("StrategyLogId");
+
+                    b.Property<string>("Action")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("ApiCalls")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid?>("BotLogId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("EndTime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Error")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Mode")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("StartTime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("StrategyId")
+                        .HasColumnType("uuid");
+
+                    b.Property<TimeSpan>("TotalApiCallTime")
+                        .HasColumnType("interval");
+
+                    b.Property<TimeSpan>("TotalTime")
+                        .HasColumnType("interval");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BotLogId");
+
+                    b.HasIndex("StrategyId");
+
+                    b.ToTable("StrategyLog", (string)null);
+                });
+
+            modelBuilder.Entity("Nummi.Core.Domain.Strategies.StrategyTemplate", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("StrategyTemplateId");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsPublic")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasAlternateKey("UserId", "Name");
+
+                    b.ToTable("StrategyTemplate", (string)null);
+                });
+
+            modelBuilder.Entity("Nummi.Core.Domain.Strategies.StrategyTemplateVersion", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("StrategyTemplateVersionId");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<TimeSpan>("Frequency")
+                        .HasColumnType("interval");
+
+                    b.Property<bool>("IsDraft")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("SourceCode")
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("StrategyTemplateId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("StrategyTemplateType")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<long>("VersionNumber")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasAlternateKey("StrategyTemplateId", "VersionNumber");
+
+                    b.ToTable("StrategyTemplateVersion", (string)null);
+
+                    b.HasDiscriminator<string>("StrategyTemplateType").HasValue("StrategyTemplateVersion");
+
+                    b.UseTphMappingStrategy();
+                });
+
+            modelBuilder.Entity("Nummi.Core.Domain.Test.Blog", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("text");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("PostId")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Blogs");
+                });
+
+            modelBuilder.Entity("Nummi.Core.Domain.Test.Post", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("text");
+
+                    b.Property<string>("BlogId")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Meta")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BlogId")
+                        .IsUnique();
+
+                    b.ToTable("Posts");
+                });
+
+            modelBuilder.Entity("Nummi.Core.Domain.User.NummiRole", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
 
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
@@ -388,7 +653,7 @@ namespace Nummi.Core.Database.EFCore.Migrations
                     b.ToTable("Role", (string)null);
                 });
 
-            modelBuilder.Entity("Nummi.Core.Domain.New.User.NummiRoleClaim", b =>
+            modelBuilder.Entity("Nummi.Core.Domain.User.NummiRoleClaim", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -402,9 +667,8 @@ namespace Nummi.Core.Database.EFCore.Migrations
                     b.Property<string>("ClaimValue")
                         .HasColumnType("text");
 
-                    b.Property<string>("RoleId")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<Guid>("RoleId")
+                        .HasColumnType("uuid");
 
                     b.HasKey("Id");
 
@@ -413,10 +677,10 @@ namespace Nummi.Core.Database.EFCore.Migrations
                     b.ToTable("RoleClaim", (string)null);
                 });
 
-            modelBuilder.Entity("Nummi.Core.Domain.New.User.NummiUser", b =>
+            modelBuilder.Entity("Nummi.Core.Domain.User.NummiUser", b =>
                 {
-                    b.Property<string>("Id")
-                        .HasColumnType("text");
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
 
                     b.Property<int>("AccessFailedCount")
                         .HasColumnType("integer");
@@ -498,7 +762,7 @@ namespace Nummi.Core.Database.EFCore.Migrations
                     b.ToTable("User", (string)null);
                 });
 
-            modelBuilder.Entity("Nummi.Core.Domain.New.User.NummiUserClaim", b =>
+            modelBuilder.Entity("Nummi.Core.Domain.User.NummiUserClaim", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -512,9 +776,8 @@ namespace Nummi.Core.Database.EFCore.Migrations
                     b.Property<string>("ClaimValue")
                         .HasColumnType("text");
 
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
 
                     b.HasKey("Id");
 
@@ -523,7 +786,7 @@ namespace Nummi.Core.Database.EFCore.Migrations
                     b.ToTable("UserClaim", (string)null);
                 });
 
-            modelBuilder.Entity("Nummi.Core.Domain.New.User.NummiUserLogin", b =>
+            modelBuilder.Entity("Nummi.Core.Domain.User.NummiUserLogin", b =>
                 {
                     b.Property<string>("LoginProvider")
                         .HasMaxLength(128)
@@ -536,9 +799,8 @@ namespace Nummi.Core.Database.EFCore.Migrations
                     b.Property<string>("ProviderDisplayName")
                         .HasColumnType("text");
 
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
 
                     b.HasKey("LoginProvider", "ProviderKey");
 
@@ -547,13 +809,13 @@ namespace Nummi.Core.Database.EFCore.Migrations
                     b.ToTable("UserLogin", (string)null);
                 });
 
-            modelBuilder.Entity("Nummi.Core.Domain.New.User.NummiUserRole", b =>
+            modelBuilder.Entity("Nummi.Core.Domain.User.NummiUserRole", b =>
                 {
-                    b.Property<string>("UserId")
-                        .HasColumnType("text");
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
 
-                    b.Property<string>("RoleId")
-                        .HasColumnType("text");
+                    b.Property<Guid>("RoleId")
+                        .HasColumnType("uuid");
 
                     b.HasKey("UserId", "RoleId");
 
@@ -562,10 +824,10 @@ namespace Nummi.Core.Database.EFCore.Migrations
                     b.ToTable("UserRole", (string)null);
                 });
 
-            modelBuilder.Entity("Nummi.Core.Domain.New.User.NummiUserToken", b =>
+            modelBuilder.Entity("Nummi.Core.Domain.User.NummiUserToken", b =>
                 {
-                    b.Property<string>("UserId")
-                        .HasColumnType("text");
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
 
                     b.Property<string>("LoginProvider")
                         .HasMaxLength(128)
@@ -581,278 +843,6 @@ namespace Nummi.Core.Database.EFCore.Migrations
                     b.HasKey("UserId", "LoginProvider", "Name");
 
                     b.ToTable("UserToken", (string)null);
-                });
-
-            modelBuilder.Entity("Nummi.Core.Domain.Simulations.Simulation", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("text")
-                        .HasColumnName("SimulationId");
-
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<DateTimeOffset?>("DeletedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("Error")
-                        .HasColumnType("text");
-
-                    b.Property<DateTimeOffset?>("FinishedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<DateTimeOffset>("SimulationEndDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<DateTimeOffset>("SimulationStartDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<DateTimeOffset?>("StartedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("State")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<TimeSpan?>("TotalExecutionTime")
-                        .HasColumnType("interval")
-                        .HasColumnName("TotalExecutionTime");
-
-                    b.Property<DateTimeOffset?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("Simulation", (string)null);
-                });
-
-            modelBuilder.Entity("Nummi.Core.Domain.Strategies.Strategy", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("text")
-                        .HasColumnName("StrategyId");
-
-                    b.Property<string>("BotActivationId")
-                        .HasColumnType("text");
-
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<DateTimeOffset?>("DeletedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("ParametersJson")
-                        .HasColumnType("jsonb");
-
-                    b.Property<string>("SimulationId")
-                        .HasColumnType("text");
-
-                    b.Property<string>("StateJson")
-                        .HasColumnType("jsonb");
-
-                    b.Property<string>("StrategyTemplateVersionId")
-                        .HasColumnType("text");
-
-                    b.Property<string>("StrategyType")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<DateTimeOffset?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("BotActivationId")
-                        .IsUnique();
-
-                    b.HasIndex("SimulationId")
-                        .IsUnique();
-
-                    b.HasIndex("StrategyTemplateVersionId");
-
-                    b.ToTable("Strategy", (string)null);
-
-                    b.HasDiscriminator<string>("StrategyType").HasValue("Strategy");
-
-                    b.UseTphMappingStrategy();
-                });
-
-            modelBuilder.Entity("Nummi.Core.Domain.Strategies.StrategyLog", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("text")
-                        .HasColumnName("StrategyLogId");
-
-                    b.Property<string>("Action")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<int>("ApiCalls")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("BotLogId")
-                        .HasColumnType("text");
-
-                    b.Property<DateTime>("EndTime")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("Error")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Mode")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<DateTime>("StartTime")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("StrategyId")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<TimeSpan>("TotalApiCallTime")
-                        .HasColumnType("interval");
-
-                    b.Property<TimeSpan>("TotalTime")
-                        .HasColumnType("interval");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("BotLogId");
-
-                    b.HasIndex("StrategyId");
-
-                    b.ToTable("StrategyLog", (string)null);
-                });
-
-            modelBuilder.Entity("Nummi.Core.Domain.Strategies.StrategyTemplate", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("text")
-                        .HasColumnName("StrategyTemplateId");
-
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<DateTimeOffset?>("DeletedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<bool>("IsPublic")
-                        .HasColumnType("boolean");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<DateTimeOffset?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.HasAlternateKey("UserId", "Name");
-
-                    b.ToTable("StrategyTemplate", (string)null);
-                });
-
-            modelBuilder.Entity("Nummi.Core.Domain.Strategies.StrategyTemplateVersion", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("text")
-                        .HasColumnName("StrategyTemplateVersionId");
-
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<DateTimeOffset?>("DeletedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<TimeSpan>("Frequency")
-                        .HasColumnType("interval");
-
-                    b.Property<bool>("IsDraft")
-                        .HasColumnType("boolean");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("SourceCode")
-                        .HasColumnType("text");
-
-                    b.Property<string>("StrategyTemplateId")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("StrategyTemplateType")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<DateTimeOffset?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<long>("VersionNumber")
-                        .HasColumnType("bigint");
-
-                    b.HasKey("Id");
-
-                    b.HasAlternateKey("StrategyTemplateId", "VersionNumber");
-
-                    b.ToTable("StrategyTemplateVersion", (string)null);
-
-                    b.HasDiscriminator<string>("StrategyTemplateType").HasValue("StrategyTemplateVersion");
-
-                    b.UseTphMappingStrategy();
-                });
-
-            modelBuilder.Entity("Nummi.Core.Domain.Test.Blog", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("PostId")
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Blogs");
-                });
-
-            modelBuilder.Entity("Nummi.Core.Domain.Test.Post", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("text");
-
-                    b.Property<string>("BlogId")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Content")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("Meta")
-                        .IsRequired()
-                        .HasColumnType("jsonb");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("BlogId")
-                        .IsUnique();
-
-                    b.ToTable("Posts");
                 });
 
             modelBuilder.Entity("Nummi.Core.Domain.Strategies.StrategyBuiltin", b =>
@@ -881,14 +871,15 @@ namespace Nummi.Core.Database.EFCore.Migrations
                     b.HasDiscriminator().HasValue("builtin");
                 });
 
-            modelBuilder.Entity("Nummi.Core.Domain.New.Bot", b =>
+            modelBuilder.Entity("Nummi.Core.Domain.Bot.Bot", b =>
                 {
-                    b.HasOne("Nummi.Core.Domain.New.BotActivation", "CurrentActivation")
+                    b.HasOne("Nummi.Core.Domain.Bot.BotActivation", "CurrentActivation")
                         .WithOne()
-                        .HasForeignKey("Nummi.Core.Domain.New.Bot", "CurrentBotActivationId")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .HasForeignKey("Nummi.Core.Domain.Bot.Bot", "CurrentBotActivationId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .IsRequired();
 
-                    b.HasOne("Nummi.Core.Domain.New.User.NummiUser", null)
+                    b.HasOne("Nummi.Core.Domain.User.NummiUser", null)
                         .WithMany("Bots")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -897,85 +888,36 @@ namespace Nummi.Core.Database.EFCore.Migrations
                     b.Navigation("CurrentActivation");
                 });
 
-            modelBuilder.Entity("Nummi.Core.Domain.New.BotActivation", b =>
+            modelBuilder.Entity("Nummi.Core.Domain.Bot.BotActivation", b =>
                 {
-                    b.HasOne("Nummi.Core.Domain.New.Bot", null)
+                    b.HasOne("Nummi.Core.Domain.Bot.Bot", null)
                         .WithMany("ActivationHistory")
                         .HasForeignKey("BotId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Nummi.Core.Domain.New.BotLog", b =>
+            modelBuilder.Entity("Nummi.Core.Domain.Bot.BotLog", b =>
                 {
-                    b.HasOne("Nummi.Core.Domain.New.BotActivation", null)
+                    b.HasOne("Nummi.Core.Domain.Bot.BotActivation", null)
                         .WithMany("Logs")
                         .HasForeignKey("BotActivationId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Nummi.Core.Domain.New.OrderLog", b =>
+            modelBuilder.Entity("Nummi.Core.Domain.Crypto.OrderLog", b =>
                 {
                     b.HasOne("Nummi.Core.Domain.Strategies.StrategyLog", null)
                         .WithMany("Orders")
-                        .HasForeignKey("StrategyLogId");
-                });
-
-            modelBuilder.Entity("Nummi.Core.Domain.New.User.NummiRoleClaim", b =>
-                {
-                    b.HasOne("Nummi.Core.Domain.New.User.NummiRole", null)
-                        .WithMany()
-                        .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("Nummi.Core.Domain.New.User.NummiUserClaim", b =>
-                {
-                    b.HasOne("Nummi.Core.Domain.New.User.NummiUser", null)
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("Nummi.Core.Domain.New.User.NummiUserLogin", b =>
-                {
-                    b.HasOne("Nummi.Core.Domain.New.User.NummiUser", null)
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("Nummi.Core.Domain.New.User.NummiUserRole", b =>
-                {
-                    b.HasOne("Nummi.Core.Domain.New.User.NummiRole", null)
-                        .WithMany()
-                        .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Nummi.Core.Domain.New.User.NummiUser", null)
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("Nummi.Core.Domain.New.User.NummiUserToken", b =>
-                {
-                    b.HasOne("Nummi.Core.Domain.New.User.NummiUser", null)
-                        .WithMany()
-                        .HasForeignKey("UserId")
+                        .HasForeignKey("StrategyLogId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
             modelBuilder.Entity("Nummi.Core.Domain.Simulations.Simulation", b =>
                 {
-                    b.HasOne("Nummi.Core.Domain.New.User.NummiUser", null)
+                    b.HasOne("Nummi.Core.Domain.User.NummiUser", null)
                         .WithMany("Simulations")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -984,25 +926,30 @@ namespace Nummi.Core.Database.EFCore.Migrations
 
             modelBuilder.Entity("Nummi.Core.Domain.Strategies.Strategy", b =>
                 {
-                    b.HasOne("Nummi.Core.Domain.New.BotActivation", null)
+                    b.HasOne("Nummi.Core.Domain.Bot.BotActivation", null)
                         .WithOne("Strategy")
-                        .HasForeignKey("Nummi.Core.Domain.Strategies.Strategy", "BotActivationId");
+                        .HasForeignKey("Nummi.Core.Domain.Strategies.Strategy", "BotActivationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("Nummi.Core.Domain.Simulations.Simulation", null)
                         .WithOne("Strategy")
-                        .HasForeignKey("Nummi.Core.Domain.Strategies.Strategy", "SimulationId");
+                        .HasForeignKey("Nummi.Core.Domain.Strategies.Strategy", "SimulationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("Nummi.Core.Domain.Strategies.StrategyTemplateVersion", "ParentTemplateVersion")
                         .WithMany()
                         .HasForeignKey("StrategyTemplateVersionId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.Navigation("ParentTemplateVersion");
                 });
 
             modelBuilder.Entity("Nummi.Core.Domain.Strategies.StrategyLog", b =>
                 {
-                    b.HasOne("Nummi.Core.Domain.New.BotLog", null)
+                    b.HasOne("Nummi.Core.Domain.Bot.BotLog", null)
                         .WithMany()
                         .HasForeignKey("BotLogId");
 
@@ -1015,7 +962,7 @@ namespace Nummi.Core.Database.EFCore.Migrations
 
             modelBuilder.Entity("Nummi.Core.Domain.Strategies.StrategyTemplate", b =>
                 {
-                    b.HasOne("Nummi.Core.Domain.New.User.NummiUser", null)
+                    b.HasOne("Nummi.Core.Domain.User.NummiUser", null)
                         .WithMany("StrategyTemplates")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1038,26 +985,68 @@ namespace Nummi.Core.Database.EFCore.Migrations
                         .HasForeignKey("Nummi.Core.Domain.Test.Post", "BlogId");
                 });
 
-            modelBuilder.Entity("Nummi.Core.Domain.New.Bot", b =>
+            modelBuilder.Entity("Nummi.Core.Domain.User.NummiRoleClaim", b =>
+                {
+                    b.HasOne("Nummi.Core.Domain.User.NummiRole", null)
+                        .WithMany()
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Nummi.Core.Domain.User.NummiUserClaim", b =>
+                {
+                    b.HasOne("Nummi.Core.Domain.User.NummiUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Nummi.Core.Domain.User.NummiUserLogin", b =>
+                {
+                    b.HasOne("Nummi.Core.Domain.User.NummiUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Nummi.Core.Domain.User.NummiUserRole", b =>
+                {
+                    b.HasOne("Nummi.Core.Domain.User.NummiRole", null)
+                        .WithMany()
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Nummi.Core.Domain.User.NummiUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Nummi.Core.Domain.User.NummiUserToken", b =>
+                {
+                    b.HasOne("Nummi.Core.Domain.User.NummiUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Nummi.Core.Domain.Bot.Bot", b =>
                 {
                     b.Navigation("ActivationHistory");
                 });
 
-            modelBuilder.Entity("Nummi.Core.Domain.New.BotActivation", b =>
+            modelBuilder.Entity("Nummi.Core.Domain.Bot.BotActivation", b =>
                 {
                     b.Navigation("Logs");
 
                     b.Navigation("Strategy")
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("Nummi.Core.Domain.New.User.NummiUser", b =>
-                {
-                    b.Navigation("Bots");
-
-                    b.Navigation("Simulations");
-
-                    b.Navigation("StrategyTemplates");
                 });
 
             modelBuilder.Entity("Nummi.Core.Domain.Simulations.Simulation", b =>
@@ -1084,6 +1073,15 @@ namespace Nummi.Core.Database.EFCore.Migrations
             modelBuilder.Entity("Nummi.Core.Domain.Test.Blog", b =>
                 {
                     b.Navigation("Post");
+                });
+
+            modelBuilder.Entity("Nummi.Core.Domain.User.NummiUser", b =>
+                {
+                    b.Navigation("Bots");
+
+                    b.Navigation("Simulations");
+
+                    b.Navigation("StrategyTemplates");
                 });
 #pragma warning restore 612, 618
         }

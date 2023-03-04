@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Nummi.Core.Database.EFCore;
-using Nummi.Core.Util;
+using Nummi.Core.Domain.Common;
 
 namespace Nummi.Core.Domain.Test; 
 
@@ -37,7 +37,7 @@ public class BlogService {
     public Blog GetBlogById(string id) {
         var blog = AppDb.Blogs
             .Include(b => b.Post)
-            .FirstOrDefault(b => b.Id == id.ToKsuid());
+            .FirstOrDefault(b => b.Id == Ksuid.FromString(id));
         
         return blog!;
     }
@@ -46,7 +46,7 @@ public class BlogService {
     public Blog UpdateBlogPostText(string blogId, string text) {
         var blog = AppDb.Blogs
             .Include(b => b.Post)
-            .FirstOrDefault(b => b.Id == blogId.ToKsuid());
+            .FirstOrDefault(b => b.Id == Ksuid.FromString(blogId));
 
         blog!.Post!.Content = text;
         AppDb.SaveChanges();

@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 using Nummi.Core.Database.Common;
-using Nummi.Core.Domain.New.User;
+using Nummi.Core.Domain.User;
 using Nummi.Core.Exceptions;
 using static Nummi.Core.Config.Configuration;
 

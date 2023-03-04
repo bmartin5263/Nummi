@@ -1,12 +1,24 @@
+using System.ComponentModel.DataAnnotations.Schema;
 using Nummi.Core.Domain.Common;
 using Nummi.Core.Domain.Crypto;
+using Nummi.Core.Domain.Strategies;
+using Nummi.Core.Events;
 using Nummi.Core.Exceptions;
 
-namespace Nummi.Core.Domain.New;
+namespace Nummi.Core.Domain.Bots;
 
-public class Bot : Audited {
-    // Unique identifier for this Bot
-    public Ksuid Id { get; } = Ksuid.Generate();
+public readonly record struct BotId(Guid Value) {
+    public override string ToString() => Value.ToString("N");
+    public static BotId Generate() => new(Guid.NewGuid());
+    public static BotId FromGuid(Guid id) => new(id);
+    public static BotId FromString(string s) => new(Guid.ParseExact(s, "N"));
+}
+
+public class Bot : Audited, EventPublisher {
+    [NotMapped]
+    public IList<IDomainEvent> DomainEvents { get; } = new List<IDomainEvent>();
+
+    public BotId Id { get; } = BotId.Generate();
     
     public DateTimeOffset CreatedAt { get; set; }
     
@@ -51,11 +63,26 @@ public class Bot : Audited {
         Funds -= amount;
     }
 
-    public BotActivation Activate(Strategies.Strategy strategy) {
+    public BotActivation Activate(Strategy strategy) {
         if (IsActive) {
             throw new InvalidUserArgumentException("Cannot activate an already active Bot");
         }
         CurrentActivation = new BotActivation(strategy, Mode);
+        ActivationHistory.Add(CurrentActivation);
+        DomainEvents.Add(new BotActivatedEvent(Id));
+        return CurrentActivation;
+    }
+    
+    public BotActivation Reactivate() {
+        if (IsActive) {
+            throw new InvalidUserArgumentException("Cannot reactivate an already active Bot");
+        }
+
+        var lastActivation = ActivationHistory[0];
+        CurrentActivation = lastActivation;
+        InErrorState = false;
+        DomainEvents.Add(new BotActivatedEvent(Id));
+        
         return CurrentActivation;
     }
 
@@ -63,7 +90,7 @@ public class Bot : Audited {
         if (!IsActive) {
             throw new InvalidUserArgumentException("Cannot deactivate inactive Bot");
         }
-        ActivationHistory.Add(CurrentActivation!);
+        DomainEvents.Add(new BotDeactivatedEvent(Id));
         CurrentActivation = null;
     }
 
@@ -73,5 +100,9 @@ public class Bot : Audited {
         }
         Deactivate();
         Activate(strategy);
+    }
+
+    public void SetInErrorState() {
+        InErrorState = true;
     }
 }

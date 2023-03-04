@@ -1,3 +1,4 @@
+using NLog;
 using Nummi.Core.Domain.Common;
 using Nummi.Core.Domain.Crypto;
 using Nummi.Core.Domain.Strategies;
@@ -7,11 +8,14 @@ using Nummi.Core.Util;
 namespace Nummi.Core.App; 
 
 public class StrategyContext : IStrategyContext {
+    private static readonly Logger Log = LogManager.GetCurrentClassLogger();
+
+    public IClock Clock => TradingSession.Clock;
+    
     private ITradingSession TradingSession { get; init; }
     private StrategyLogBuilder LogBuilder { get; init; }
-    public IClock Clock => TradingSession.Clock;
-    private object Parameters;
-    private object State;
+    private object Parameters { get; }
+    private object State { get; }
 
     public StrategyContext(ITradingSession tradingSession, StrategyLogBuilder logBuilder, object parameters, object state) {
         TradingSession = tradingSession;
@@ -46,7 +50,15 @@ public class StrategyContext : IStrategyContext {
             LogBuilder.LogApiCall(duration);
         }
     }
-    
+
+    public void LogInfo(string msg) {
+        Log.Info("" +
+                 $"[{"Bot".Purple()}:{TradingSession.Bot?.Name.Cyan()}]" +
+                 $"[{"Strategy".Purple()}:{LogBuilder.Strategy.ParentTemplateVersion.Name.Cyan()}]" +
+                 $"[{"Action".Purple()}:{LogBuilder.Action.ToString().Cyan()}] {msg}"
+        );
+    }
+
     public P GetParameters<P>() {
         return (P) Parameters;
     }

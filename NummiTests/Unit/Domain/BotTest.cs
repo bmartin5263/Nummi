@@ -1,5 +1,5 @@
+using Nummi.Core.Domain.Bots;
 using Nummi.Core.Domain.Crypto;
-using Nummi.Core.Domain.New;
 
 namespace NummiTests.Unit.Domain; 
 
@@ -11,7 +11,6 @@ public class BotTest {
         var bot = new Bot(name: "Jerry", mode: TradingMode.Live, funds: 100.0m);
         Assert.Multiple(() =>
         {
-            Assert.That(bot.Id, Is.Not.Null);
             Assert.That(bot.Name, Is.EqualTo("Jerry"));
             Assert.That(bot.Funds, Is.EqualTo(100.0m));
             Assert.That(bot.Mode, Is.EqualTo(TradingMode.Live));

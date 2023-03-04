@@ -1,12 +1,11 @@
 using System.Linq.Expressions;
 using System.Reflection;
 using Nummi.Core.Database.Common;
-using Nummi.Core.Domain.Common;
+using Nummi.Core.Domain.Bots;
 using Nummi.Core.Domain.Crypto;
-using Nummi.Core.Domain.New;
-using Nummi.Core.Domain.New.User;
 using Nummi.Core.Domain.Simulations;
 using Nummi.Core.Domain.Strategies;
+using Nummi.Core.Domain.User;
 using Nummi.Core.Exceptions;
 using Nummi.Core.Util;
 
@@ -110,15 +109,27 @@ public class GenericTestRepository<ID, T> : IGenericRepository<ID, T> where T : 
     }
 }
 
-public class BotTestRepository : GenericTestRepository<Ksuid, Bot>, IBotRepository {
+public class BotTestRepository : GenericTestRepository<BotId, Bot>, IBotRepository {
+    public Bot? FindByIdWithStrategyAndActivation(BotId botId) {
+        return FindNullableById(botId);
+    }
+
+    public List<Bot> FindActiveWithStrategyAndActivation() {
+        return FindAll()
+            .Where(b => b.IsActive)
+            .ToList();
+    }
+
+    public Bot? FindByIdForExecution(BotId botId) {
+        return FindNullableById(botId);
+    }
+}
+
+public class SimulationTestRepository : GenericTestRepository<SimulationId, Simulation>, ISimulationRepository {
     
 }
 
-public class SimulationTestRepository : GenericTestRepository<Ksuid, Simulation>, ISimulationRepository {
-    
-}
-
-public class StrategyTestRepository : GenericTestRepository<Ksuid, Strategy>, IStrategyRepository {
+public class StrategyTestRepository : GenericTestRepository<StrategyId, Strategy>, IStrategyRepository {
     
 }
 
@@ -162,10 +173,10 @@ public class BarTestRepository : GenericTestRepository<BarId, Bar>, IBarReposito
     }
 }
 
-public class StrategyTemplateTestRepository : GenericTestRepository<Ksuid, StrategyTemplate>, IStrategyTemplateRepository {
-    public void RemoveAllByUserId(Ksuid userId) {
-        var removeList = new List<Ksuid>();
-        foreach (KeyValuePair<Ksuid,StrategyTemplate> pair in Table) {
+public class StrategyTemplateTestRepository : GenericTestRepository<StrategyTemplateId, StrategyTemplate>, IStrategyTemplateRepository {
+    public void RemoveAllByUserId(IdentityId userId) {
+        var removeList = new List<StrategyTemplateId>();
+        foreach (KeyValuePair<StrategyTemplateId,StrategyTemplate> pair in Table) {
             if (pair.Value.UserId == userId) {
                 removeList.Add(pair.Key);
             }
@@ -177,8 +188,10 @@ public class StrategyTemplateTestRepository : GenericTestRepository<Ksuid, Strat
     }
 }
 
-public class TestUserRepository : GenericTestRepository<Ksuid, NummiUser>, IUserRepository {
-    
+public class TestUserRepository : GenericTestRepository<IdentityId, NummiUser>, IUserRepository {
+    public NummiUser FindByIdWithAllDetails(IdentityId id) {
+        return FindById(id);
+    }
 }
 
 public class TestTransaction : ITransaction {

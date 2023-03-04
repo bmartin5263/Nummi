@@ -1,19 +1,18 @@
 using Nummi.Core.Config;
-using Nummi.Core.Domain.Common;
 using Nummi.Core.Domain.Strategies;
 using Nummi.Core.Exceptions;
 
 namespace Nummi.Core.App.Strategies; 
 
 public class StrategyTemplateFactory {
-    
-    private static TimeSpan MinFrequency => TimeSpan.FromMinutes(1);
+
+    private static StrategyFrequency MinFrequency => StrategyFrequency.Values[0];
 
     public StrategyTemplate CreateBuiltinTemplate(IStrategyLogicBuiltin builtinLogic) {
         Type logicType = builtinLogic.GetType();
-        Ksuid id = builtinLogic.Id;
+        Guid id = builtinLogic.Id;
         string? name = (string?) builtinLogic.Name;
-        TimeSpan frequency = builtinLogic.Frequency;
+        StrategyFrequency frequency = builtinLogic.Frequency;
         Type parameterType = builtinLogic.ParameterType;
         Type stateType = builtinLogic.StateType;
         
@@ -46,7 +45,7 @@ public class StrategyTemplateFactory {
         );
 
         return new StrategyTemplate(
-            id: id,
+            id: StrategyTemplateId.FromGuid(id), 
             owningUserId: Configuration.ADMIN_USER_ID,
             name: builtinLogic.Name,
             firstVersion: firstTemplateVersion

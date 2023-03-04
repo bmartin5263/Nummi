@@ -1,6 +1,6 @@
 using Nummi.Core.App.Client;
+using Nummi.Core.Domain.Bots;
 using Nummi.Core.Domain.Crypto;
-using Nummi.Core.Domain.New;
 using Nummi.Core.Exceptions;
 using Nummi.Core.External.Alpaca;
 using Nummi.Core.Util;
@@ -29,7 +29,8 @@ public class TradingSessionFactory {
                     fundSource: new FundSourceBot(bot),
                     dataClient: DataClientLive,
                     tradingClient: new CryptoTradingClientRealtime(AlpacaClientPaper),
-                    clock: new ClockLive()
+                    clock: new ClockLive(),
+                    bot: bot
                 );
             case TradingMode.Live:
                 return new TradingSession(
@@ -37,7 +38,8 @@ public class TradingSessionFactory {
                     fundSource: new FundSourceBot(bot),
                     dataClient: DataClientLive,
                     tradingClient: new CryptoTradingClientRealtime(AlpacaClientLive),
-                    clock: new ClockLive()
+                    clock: new ClockLive(),
+                    bot: bot
                 );
             default:
                 throw new InvalidUserArgumentException(nameof(mode));
@@ -50,7 +52,8 @@ public class TradingSessionFactory {
             fundSource: new FundSourceInMemory(funds),
             dataClient: DataClientDbProxy,
             tradingClient: new CryptoTradingClientSimulated(),
-            clock: clock
+            clock: clock,
+            bot: null
         );
     }
     

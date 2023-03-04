@@ -1,6 +1,6 @@
 namespace Nummi.Api.Model; 
 
-public class StrategyTemplateVerionDto {
+public class StrategyTemplateVersionDto {
     public uint? VersionNumber { get; set; }
     public DateTimeOffset? CreatedAt { get; set; }
     public DateTimeOffset? UpdatedAt { get; set; }

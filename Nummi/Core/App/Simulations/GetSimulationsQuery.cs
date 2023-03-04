@@ -1,7 +1,7 @@
 using Nummi.Core.Database.Common;
 using Nummi.Core.Domain.Simulations;
 
-namespace Nummi.Core.App.Queries; 
+namespace Nummi.Core.App.Simulations; 
 
 public class GetSimulationsQuery {
     private ISimulationRepository SimulationRepository { get; }

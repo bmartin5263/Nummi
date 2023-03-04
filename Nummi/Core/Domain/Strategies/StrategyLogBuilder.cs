@@ -59,6 +59,7 @@ public class StrategyLogBuilder {
             StartTime = StartTime,
             EndTime = DateTime.UtcNow,
             Error = Error?.ToString(),
+            Exception = Error,
             ApiCalls = ApiCalls,
             TotalApiCallTime = TotalApiCallTime,
             Orders = Orders

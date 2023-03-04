@@ -1,24 +1,19 @@
 using Nummi.Core.Database.Common;
-using Nummi.Core.Domain.New.User;
-using Nummi.Core.Exceptions;
-using Nummi.Core.Util;
+using Nummi.Core.Domain.User;
 
 namespace Nummi.Core.App.Queries; 
 
 public class GetUserQuery {
     private IUserRepository UserRepository { get; }
+    private IStrategyTemplateRepository StrategyTemplateRepository { get; }
     
-    public GetUserQuery(IUserRepository userRepository) {
+    public GetUserQuery(IUserRepository userRepository, IStrategyTemplateRepository strategyTemplateRepository) {
         UserRepository = userRepository;
+        StrategyTemplateRepository = strategyTemplateRepository;
     }
 
-    public NummiUser Execute(string userId) {
-        var user = UserRepository.FindById(userId.ToKsuid())
-            .OrElseThrow(() => EntityNotFoundException<NummiUser>.IdNotFound(userId));
-        
-        UserRepository.LoadCollection(user, u => u.Bots);
-        UserRepository.LoadCollection(user, u => u.Simulations);
-
+    public NummiUser Execute(IdentityId userId) {
+        var user = UserRepository.FindByIdWithAllDetails(userId);
         return user;
     }
     
