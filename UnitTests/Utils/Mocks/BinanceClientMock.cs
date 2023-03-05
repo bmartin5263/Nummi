@@ -5,7 +5,7 @@ using Nummi.Core.Exceptions;
 using Nummi.Core.External.Binance;
 using Nummi.Core.Util;
 
-namespace NummiTests.Mocks;
+namespace NummiTests.Utils.Mocks;
 
 public class BinanceClientMock : IBinanceClient {
     

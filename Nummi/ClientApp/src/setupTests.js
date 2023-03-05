@@ -13,11 +13,11 @@ window.fetch = () => {
       ok: true,
       json: () => Promise.resolve({
         "authority": "https://localhost:7282",
-        "client_id": "TestWebApp",
+        "client_id": "Nummi",
         "redirect_uri": "https://localhost:7282/authentication/login-callback",
         "post_logout_redirect_uri": "https://localhost:7282/authentication/logout-callback",
         "response_type": "id_token token",
-        "scope": "TestWebAppAPI openid profile"
+        "scope": "NummiAPI openid profile"
      })
     });
 };

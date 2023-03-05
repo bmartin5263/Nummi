@@ -3,7 +3,7 @@ using Nummi.Core.Database.Common;
 using Nummi.Core.Domain.User;
 using NummiTests.Utils;
 
-namespace NummiTests.Unit; 
+namespace NummiTests.Tests.Unit; 
 
 public class GetUserQueryTest {
 

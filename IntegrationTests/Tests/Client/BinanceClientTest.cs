@@ -4,7 +4,7 @@ using Nummi.Core.Exceptions;
 using Nummi.Core.External.Binance;
 using Nummi.Core.Util;
 
-namespace NummiTests.Integration; 
+namespace IntegrationTests.Tests.Client; 
 
 public class BinanceClientTest {
 

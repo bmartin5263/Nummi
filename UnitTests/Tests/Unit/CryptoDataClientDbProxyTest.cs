@@ -6,7 +6,7 @@ using Nummi.Core.External.Binance;
 using Nummi.Core.Util;
 using NummiTests.Utils;
 
-namespace NummiTests.Unit; 
+namespace NummiTests.Tests.Unit; 
 
 public class CryptoDataClientDbProxyTest {
 

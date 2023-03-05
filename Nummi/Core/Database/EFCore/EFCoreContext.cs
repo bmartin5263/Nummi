@@ -48,7 +48,7 @@ public class EFCoreContext :
     protected override void OnModelCreating(ModelBuilder builder) {
         base.OnModelCreating(builder);
         builder.ConfigurePersistedGrantContext(OperationalStoreOptions.Value);
-
+        
         // Table Inheritance
         builder.Entity<Strategy>()
             .HasDiscriminator<string>("StrategyType")

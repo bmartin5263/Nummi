@@ -44,7 +44,7 @@ public abstract class GenericRepository<ID, E> : IGenericRepository<ID, E> where
     }
 
     public void Commit() {
-        Context.SaveChanges();
+        Transaction.Commit();
     }
 
     public virtual bool ExistsById(ID id) {

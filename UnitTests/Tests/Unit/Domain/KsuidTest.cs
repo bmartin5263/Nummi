@@ -1,7 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 using Nummi.Core.Domain.Common;
 
-namespace NummiTests.Unit.Domain; 
+namespace NummiTests.Tests.Unit.Domain; 
 
 public class KsuidTest {
 

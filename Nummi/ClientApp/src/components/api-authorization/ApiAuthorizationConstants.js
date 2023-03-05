@@ -1,4 +1,4 @@
-export const ApplicationName = 'TestWebApp';
+export const ApplicationName = 'Nummi';
 
 export const QueryParameterNames = {
   ReturnUrl: 'returnUrl',

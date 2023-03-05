@@ -8,7 +8,7 @@
     }
   },
   "profiles": {
-    "TestWebApp": {
+    "Nummi": {
       "commandName": "Project",
       "launchBrowser": false,
       "applicationUrl": "https://localhost:7282;http://localhost:5278",

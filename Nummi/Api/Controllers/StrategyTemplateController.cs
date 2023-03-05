@@ -30,6 +30,7 @@ public class StrategyTemplateController : ControllerBase {
     /// </summary>
     [Route("")]
     [HttpGet]
+    [AllowAnonymous]
     public IEnumerable<StrategyTemplateDto> GetStrategyTemplates() {
         return GetStrategyTemplatesQuery.Execute()
             .Select(v => v.ToDto());
