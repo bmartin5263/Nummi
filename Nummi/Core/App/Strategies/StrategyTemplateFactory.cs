@@ -43,7 +43,7 @@ public class StrategyTemplateFactory {
             parameterTypeName: parameterType.FullName!,
             stateTypeName: stateType.FullName!
         );
-
+        
         return new StrategyTemplate(
             id: StrategyTemplateId.FromGuid(id), 
             owningUserId: Configuration.ADMIN_USER_ID,
@@ -51,13 +51,4 @@ public class StrategyTemplateFactory {
             firstVersion: firstTemplateVersion
         );
     }
-
-    // private void ValidateTemplate(StrategyTemplate template) {
-    //     var latestVersion = template.Versions.MaxBy(v => v.VersionNumber);
-    //     if (latestVersion == null) {
-    //         throw new SystemArgumentException($"StrategyTemplate {template.Name} has no versions");
-    //     }
-    //     
-    //     var strategy = latestVersion.Instantiate()
-    // }
 }

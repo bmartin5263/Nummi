@@ -1,11 +1,13 @@
+using Nummi.Core.App.Bots;
 using Nummi.Core.App.Client;
+using Nummi.Core.App.Simulations;
 using Nummi.Core.Domain.Bots;
 using Nummi.Core.Domain.Crypto;
 using Nummi.Core.Exceptions;
 using Nummi.Core.External.Alpaca;
 using Nummi.Core.Util;
 
-namespace Nummi.Core.App; 
+namespace Nummi.Core.App.Trading; 
 
 public class TradingSessionFactory {
     private CryptoDataClientLive DataClientLive { get; }

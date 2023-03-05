@@ -57,7 +57,7 @@ public class BotExecutor : BackgroundService {
                     Log.Error($"Exception thrown by BotExecutor {e}");
                 }
             }
-            Task.Delay(TimeSpan.FromSeconds(1), cancellationToken).Wait(cancellationToken);
+            Task.Delay(TimeSpan.FromMilliseconds(500), cancellationToken).Wait(cancellationToken);
         }
     }
     

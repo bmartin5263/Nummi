@@ -22,12 +22,16 @@ public class NummiInitializer : BackgroundService {
         ServiceProvider = services;
     }
 
+    private bool IsInitialized(INummiUserManager userManager) {
+        return userManager.RoleExists(RoleName.User.ToString());
+    }
+
     protected override async Task ExecuteAsync(CancellationToken stoppingToken) {
         Log.Info("Running Nummi Initializer");
         using var scope = ServiceProvider.CreateScope();
         var userManager = scope.GetService<INummiUserManager>();
-
-        if (userManager.RoleExists(RoleName.User.ToString())) {
+        
+        if (IsInitialized(userManager)) {
             Log.Info("Skipping Initialization");
             return;
         }
@@ -53,7 +57,7 @@ public class NummiInitializer : BackgroundService {
         var admin = new NummiUser {
             Id = ADMIN_USER_ID,
             CreatedAt = DateTimeOffset.UtcNow,
-            UserName = ADMIN_USER_EMAIL,
+            UserName = "admin",
             Email = ADMIN_USER_EMAIL,
             EmailConfirmed = true,
             SecurityStamp = string.Empty,
@@ -62,10 +66,10 @@ public class NummiInitializer : BackgroundService {
             AlpacaLiveId = GetEnvVar(ALPACA_LIVE_ID_ENV_VAR),
             AlpacaLiveKey = GetEnvVar(ALPACA_LIVE_KEY_ENV_VAR)
         };
-        AssertNotFailed(await userManager.CreateUserAsync(admin, "Password1!"));
+        AssertNotFailed(await userManager.CreateUserAsync(admin, GetEnvVar(ADMIN_PASSWORD_ENV_VAR)));
         AssertNotFailed(await userManager.AssignRoleAsync(admin, RoleName.Admin.ToString()));
 
-        var initializeStrategiesCommand = scope.GetService<ReInitializeBuiltinStrategiesCommand>();
+        var initializeStrategiesCommand = scope.GetService<InitializeBuiltinStrategiesCommand>();
         initializeStrategiesCommand.Execute();
         
         Log.Info("Initialization Complete");

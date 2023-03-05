@@ -1,4 +1,4 @@
-using Nummi.Core.App;
+using Nummi.Core.App.Trading;
 using Nummi.Core.Domain.Common;
 using Nummi.Core.External.Binance;
 using Nummi.Core.Util;

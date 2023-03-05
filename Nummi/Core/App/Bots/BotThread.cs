@@ -1,4 +1,5 @@
 using NLog;
+using Nummi.Core.App.Trading;
 using Nummi.Core.Bridge;
 using Nummi.Core.Database.Common;
 using Nummi.Core.Domain.Bots;

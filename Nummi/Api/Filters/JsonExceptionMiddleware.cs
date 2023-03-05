@@ -21,6 +21,12 @@ public class JsonExceptionMiddleware {
             case SystemException:
                 context.Response.StatusCode = (int) HttpStatusCode.InternalServerError;
                 break;
+            case AuthenticationException:
+                context.Response.StatusCode = (int) HttpStatusCode.Unauthorized;
+                break;
+            case AuthorizationException:
+                context.Response.StatusCode = (int) HttpStatusCode.Forbidden;
+                break;
         }
 
         var error = new {

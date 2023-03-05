@@ -6,13 +6,13 @@ using static Nummi.Core.Config.Configuration;
 
 namespace Nummi.Core.Bridge.DotNet; 
 
-public class AspDotNetUserManager : INummiUserManager {
+public class DotNetUserManager : INummiUserManager {
     
     private IUserRepository UserRepository { get; }
     private UserManager<NummiUser> UserManager { get; }
     private RoleManager<NummiRole> RoleManager { get; }
 
-    public AspDotNetUserManager(IUserRepository userRepository, UserManager<NummiUser> userManager, RoleManager<NummiRole> roleManager) {
+    public DotNetUserManager(IUserRepository userRepository, UserManager<NummiUser> userManager, RoleManager<NummiRole> roleManager) {
         UserRepository = userRepository;
         UserManager = userManager;
         RoleManager = roleManager;
@@ -24,6 +24,14 @@ public class AspDotNetUserManager : INummiUserManager {
 
     public bool RoleExists(string roleName) {
         return RoleManager.RoleExistsAsync(roleName).Result;
+    }
+
+    public bool UserExists(string username) {
+        return UserRepository.ExistsByUsername(username);
+    }
+
+    public bool EmailExists(string email) {
+        return UserRepository.ExistsByEmail(email);
     }
 
     public IdentityResult CreateUser(NummiUser user, string password) {
@@ -60,5 +68,18 @@ public class AspDotNetUserManager : INummiUserManager {
 
     public Task<IdentityResult> AssignRoleAsync(NummiUser user, string roleName) {
         return UserManager.AddToRoleAsync(user, roleName);
+    }
+
+    public async Task<NummiUser> LoginAsync(string username, string password) {
+        var user = await UserManager.FindByNameAsync(username);
+        if (user == null || !await UserManager.CheckPasswordAsync(user, password)) {
+            throw new AuthenticationException($"Could not authorize {username}");
+        }
+
+        return user;
+    }
+
+    public Task<IList<string>> GetRolesAsync(NummiUser user) {
+        return UserManager.GetRolesAsync(user);
     }
 }

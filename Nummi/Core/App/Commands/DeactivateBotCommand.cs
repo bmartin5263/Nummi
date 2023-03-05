@@ -12,7 +12,7 @@ public class DeactivateBotCommand {
     }
 
     public void Execute(BotId botId) {
-        var bot = BotRepository.FindById(botId);
+        var bot = BotRepository.FindByIdWithCurrentActivation(botId);
         if (!bot.IsActive) {
             throw new InvalidUserArgumentException("Bot is not active");
         }

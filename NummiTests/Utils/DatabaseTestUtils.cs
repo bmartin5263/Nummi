@@ -123,6 +123,10 @@ public class BotTestRepository : GenericTestRepository<BotId, Bot>, IBotReposito
     public Bot? FindByIdForExecution(BotId botId) {
         return FindNullableById(botId);
     }
+
+    public Bot FindByIdWithCurrentActivation(BotId botId) {
+        return FindById(botId);
+    }
 }
 
 public class SimulationTestRepository : GenericTestRepository<SimulationId, Simulation>, ISimulationRepository {
@@ -191,6 +195,14 @@ public class StrategyTemplateTestRepository : GenericTestRepository<StrategyTemp
 public class TestUserRepository : GenericTestRepository<IdentityId, NummiUser>, IUserRepository {
     public NummiUser FindByIdWithAllDetails(IdentityId id) {
         return FindById(id);
+    }
+
+    public bool ExistsByUsername(string username) {
+        return Table.Values.Any(u => u.UserName == username);
+    }
+
+    public bool ExistsByEmail(string email) {
+        return Table.Values.Any(u => u.Email == email);
     }
 }
 

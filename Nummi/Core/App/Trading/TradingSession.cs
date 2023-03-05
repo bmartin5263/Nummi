@@ -1,4 +1,5 @@
 using Nummi.Core.App.Client;
+using Nummi.Core.App.Trading;
 using Nummi.Core.Domain.Bots;
 using Nummi.Core.Domain.Common;
 using Nummi.Core.Domain.Crypto;

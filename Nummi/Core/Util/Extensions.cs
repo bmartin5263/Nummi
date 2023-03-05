@@ -16,14 +16,6 @@ public static class Extensions {
         return OrElseThrow(self, supplier);
     }
 
-    // public static Ksuid ToKsuid(this string self) {
-    //     return Ksuid.FromString(self);
-    // }
-    //
-    // public static Ksuid? ToKsuidNullable(this string? self) {
-    //     return self == null ? null : Ksuid.FromString(self);
-    // }
-
     // https://stackoverflow.com/questions/1004698/how-to-truncate-milliseconds-off-of-a-net-datetime
     public static DateTime Truncate(this DateTime dateTime, TimeSpan timeSpan) {
         if (timeSpan == TimeSpan.Zero) {
@@ -54,10 +46,8 @@ public static class Extensions {
         DateTimeOffset epoch = DateTimeOffset.UnixEpoch;
         return epoch.AddMilliseconds(unixMs);
     }
-    
-    public static void ForEach<T>(this IEnumerable<T> source, Action<T> action) {
-        foreach (T element in source) {
-            action(element);
-        }
+
+    public static string NoDashes(this Guid self) {
+        return self.ToString("N");
     }
 }

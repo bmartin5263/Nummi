@@ -1,12 +1,24 @@
 using Microsoft.EntityFrameworkCore;
 using Nummi.Core.Database.Common;
 using Nummi.Core.Domain.Bots;
+using Nummi.Core.Exceptions;
+using Nummi.Core.Util;
 
 namespace Nummi.Core.Database.EFCore; 
 
 public class BotRepository : GenericRepository<BotId, Bot>, IBotRepository {
     public BotRepository(ITransaction context) : base(context) { }
-    
+
+    public Bot FindByIdWithCurrentActivation(BotId botId) {
+        return Context.Bots
+            .Include(b => b.ActivationHistory
+                .OrderByDescending(a => a.CreatedAt)
+                .Take(1)
+            )
+            .FirstOrDefault(b => b.Id == botId)
+            .OrElseThrow(() => EntityNotFoundException<Bot>.IdNotFound(botId));
+    }
+
     public Bot? FindByIdWithStrategyAndActivation(BotId botId) {
         return Context.Bots
             .Include(b => b.ActivationHistory)

@@ -1,7 +1,7 @@
 using Nummi.Core.Domain.Crypto;
 using Nummi.Core.Domain.Strategies;
 
-namespace Nummi.Core.App; 
+namespace Nummi.Core.App.Strategies; 
 
 public interface IStrategyLogic {
     public bool NeedsInitialization(TimeSpan sinceLastExecution);

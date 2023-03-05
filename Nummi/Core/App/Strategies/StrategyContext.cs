@@ -5,7 +5,7 @@ using Nummi.Core.Domain.Strategies;
 using Nummi.Core.External.Binance;
 using Nummi.Core.Util;
 
-namespace Nummi.Core.App; 
+namespace Nummi.Core.App.Strategies; 
 
 public class StrategyContext : IStrategyContext {
     private static readonly Logger Log = LogManager.GetCurrentClassLogger();

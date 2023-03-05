@@ -8,7 +8,7 @@ public static class Configuration {
     public static readonly IdentityId ROLE_ADMIN_ID = IdentityId.FromString("480264c84e1d4f84be55cc266c5a837c");
     public static readonly IdentityId ROLE_USER_ID = IdentityId.FromString("87fa33c8473a49da8c8b01edff6e1e53");
     
-    public const string ADMIN_USER_PASSWORD_ENV_VAR = "NUMMI_ADMIN_PASSWORD";
+    public const string ADMIN_PASSWORD_ENV_VAR = "NUMMI_ADMIN_PASSWORD";
     public const string ADMIN_USER_EMAIL = "admin@example.com";
     public const string ALPACA_PAPER_ID_ENV_VAR = "NUMMI_ALPACA_PAPER_ID";
     public const string ALPACA_PAPER_KEY_ENV_VAR = "NUMMI_ALPACA_PAPER_KEY";

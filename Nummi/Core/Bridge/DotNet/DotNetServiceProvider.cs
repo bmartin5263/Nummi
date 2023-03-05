@@ -3,10 +3,10 @@ using Nummi.Core.Util;
 
 namespace Nummi.Core.Bridge.DotNet; 
 
-public class AspDotNetServiceProvider : INummiServiceProvider {
+public class DotNetServiceProvider : INummiServiceProvider {
     private IServiceProvider ServiceProvider { get; }
     
-    public AspDotNetServiceProvider(IServiceProvider serviceProvider) {
+    public DotNetServiceProvider(IServiceProvider serviceProvider) {
         ServiceProvider = serviceProvider;
     }
     
@@ -17,6 +17,6 @@ public class AspDotNetServiceProvider : INummiServiceProvider {
 
     public INummiScope CreateScope() {
         var scope = ServiceProvider.CreateScope();
-        return new AspDotNetScope(new AspDotNetServiceProvider(ServiceProvider.CreateScope().ServiceProvider), scope);
+        return new DotNetScope(new DotNetServiceProvider(ServiceProvider.CreateScope().ServiceProvider), scope);
     }
 }

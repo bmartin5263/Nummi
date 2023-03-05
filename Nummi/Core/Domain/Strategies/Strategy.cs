@@ -1,5 +1,5 @@
 using System.Text.Json.Serialization;
-using Nummi.Core.App;
+using Nummi.Core.App.Strategies;
 using Nummi.Core.Domain.Common;
 using Nummi.Core.Domain.Crypto;
 using Nummi.Core.Exceptions;

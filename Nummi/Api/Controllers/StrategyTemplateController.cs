@@ -13,16 +13,16 @@ public class StrategyTemplateController : ControllerBase {
 
     private SimulateStrategyCommand SimulateStrategyCommand { get; }
     private GetStrategyTemplatesQuery GetStrategyTemplatesQuery { get; }
-    private ReInitializeBuiltinStrategiesCommand ReInitializeBuiltinStrategiesCommand { get; }
+    private InitializeBuiltinStrategiesCommand InitializeBuiltinStrategiesCommand { get; }
 
     public StrategyTemplateController(
         SimulateStrategyCommand activateBotCommand, 
         GetStrategyTemplatesQuery getStrategyTemplatesQuery, 
-        ReInitializeBuiltinStrategiesCommand reInitializeBuiltinStrategiesCommand
+        InitializeBuiltinStrategiesCommand initializeBuiltinStrategiesCommand
     ) {
         SimulateStrategyCommand = activateBotCommand;
         GetStrategyTemplatesQuery = getStrategyTemplatesQuery;
-        ReInitializeBuiltinStrategiesCommand = reInitializeBuiltinStrategiesCommand;
+        InitializeBuiltinStrategiesCommand = initializeBuiltinStrategiesCommand;
     }
 
     /// <summary>
@@ -33,14 +33,5 @@ public class StrategyTemplateController : ControllerBase {
     public IEnumerable<StrategyTemplateDto> GetStrategyTemplates() {
         return GetStrategyTemplatesQuery.Execute()
             .Select(v => v.ToDto());
-    }
-
-    /// <summary>
-    /// Get all Strategy Templates
-    /// </summary>
-    [Route("init")]
-    [HttpPost]
-    public void InitializeStrategyTemplates() {
-        ReInitializeBuiltinStrategiesCommand.Execute();
     }
 }

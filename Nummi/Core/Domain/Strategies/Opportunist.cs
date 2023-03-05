@@ -1,4 +1,4 @@
-using Nummi.Core.App;
+using Nummi.Core.App.Strategies;
 using Nummi.Core.Domain.Crypto;
 using Nummi.Core.Util;
 

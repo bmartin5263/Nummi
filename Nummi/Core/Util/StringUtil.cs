@@ -21,6 +21,48 @@ public static class StringUtil {
         return sb.ToString();
     }
 
+    public static string JoinToString<T>(this IEnumerable<T> enumerable, string delimiter = ", ", string prefix = "", string suffix = "") {
+        var builder = new StringBuilder();
+        builder.Append(prefix);
+        using var iter = enumerable.GetEnumerator();
+        if (!iter.MoveNext()) {
+            builder.Append(suffix);
+            return builder.ToString();
+        }
+
+        var value = iter.Current;
+        builder.Append(value);
+        while (iter.MoveNext()) {
+            builder.Append(delimiter);
+            value = iter.Current;
+            builder.Append(value);
+        }
+
+        builder.Append(suffix);
+        return builder.ToString();
+    }
+    
+    public static string JoinToString<T>(this IEnumerable<T> enumerable, Func<T, string> mapper, string delimiter = ", ", string prefix = "", string suffix = "") {
+        var builder = new StringBuilder();
+        builder.Append(prefix);
+        using var iter = enumerable.GetEnumerator();
+        if (!iter.MoveNext()) {
+            builder.Append(suffix);
+            return builder.ToString();
+        }
+
+        var value = iter.Current;
+        builder.Append(mapper(value));
+        while (iter.MoveNext()) {
+            builder.Append(delimiter);
+            value = iter.Current;
+            builder.Append(mapper(value));
+        }
+
+        builder.Append(suffix);
+        return builder.ToString();
+    }
+
     public static string ToJoinedString<T, V>(this T self, char delimiter = ',', string prefix = "[", string suffix = "]")
         where T : IEnumerable<V> {
         return prefix + string.Join(delimiter, self) + suffix;

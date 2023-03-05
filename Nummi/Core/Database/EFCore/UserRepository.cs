@@ -30,4 +30,12 @@ public class UserRepository : GenericRepository<IdentityId, NummiUser>, IUserRep
 
         return entity;
     }
+
+    public bool ExistsByUsername(string username) {
+        return Context.Users.Any(u => u.UserName == username);
+    }
+
+    public bool ExistsByEmail(string email) {
+        return Context.Users.Any(u => u.Email == email);
+    }
 }

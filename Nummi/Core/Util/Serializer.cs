@@ -6,11 +6,12 @@ using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 using System.Text.Json.Serialization.Metadata;
 using CsvHelper;
+using Nummi.Core.Bridge;
 using Nummi.Core.Domain.Common;
 
 namespace Nummi.Core.Util; 
 
-public class Serializer {
+public static class Serializer {
     
     private const string TYPE_FIELD = "$type";
     
@@ -117,6 +118,16 @@ public class Serializer {
         }
 
         public override void Write(Utf8JsonWriter writer, Ksuid value, JsonSerializerOptions options) {
+            writer.WriteStringValue(value.ToString());
+        }
+    }
+    
+    public class JwtConverter : JsonConverter<Jwt> {
+        public override Jwt Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) {
+            return Jwt.FromString(reader.GetString()!);
+        }
+
+        public override void Write(Utf8JsonWriter writer, Jwt value, JsonSerializerOptions options) {
             writer.WriteStringValue(value.ToString());
         }
     }

@@ -6,15 +6,17 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Nummi.Api.Filters;
-using Nummi.Core.App;
 using Nummi.Core.App.Bots;
 using Nummi.Core.App.Client;
 using Nummi.Core.App.Commands;
 using Nummi.Core.App.Queries;
 using Nummi.Core.App.Simulations;
 using Nummi.Core.App.Strategies;
+using Nummi.Core.App.Trading;
+using Nummi.Core.App.User;
 using Nummi.Core.Bridge;
 using Nummi.Core.Bridge.DotNet;
+using Nummi.Core.Bridge.Identity;
 using Nummi.Core.Config;
 using Nummi.Core.Database.Common;
 using Nummi.Core.Database.EFCore;
@@ -81,16 +83,17 @@ builder.Services.AddSingleton<IBinanceClient, BinanceClient>();
 builder.Services.AddSingleton<BinanceClientAdapter>();
 
 // Singletons
-builder.Services.AddSingleton<INummiServiceProvider, AspDotNetServiceProvider>();
+builder.Services.AddSingleton<INummiServiceProvider, DotNetServiceProvider>();
 builder.Services.AddSingleton<StrategyTemplateFactory>();
 builder.Services.AddSingleton<EventDispatcher>();
+builder.Services.AddSingleton<IJwtMinter, JwtMinter>();
 
 // Services
 builder.Services.AddScoped<CryptoDataClientLive>();
 builder.Services.AddScoped<CryptoDataClientDbProxy>();
 builder.Services.AddScoped<BlogService>();
 builder.Services.AddScoped<TradingSessionFactory>();
-builder.Services.AddScoped<INummiUserManager, AspDotNetUserManager>();
+builder.Services.AddScoped<INummiUserManager, DotNetUserManager>();
 
 // Commands
 builder.Services.AddScoped<ActivateBotCommand>();
@@ -98,8 +101,11 @@ builder.Services.AddScoped<ChangeBotStrategyCommand>();
 builder.Services.AddScoped<CreateBotCommand>();
 builder.Services.AddScoped<DeactivateBotCommand>();
 builder.Services.AddScoped<SimulateStrategyCommand>();
-builder.Services.AddScoped<ReInitializeBuiltinStrategiesCommand>();
+builder.Services.AddScoped<InitializeBuiltinStrategiesCommand>();
 builder.Services.AddScoped<InstantiateStrategyCommand>();
+builder.Services.AddScoped<ReactivateBotCommand>();
+builder.Services.AddScoped<LoginCommand>();
+builder.Services.AddScoped<RegisterCommand>();
 
 // Queries
 builder.Services.AddScoped<GetUserQuery>();

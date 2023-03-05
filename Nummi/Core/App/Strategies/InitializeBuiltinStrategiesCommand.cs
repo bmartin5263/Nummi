@@ -3,12 +3,12 @@ using Nummi.Core.Domain.Strategies;
 
 namespace Nummi.Core.App.Strategies;
 
-public class ReInitializeBuiltinStrategiesCommand {
+public class InitializeBuiltinStrategiesCommand {
     
     private IStrategyTemplateRepository StrategyTemplateRepository { get; }
     private StrategyTemplateFactory StrategyTemplateFactory { get; }
     
-    public ReInitializeBuiltinStrategiesCommand(IStrategyTemplateRepository strategyTemplateRepository, StrategyTemplateFactory strategyTemplateFactory) {
+    public InitializeBuiltinStrategiesCommand(IStrategyTemplateRepository strategyTemplateRepository, StrategyTemplateFactory strategyTemplateFactory) {
         StrategyTemplateRepository = strategyTemplateRepository;
         StrategyTemplateFactory = strategyTemplateFactory;
     }
@@ -18,11 +18,13 @@ public class ReInitializeBuiltinStrategiesCommand {
         var templates = new List<StrategyTemplate>();
         
         foreach (IStrategyLogicBuiltin logicInstance in logicInstances) {
-            if (!StrategyTemplateRepository.ExistsById(StrategyTemplateId.FromGuid(logicInstance.Id))) {
-                StrategyTemplate template = StrategyTemplateFactory.CreateBuiltinTemplate(logicInstance);
-                StrategyTemplateRepository.Add(template);
-                templates.Add(template);
+            if (StrategyTemplateRepository.ExistsById(StrategyTemplateId.FromGuid(logicInstance.Id))) {
+                continue;
             }
+            
+            StrategyTemplate template = StrategyTemplateFactory.CreateBuiltinTemplate(logicInstance);
+            StrategyTemplateRepository.Add(template);
+            templates.Add(template);
         }
 
         StrategyTemplateRepository.Commit();

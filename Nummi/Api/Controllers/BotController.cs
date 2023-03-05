@@ -29,10 +29,10 @@ public class BotController : ControllerBase {
     }
     
     public record CreateBotParametersDto {
-        public required string UserId { get; init; }
         public required string Name { get; init; }
         public required TradingMode Mode { get; init; }
         public decimal? Funds { get; init; }
+        public string? UserId { get; init; }
     }
 
     /// <summary>
@@ -41,9 +41,9 @@ public class BotController : ControllerBase {
     [Route("")]
     [HttpPost]
     public BotDto CreateBot([FromBody] CreateBotParametersDto request) {
-        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+        var userId = request.UserId ?? User.FindFirstValue(ClaimTypes.NameIdentifier)!;
         return CreateBotCommand.Execute(new CreateBotParameters {
-                UserId = IdentityId.FromString(request.UserId),
+                UserId = IdentityId.FromString(userId),
                 Name = request.Name,
                 Mode = request.Mode,
                 Funds = request.Funds
@@ -57,7 +57,7 @@ public class BotController : ControllerBase {
     }
     
     /// <summary>
-    /// Activate a Bot
+    /// Activate a Bot, causing it to start getting regularly scheduled for trading
     /// </summary>
     [Route("{botId}/activation")]
     [HttpPost]
@@ -71,7 +71,7 @@ public class BotController : ControllerBase {
     }
     
     /// <summary>
-    /// Deactivate a Bot
+    /// Deactivate a Bot, ending its trading scheduling
     /// </summary>
     [Route("{botId}/activation")]
     [HttpDelete]
@@ -80,133 +80,11 @@ public class BotController : ControllerBase {
     }
     
     /// <summary>
-    /// Clear a Bot's Error State and Reschedule It
+    /// Clear a Bot's Error State and reactivate it
     /// </summary>
     [Route("{botId}/reactivate")]
-    [HttpPatch]
+    [HttpPost]
     public void ClearBotErrorState(string botId) { 
         ReactivateBotCommand.Execute(BotId.FromString(botId));
     }
-    
-    //
-    // /// <summary>
-    // /// Get a Bot by Id
-    // /// </summary>
-    // [Route("{botId}")]
-    // [HttpGet]
-    // public BotDto GetBotById(string botId) {
-    //     return BotService
-    //         .GetBotById(botId)
-    //         .OrElseThrow(() => EntityNotFoundException<Bot>.IdNotFound(botId))
-    //         .ToDto();
-    // }
-    //
-    // /// <summary>
-    // /// Delete a Bot by Id
-    // /// </summary>
-    // [Route("{botId}")]
-    // [HttpDelete]
-    // public void DeleteBotById(string botId) {
-    //     BotService.DeleteBotById(botId);
-    // }
-    //
-    // // /// <summary>
-    // // /// Get all Bots in the DB
-    // // /// </summary>
-    // // [HttpGet]
-    // // public BotFilterResponse GetAllBots() {
-    // //     var bots = BotService
-    // //         .GetBots()
-    // //         .Select(v => v.ToDto())
-    // //         .ToList();
-    // //     
-    // //     return new BotFilterResponse(bots);
-    // // }
-    //
-    // /// <summary>
-    // /// Assign a Trading Strategy to a given Bot
-    // /// </summary>
-    // [Route("{botId}/strategy/{strategyId}")]
-    // [HttpPatch]
-    // public BotDto SetBotStrategy(string botId, string strategyId) {
-    //     return BotService
-    //         .SetBotStrategy(botId, strategyId)
-    //         .ToDto();
-    // }
-    //
-    // /// <summary>
-    // /// Clears the Error State for a given Bot
-    // /// </summary>
-    // [Route("{botId}/error")]
-    // [HttpDelete]
-    // public void ClearErrorState(string botId) {
-    //     BotService.ClearErrorState(botId);
-    // }
-    //
-    // /// <summary>
-    // /// Assigns the given Bot to a thread for executing its trading strategy
-    // /// </summary>
-    // [Route("{botId}/activate")]
-    // [HttpPut]
-    // public BotThreadDetail ActivateBot(
-    //     string botId
-    // ) {
-    //     return BotService.ActivateBot(botId);
-    // }
-    //
-    // /// <summary>
-    // /// Removes a Bot from its running thread, ending its strategy run
-    // /// </summary>
-    // [Route("{botId}/deactivate")]
-    // [HttpDelete]
-    // public BotThreadDetail DeactivateBot(
-    //     string botId
-    // ) {
-    //     return BotService.DeactivateBot(botId);
-    // }
-    
-    // /// <summary>
-    // /// Manually run one cycle of a Trading Strategy, meant for testing and debugging
-    // /// </summary>
-    // [Route("{botId}/run-strategy")]
-    // [HttpPost]
-    // public StrategyLog RunStrategy(
-    //     string botId
-    // ) {
-    //     return BotService.RunStrategy(botId);
-    // }
-    //
-    // /// <summary>
-    // /// Manually initialize a Trading Strategy, meant for testing and debugging
-    // /// </summary>
-    // [Route("{botId}/initialize-strategy")]
-    // [HttpPost]
-    // public StrategyLog InitializeStrategy(
-    //     string botId
-    // ) {
-    //     return BotService.InitializeStrategy(botId);
-    // }
-    //
-    // /// <summary>
-    // /// Runs a Bot's strategy in simulation mode
-    // /// </summary>
-    // [Route("{botId}/simulation")]
-    // [HttpPost]
-    // public string RunSimulation(
-    //     string botId,
-    //     [FromBody] SimulationParameters parameters
-    // ) {
-    //     return BotService.RunBotSimulation(botId, parameters);
-    // }
-    //
-    // /// <summary>
-    // /// Get details of a simulation run. May not be complete if the simulation hasn't finished
-    // /// </summary>
-    // [Route("simulation/{simulationId}")]
-    // [HttpPost]
-    // public SimulationDto GetSimulation(
-    //     string simulationId
-    // ) {
-    //     return BotService.GetSimulation(simulationId).ToDto();
-    // }
 }

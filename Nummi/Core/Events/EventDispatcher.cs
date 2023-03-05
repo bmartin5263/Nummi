@@ -19,11 +19,6 @@ public class EventDispatcher {
     }
 
     public void OnEvent<T>(Action<T> action) where T : IDomainEvent {
-        // IList<Delegate>? actions;
-        // if (!RegistrationMap.TryGetValue(typeof(T), out actions)) {
-        //     actions = new List<Delegate>();
-        //     RegistrationMap[typeof(T)] = actions;
-        // }
         void Proxy(object e) => action((T)e);
         var actions = RegistrationMap.GetOrInsert(typeof(T), () => new List<Action<object>>());
         actions.Add(Proxy);

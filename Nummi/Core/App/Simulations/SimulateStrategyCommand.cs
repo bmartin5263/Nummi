@@ -1,6 +1,7 @@
 using System.Text.Json;
 using NLog;
 using Nummi.Core.App.Strategies;
+using Nummi.Core.App.Trading;
 using Nummi.Core.Database.Common;
 using Nummi.Core.Domain.Crypto;
 using Nummi.Core.Domain.Simulations;

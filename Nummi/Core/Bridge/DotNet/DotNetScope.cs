@@ -1,11 +1,11 @@
 namespace Nummi.Core.Bridge.DotNet; 
 
-public class AspDotNetScope : INummiScope {
+public class DotNetScope : INummiScope {
     private INummiServiceProvider ServiceProvider { get; }
     private IServiceScope Scope { get; }
     private Dictionary<Type, object> ServiceCache { get; } = new();
 
-    public AspDotNetScope(INummiServiceProvider serviceProvider, IServiceScope scope) {
+    public DotNetScope(INummiServiceProvider serviceProvider, IServiceScope scope) {
         ServiceProvider = serviceProvider;
         Scope = scope;
     }

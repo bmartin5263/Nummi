@@ -1,5 +1,5 @@
 using JetBrains.Annotations;
-using Nummi.Core.App;
+using Nummi.Core.App.Strategies;
 
 namespace Nummi.Core.Domain.Strategies; 
 
