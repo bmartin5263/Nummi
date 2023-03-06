@@ -50,7 +50,7 @@ public class UserController : ControllerBase {
     [AllowAnonymous]
     [Route("register")]
     public async Task<IActionResult> Register([FromBody] RegisterCommandParameters args) {
-        var result = await RegisterCommand.Execute(args);
+        var result = await RegisterCommand.ExecuteAsync(args);
         if (result.Success) {
             return Ok(result);
         }

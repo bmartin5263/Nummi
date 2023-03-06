@@ -1,26 +1,19 @@
 using System.Collections.Immutable;
-using System.ComponentModel.DataAnnotations;
 using Nummi.Core.Bridge;
 using Nummi.Core.Domain.User;
 using Nummi.Core.Exceptions;
 
 namespace Nummi.Core.App.User;
 
-public record RegisterCommandParameters {
-    public required string Username { get; init; }
-    
-    [EmailAddress]
-    public required string Email { get; init; }
-    
-    public required string Password { get; init; }
-}
+public record RegisterCommandParameters(string Username, string Email, string Password);
 
 public record RegisterResponse {
     public required bool Success { get; init; }
+    public NummiUser? User { get; init; }
     public IList<string> PasswordErrors { get; init; } = ImmutableList<string>.Empty;
 
-    public static RegisterResponse Succeeded() {
-        return new RegisterResponse { Success = true };
+    public static RegisterResponse Succeeded(NummiUser user) {
+        return new RegisterResponse { Success = true, User = user };
     }
     
     public static RegisterResponse Failed(IList<string> passwordErrors) {
@@ -37,7 +30,7 @@ public class RegisterCommand {
         JwtMinter = jwtMinter;
     }
 
-    public async Task<RegisterResponse> Execute(RegisterCommandParameters args) {
+    public async Task<RegisterResponse> ExecuteAsync(RegisterCommandParameters args) {
         var userExists = UserManager.UserExists(args.Username);
         if (userExists) {
             throw new InvalidUserArgumentException($"Username {args.Username} is already taken");
@@ -48,7 +41,7 @@ public class RegisterCommand {
             throw new InvalidUserArgumentException($"Email {args.Email} is already taken");
         }
         
-        NummiUser user = new() {
+        var user = new NummiUser {
             Email = args.Email,
             SecurityStamp = Guid.NewGuid().ToString(),
             UserName = args.Username
@@ -56,7 +49,7 @@ public class RegisterCommand {
         var result = await UserManager.CreateUserAsync(user, args.Password);
         
         if (result.Succeeded) {
-            return RegisterResponse.Succeeded();
+            return RegisterResponse.Succeeded(user);
         }
         
         return RegisterResponse.Failed(result.Errors

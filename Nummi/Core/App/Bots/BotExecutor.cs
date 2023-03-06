@@ -25,7 +25,7 @@ public class BotExecutor : BackgroundService {
         UnscheduleList = new ConcurrentBag<BotId>();
         BotScheduler = new BotScheduler();
 
-        var eventDispatcher = serviceProvider.GetService<EventDispatcher>();
+        var eventDispatcher = serviceProvider.GetSingleton<EventDispatcher>();
         eventDispatcher.OnEvent<BotActivatedEvent>(OnBotActivation);
         eventDispatcher.OnEvent<BotDeactivatedEvent>(OnBotDeactivation);
     }

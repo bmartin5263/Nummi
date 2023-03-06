@@ -21,12 +21,12 @@ public class BotExecutorContext {
     public Bot? FindBot(BotId id) {
         return BotCache.GetOrInsertNullable(
             id, 
-            () => Scope.GetService<IBotRepository>().FindByIdWithStrategyAndActivation(id)
+            () => Scope.GetScoped<IBotRepository>().FindByIdWithStrategyAndActivation(id)
         );
     }
 
     public List<Bot> FindAllActiveBots() {
-        var bots = Scope.GetService<IBotRepository>().FindActiveWithStrategyAndActivation();
+        var bots = Scope.GetScoped<IBotRepository>().FindActiveWithStrategyAndActivation();
         foreach (var bot in bots) {
             BotCache[bot.Id] = bot;
         }

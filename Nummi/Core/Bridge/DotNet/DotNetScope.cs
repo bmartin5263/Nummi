@@ -1,12 +1,10 @@
 namespace Nummi.Core.Bridge.DotNet; 
 
 public class DotNetScope : INummiScope {
-    private INummiServiceProvider ServiceProvider { get; }
     private IServiceScope Scope { get; }
     private Dictionary<Type, object> ServiceCache { get; } = new();
 
-    public DotNetScope(INummiServiceProvider serviceProvider, IServiceScope scope) {
-        ServiceProvider = serviceProvider;
+    public DotNetScope(IServiceScope scope) {
         Scope = scope;
     }
 
@@ -14,12 +12,12 @@ public class DotNetScope : INummiScope {
         Scope.Dispose();
     }
 
-    public T GetService<T>() {
+    public T GetScoped<T>() where T : notnull {
         Type serviceType = typeof(T);
         if (ServiceCache.TryGetValue(serviceType, out var service)) {
             return (T) service;
         }
-        service = ServiceProvider.GetService<T>()!;
+        service = Scope.ServiceProvider.GetRequiredService<T>();
         ServiceCache[serviceType] = service;
         return (T) service;
     }

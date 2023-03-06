@@ -3,11 +3,11 @@ using Nummi.Api.Model;
 
 namespace IntegrationTests.Tests; 
 
-public class BasicTests : IntegrationTest {
+public class HttpClientTest : IntegrationTest {
     [Test]
     public async Task Get_EndpointsReturnSuccessAndCorrectContentType() {
         // Arrange
-        var client = GetClient();
+        var client = Client;
 
         // Act
         var response = await client.GetAsync("api/strategy-template");

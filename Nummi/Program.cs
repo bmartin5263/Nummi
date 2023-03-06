@@ -1,6 +1,8 @@
 using System.Reflection;
 using System.Text;
 using System.Text.Json.Serialization;
+using JavaScriptEngineSwitcher.Core;
+using JavaScriptEngineSwitcher.Jurassic;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -28,11 +30,26 @@ using Nummi.Core.External.Alpaca;
 using Nummi.Core.External.Binance;
 using Nummi.Core.External.Coinbase;
 
-namespace Nummi; 
+namespace Nummi;
+
+public record Property(int Value);
 
 public partial class Program {
     
     public static void Main(string[] args) {
+        // Create an instance of the JavaScript engine
+        using IJsEngine engine = new JurassicJsEngine();
+        
+        engine.SetVariableValue("x", new Property(22));
+
+// run the Prism.highlight() function, and set the result to the "highlighed" variable
+        engine.Execute($"highlighted = x.Value");
+
+// "extract the value of "highlighted" from JavaScript to C#
+        int result = engine.Evaluate<int>("highlighted");
+
+        Console.WriteLine(result);
+        
         var builder = WebApplication.CreateBuilder(args);
         ConfigureDatabase(builder);
         ConfigureIdentities(builder);

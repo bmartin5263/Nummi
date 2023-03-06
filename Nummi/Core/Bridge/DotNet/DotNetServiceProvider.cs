@@ -10,13 +10,13 @@ public class DotNetServiceProvider : INummiServiceProvider {
         ServiceProvider = serviceProvider;
     }
     
-    public T GetService<T>() {
+    public T GetSingleton<T>() {
         return ServiceProvider.GetService<T>()
             .OrElseThrow(() => new InvalidSystemStateException($"Missing required service of type {typeof(T).Name}"));
     }
 
     public INummiScope CreateScope() {
         var scope = ServiceProvider.CreateScope();
-        return new DotNetScope(new DotNetServiceProvider(ServiceProvider.CreateScope().ServiceProvider), scope);
+        return new DotNetScope(scope);
     }
 }

@@ -29,7 +29,7 @@ public class NummiInitializer : BackgroundService {
     protected override async Task ExecuteAsync(CancellationToken stoppingToken) {
         Log.Info("Running Nummi Initializer");
         using var scope = ServiceProvider.CreateScope();
-        var userManager = scope.GetService<INummiUserManager>();
+        var userManager = scope.GetScoped<INummiUserManager>();
         
         if (IsInitialized(userManager)) {
             Log.Info("Skipping Initialization");
@@ -69,7 +69,7 @@ public class NummiInitializer : BackgroundService {
         AssertNotFailed(await userManager.CreateUserAsync(admin, GetEnvVar(ADMIN_PASSWORD_ENV_VAR)));
         AssertNotFailed(await userManager.AssignRoleAsync(admin, RoleName.Admin.ToString()));
 
-        var initializeStrategiesCommand = scope.GetService<InitializeBuiltinStrategiesCommand>();
+        var initializeStrategiesCommand = scope.GetScoped<InitializeBuiltinStrategiesCommand>();
         initializeStrategiesCommand.Execute();
         
         Log.Info("Initialization Complete");

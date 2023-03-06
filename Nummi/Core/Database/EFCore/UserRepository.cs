@@ -32,10 +32,10 @@ public class UserRepository : GenericRepository<IdentityId, NummiUser>, IUserRep
     }
 
     public bool ExistsByUsername(string username) {
-        return Context.Users.Any(u => u.UserName == username);
+        return Context.Users.Any(u => u.NormalizedUserName == username.ToUpper());
     }
 
     public bool ExistsByEmail(string email) {
-        return Context.Users.Any(u => u.Email == email);
+        return Context.Users.Any(u => u.NormalizedEmail == email.ToUpper());
     }
 }

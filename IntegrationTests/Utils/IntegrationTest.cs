@@ -1,17 +1,35 @@
-using Microsoft.Extensions.DependencyInjection;
+using Nummi.Core.Bridge;
+using Nummi.Core.Bridge.DotNet;
 
 namespace IntegrationTests.Utils; 
 
 public class IntegrationTest {
-    private readonly CustomWebApplicationFactory webApplicationFactory;
-
-    protected IntegrationTest() {
-        webApplicationFactory = new CustomWebApplicationFactory();
+    private CustomWebApplicationFactory WebApplicationFactory { get; }
+    private INummiServiceProvider? ServiceProvider { get; set; }
+    
+    private HttpClient? client;
+    protected HttpClient Client {
+        get {
+            client ??= WebApplicationFactory.CreateClient();
+            return client;
+        }
     }
 
-    protected HttpClient GetClient() => webApplicationFactory.CreateClient();
+    protected IntegrationTest() {
+        WebApplicationFactory = new CustomWebApplicationFactory();
+    }
 
-    protected T GetService<T>() where T : notnull => webApplicationFactory.Services.GetRequiredService<T>();
+    protected T GetSingleton<T>() where T : notnull {
+        ServiceProvider ??= new DotNetServiceProvider(WebApplicationFactory.Services);
+        return ServiceProvider.GetSingleton<T>();
+    }
+
+    protected NummiTestScope CreateScope() {
+        ServiceProvider ??= new DotNetServiceProvider(WebApplicationFactory.Services);
+        return new NummiTestScope(ServiceProvider.CreateScope());
+    }
     
-    protected IServiceScope CreateScope() => webApplicationFactory.Services.CreateScope();
+    protected NummiAutoRollbackTestScope CreateAutoRollbackScope() {
+        return new NummiAutoRollbackTestScope(CreateScope());
+    }
 }

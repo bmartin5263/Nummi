@@ -4,20 +4,24 @@ using Nummi.Core.Util;
 
 namespace Nummi.Core.Database.EFCore; 
 
-public class EFCoreTransaction : ITransaction {
+public sealed class EFCoreTransaction : ITransaction {
     private static readonly Logger Log = LogManager.GetCurrentClassLogger();
 
-    private bool Disposed { get; set; }
     public object DbContext { get; }
+    public EFCoreContext EfCoreContext => (DbContext as EFCoreContext)!;
+    
+    private bool Disposed { get; set; }
+    private DateTimeOffset StartTime { get; }
 
     public EFCoreTransaction(EFCoreContext appDb) {
-        Log.Info($"-- Starting Transaction --".Yellow());
+        Log.Info($"-- Starting Transaction ({GetHashCode()}) --".Yellow());
         DbContext = appDb;
+        StartTime = DateTimeOffset.Now;
     }
     
     public void Commit() {
-        Log.Info($"-- Commit --".Green());
-        (DbContext as EFCoreContext)!.SaveChanges();
+        // Log.Info($"-- Commit --".Green());
+        EfCoreContext.SaveChanges();
     }
 
     public void SaveAndDispose() {
@@ -26,11 +30,11 @@ public class EFCoreTransaction : ITransaction {
     }
     
     public void Dispose() {
-        Log.Info($"-- Disposing --".Red());
         if (Disposed) {
             return;
         }
         Commit();
+        Log.Info($"-- Disposing ({GetHashCode()}) ({DateTimeOffset.Now - StartTime}) --".Green());
         Disposed = true;
     }
 }

@@ -23,7 +23,7 @@ public class BotThread {
     public void Execute() {
         Log.Info($"Executing Bot {BotId}");
         using var scope = ServiceProvider.CreateScope();
-        var botRepository = scope.GetService<IBotRepository>();
+        var botRepository = scope.GetScoped<IBotRepository>();
         
         Bot? bot = botRepository.FindByIdForExecution(BotId);
         if (bot == null) {
@@ -38,7 +38,7 @@ public class BotThread {
 
         Strategy strategy = bot.CurrentActivation?.Strategy!;
         
-        var sessionFactory = scope.GetService<TradingSessionFactory>();
+        var sessionFactory = scope.GetScoped<TradingSessionFactory>();
         var session = sessionFactory.CreateRealtime(bot);
 
         StrategyExecutionResult result;
