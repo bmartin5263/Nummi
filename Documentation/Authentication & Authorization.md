@@ -6,10 +6,11 @@ All subsequent API calls will include that token so Nummi can check if the user 
 ## Roles
 Nummi currently defines two roles. 
 
-| Role  | Description                        | Claims |
-|-------|------------------------------------|--------|
-| User  | The basic role that all users have |        |
-| Admin | Access to everything               |        |
+| Role    | Description                                   | Claims |
+|---------|-----------------------------------------------|--------|
+| User    | The basic role that all users have            |        |
+| Support | Elevated access meant for general maintenance |        |
+| Admin   | Access to everything                          |        |
 
 Look into Refresh Tokens, wondering if claim values are updated how will the JWT know
 
@@ -22,3 +23,10 @@ Look into Refresh Tokens, wondering if claim values are updated how will the JWT
 ## Policies
 
 ## Permissions
+CreateDynamicState - allow users to define a strategy state with dynamic properties
+
+Things that might depend on permissions and claims...
+Different javascript libraries
+Different types
+Dynamic objects
+Longer execution time
